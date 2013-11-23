@@ -130,11 +130,30 @@
         gl.useProgram(programSkybox);
     })();
 
-    gl.activeTexture(gl.TEXTURE6);
+    //gl.activeTexture(gl.TEXTURE3);
     var skyboxTex = gl.createTexture();
 
     //(function initSkybox() {
+    var cubeTexture ;
+    var cubeImage ;
 
+    initTextures();
+
+    function initTextures() {
+        cubeTexture = gl.createTexture();
+        cubeImage = new Image();
+        cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); }
+        cubeImage.src = "left.png";
+    }
+
+    function handleTextureLoaded(image, texture) {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
 	    // javaScript arrays can be of mixed types
 	    var cubeImages = [[gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "left.png"],
 	                      [gl.TEXTURE_CUBE_MAP_POSITYVE_X, "right.png"],
@@ -145,6 +164,7 @@
 	    // While a texture is bound, GL operations on the target to which it is
         // bound affect the bound texture, and queries of the target to which it
         // is bound return state from the bound texture.
+
 	    gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
 	    
 	    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -155,20 +175,21 @@
 	    for (var i = 0; i < 6; ++i) {
 		    var image = new Image();
 		    var face = cubeImages[i][0];
+
 		    image.onload = function () {
 		    	initLoadedCubeMap(skyboxTex, image, face);
 		    };
-		    image.src = cubeImages[i][1];
-	
+         image.src = cubeImages[0][1];
 	    }
 	    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
 
    // })();
 	    function initLoadedCubeMap(texture, image, face) {
-	    	gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
 	    	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+            gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
 	    	gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-	    	gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+	    	//gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
 	    }
 
     /*var dayTex = gl.createTexture();
@@ -457,6 +478,10 @@
         gl.activeTexture(gl.TEXTURE6);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
         gl.uniform1i(u_cubeTextureLocation, 6);
+/*
+        gl.activeTexture(gl.TEXTURE5);
+        gl.bindTexture(gl.TEXTURE_2D,cubeTexture );
+        gl.uniform1i(u_cubeTextureLocation, 5);*/
 
         gl.drawElements(gl.TRIANGLES, numberOfSkyboxIndices, gl.UNSIGNED_SHORT, 0);
 
