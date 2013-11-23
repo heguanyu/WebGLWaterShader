@@ -34,7 +34,7 @@ Second, the RGBA Texture will automatically clamp its data to (0,1), and the pre
 Third, it took me long to figure out the problem that renderbuffer do not work(I follow some lesson code which include this feature, and still do not understand why they need these code). Anyway, after I remove
  it ,things are going correctly.
  
-Fourth, I spent 1 hour to find out that I mistakenly write gl_Position = (position,0,0) in the vertex shader!!!! Almost rewrite every piece of code to figure out this problem! So fatal!!!
+Fourth, I spent 1 hour to find out that I mistakenly write gl_Position = (position,0,0) in the vertex shader!!!! Almost rewrite 
  
 ---
 What now and next
