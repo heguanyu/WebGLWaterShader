@@ -23,28 +23,22 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="water.html" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="water.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/water.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="129" column="21" selection-start="3455" selection-end="3455" vertical-scroll-proportion="-8.642858" vertical-offset="2209" max-vertical-offset="3344">
+            <state line="170" column="0" selection-start="4489" selection-end="4489" vertical-scroll-proportion="0.8345428" vertical-offset="2655" max-vertical-offset="3344">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="water_mesh.js" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="water_mesh.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/water_mesh.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="26" column="0" selection-start="745" selection-end="745" vertical-scroll-proportion="0.10590859" vertical-offset="399" max-vertical-offset="7429">
+            <state line="314" column="0" selection-start="9295" selection-end="9613" vertical-scroll-proportion="0.0" vertical-offset="5262" max-vertical-offset="8588">
               <folding>
-                <element signature="n#!!doc" expanded="true" />
-                <element signature="n#!!block;n#initGL#0" expanded="false" />
-                <element signature="n#!!block;n#initSimShader#0" expanded="false" />
-                <element signature="n#!!block;n#initCopyShader#0" expanded="false" />
-                <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
-                <element signature="n#!!block;n#initGrid#0" expanded="false" />
-                <element signature="n#!!block;n#initQuad#0" expanded="false" />
-                <element signature="n#!!block;n#handleTextureLoaded#0" expanded="false" />
+                <element signature="n#!!block;n#firstpass#0" expanded="false" />
+                <element signature="n#!!block;n#secondpass#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -70,8 +64,8 @@
   <component name="ProjectFrameBounds">
     <option name="x" value="-8" />
     <option name="y" value="-8" />
-    <option name="width" value="1936" />
-    <option name="height" value="1056" />
+    <option name="width" value="1616" />
+    <option name="height" value="876" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">
     <OptionsSetting value="true" id="Add" />
@@ -87,7 +81,7 @@
     <option name="STATE" value="0" />
   </component>
   <component name="ProjectView">
-    <navigator proportions="" version="1" splitterProportion="0.5">
+    <navigator currentView="ProjectPane" proportions="" version="1" splitterProportion="0.5">
       <flattenPackages />
       <showMembers />
       <showModules />
@@ -98,27 +92,31 @@
       <autoscrollFromSource />
       <sortByType />
     </navigator>
-    <panes />
+    <panes>
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="options.lastSelected" value="reference.settingsdialog.IDE.editor.colors.Console Colors" />
     <property name="recentsLimit" value="5" />
+    <property name="options.lastSelected" value="reference.settingsdialog.IDE.editor.colors.Console Colors" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../webgl-lessons/lesson16/index.html" />
     <property name="FullScreen" value="false" />
-    <property name="options.searchVisible" value="true" />
     <property name="options.splitter.details.proportions" value="0.2" />
+    <property name="options.searchVisible" value="true" />
   </component>
   <component name="RunManager">
-    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
-      <option name="VMOptions" />
-      <option name="arguments" />
-      <option name="filePath" />
-      <option name="scope" value="ALL" />
-      <option name="testName" />
-      <method />
-    </configuration>
     <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
       <option name="VMOptions" />
       <option name="arguments" />
@@ -129,15 +127,23 @@
       <option name="showConsoleOnStdOut" value="false" />
       <method />
     </configuration>
+    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
+      <option name="VMOptions" />
+      <option name="arguments" />
+      <option name="filePath" />
+      <option name="scope" value="ALL" />
+      <option name="testName" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" singleton="true" config-file="">
+      <envs />
+      <method />
+    </configuration>
     <configuration default="true" type="JSTestDriver:ConfigurationType" factoryName="JsTestDriver">
       <setting name="configLocationType" value="CONFIG_FILE" />
       <setting name="settingsFile" value="" />
       <setting name="serverType" value="INTERNAL" />
       <setting name="preferredDebugBrowser" value="CHROME" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" singleton="true" config-file="">
-      <envs />
       <method />
     </configuration>
     <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug" singleton="true">
@@ -176,14 +182,14 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="1616" height="876" extended-state="6" />
+    <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.10625" sideWeight="0.6706392" order="1" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.10625" sideWeight="0.6706392" order="1" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32936078" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
@@ -197,25 +203,6 @@
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
     </layout>
-    <layout-to-restore>
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32936078" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.10625" sideWeight="0.6706392" order="1" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-    </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -233,13 +220,7 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/../../webgl-lessons/lesson16/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="751" column="0" selection-start="29072" selection-end="29216" vertical-scroll-proportion="0.0" vertical-offset="14269" max-vertical-offset="15561">
-          <folding>
-            <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="e#11011#19883#0" expanded="false" />
-          </folding>
-        </state>
+        <state line="751" column="0" selection-start="29072" selection-end="29216" vertical-scroll-proportion="0.0" vertical-offset="14269" max-vertical-offset="15561" />
       </provider>
     </entry>
     <entry file="file://$USER_HOME$/Downloads/mrdoob-three.js-r63-0-ga3ba076/mrdoob-three.js-a3ba076/examples/webgl_buffergeometry_particles.html">
@@ -264,9 +245,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../webgl-lessons/lesson16/webgl-utils.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="45" column="2" selection-start="2072" selection-end="2072" vertical-scroll-proportion="-0.8684504" vertical-offset="1083" max-vertical-offset="2888">
-          <folding />
-        </state>
+        <state line="45" column="2" selection-start="2072" selection-end="2072" vertical-scroll-proportion="-0.8684504" vertical-offset="1083" max-vertical-offset="2888" />
       </provider>
     </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/lib/JavaScriptLanguage.jar!/com/intellij/lang/javascript/index/predefined/DOMCore.js">
@@ -306,35 +285,23 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/../../webgl-lessons/lesson16/index.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="781" column="12" selection-start="29795" selection-end="29795" vertical-scroll-proportion="1.1806674" vertical-offset="7410" max-vertical-offset="9158">
+        <state line="781" column="12" selection-start="29795" selection-end="29795" vertical-scroll-proportion="1.1806674" vertical-offset="7410" max-vertical-offset="9158" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water_mesh.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="314" column="0" selection-start="9295" selection-end="9613" vertical-scroll-proportion="0.0" vertical-offset="5262" max-vertical-offset="8588">
           <folding>
-            <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="e#11011#19883#0" expanded="false" />
+            <element signature="n#!!block;n#firstpass#0" expanded="false" />
+            <element signature="n#!!block;n#secondpass#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/water.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="129" column="21" selection-start="3455" selection-end="3455" vertical-scroll-proportion="-8.642858" vertical-offset="2209" max-vertical-offset="3344">
+        <state line="170" column="0" selection-start="4489" selection-end="4489" vertical-scroll-proportion="0.8345428" vertical-offset="2655" max-vertical-offset="3344">
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/water_mesh.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="26" column="0" selection-start="745" selection-end="745" vertical-scroll-proportion="0.10590859" vertical-offset="399" max-vertical-offset="7429">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="n#!!block;n#initGL#0" expanded="false" />
-            <element signature="n#!!block;n#initSimShader#0" expanded="false" />
-            <element signature="n#!!block;n#initCopyShader#0" expanded="false" />
-            <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
-            <element signature="n#!!block;n#initGrid#0" expanded="false" />
-            <element signature="n#!!block;n#initQuad#0" expanded="false" />
-            <element signature="n#!!block;n#handleTextureLoaded#0" expanded="false" />
-          </folding>
         </state>
       </provider>
     </entry>
