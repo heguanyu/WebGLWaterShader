@@ -23,41 +23,39 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="water.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="water.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/water.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="152" column="0" selection-start="3998" selection-end="3998" vertical-scroll-proportion="0.42807826" vertical-offset="2516" max-vertical-offset="3458">
+            <state line="152" column="3" selection-start="4013" selection-end="4013" vertical-scroll-proportion="-13.392858" vertical-offset="2513" max-vertical-offset="3686">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="water_mesh.js" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="water_mesh.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/water_mesh.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="517" column="29" selection-start="15685" selection-end="15685" vertical-scroll-proportion="0.0" vertical-offset="4686" max-vertical-offset="6840">
+            <state line="366" column="30" selection-start="10508" selection-end="10508" vertical-scroll-proportion="0.48279816" vertical-offset="4842" max-vertical-offset="8398">
               <folding>
-                <element signature="n#!!doc" expanded="true" />
                 <element signature="n#!!block;n#initGL#0" expanded="false" />
-                <element signature="n#!!block;n#getShader#0" expanded="false" />
-                <element signature="n#!!block;n#initSimShader#0" expanded="false" />
-                <element signature="n#!!block;n#initCopyShader#0" expanded="false" />
-                <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
-                <element signature="n#!!block;n#initTextureFramebuffer#0" expanded="false" />
-                <element signature="n#!!block;n#initCopyTextureFramebuffer#0" expanded="false" />
-                <element signature="n#!!block;n#translateGridCoord#0" expanded="false" />
+                <element signature="n#!!block;n#initGrid#0" expanded="false" />
                 <element signature="n#!!block;n#initQuad#0" expanded="false" />
                 <element signature="n#!!block;n#initTextures#0" expanded="false" />
                 <element signature="n#!!block;n#handleTextureLoaded#0" expanded="false" />
                 <element signature="n#!!block;n#firstpass#0" expanded="false" />
                 <element signature="n#!!block;n#secondpass#0" expanded="false" />
-                <element signature="n#!!block;n#animate#0" expanded="false" />
-                <element signature="n#!!block;n#tick#0" expanded="false" />
-                <element signature="n#!!block;n#initHeightField#0" expanded="false" />
-                <element signature="n#!!block;n#initLoadedCubeMap#0" expanded="false" />
-                <element signature="n#!!block;n#initCubeMap#0" expanded="false" />
-                <element signature="n#!!block;n#webGLStart#0" expanded="false" />
+                <element signature="n#!!block;n#updateNormal#0" expanded="false" />
+                <element signature="n#!!block;n#updateNormalMap#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="gl-matrix.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/libs/gl-matrix.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="1697" column="9" selection-start="53020" selection-end="53020" vertical-scroll-proportion="0.0" vertical-offset="32134" max-vertical-offset="65683">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -74,8 +72,8 @@
       <list>
         <option value="$PROJECT_DIR$/simplex.html" />
         <option value="$PROJECT_DIR$/../../webgl-lessons/lesson16/index.html" />
-        <option value="$PROJECT_DIR$/water_mesh.js" />
         <option value="$PROJECT_DIR$/water.html" />
+        <option value="$PROJECT_DIR$/water_mesh.js" />
       </list>
     </option>
   </component>
@@ -111,7 +109,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -132,19 +129,28 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="recentsLimit" value="5" />
     <property name="options.lastSelected" value="reference.settingsdialog.IDE.editor.colors.Console Colors" />
+    <property name="recentsLimit" value="5" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../webgl-lessons/lesson16/index.html" />
     <property name="FullScreen" value="false" />
-    <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
+    <property name="options.splitter.details.proportions" value="0.2" />
   </component>
   <component name="RunManager">
+    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
+      <option name="VMOptions" />
+      <option name="arguments" />
+      <option name="filePath" />
+      <option name="scope" value="ALL" />
+      <option name="testName" />
+      <method />
+    </configuration>
     <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
       <option name="VMOptions" />
       <option name="arguments" />
@@ -155,23 +161,15 @@
       <option name="showConsoleOnStdOut" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
-      <option name="VMOptions" />
-      <option name="arguments" />
-      <option name="filePath" />
-      <option name="scope" value="ALL" />
-      <option name="testName" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" singleton="true" config-file="">
-      <envs />
-      <method />
-    </configuration>
     <configuration default="true" type="JSTestDriver:ConfigurationType" factoryName="JsTestDriver">
       <setting name="configLocationType" value="CONFIG_FILE" />
       <setting name="settingsFile" value="" />
       <setting name="serverType" value="INTERNAL" />
       <setting name="preferredDebugBrowser" value="CHROME" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" singleton="true" config-file="">
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug" singleton="true">
@@ -246,11 +244,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/../../webgl-lessons/lesson16/index.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="751" column="0" selection-start="29072" selection-end="29216" vertical-scroll-proportion="0.0" vertical-offset="14269" max-vertical-offset="15561" />
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Downloads/mrdoob-three.js-r63-0-ga3ba076/mrdoob-three.js-a3ba076/examples/webgl_buffergeometry_particles.html">
       <provider selected="true" editor-type-id="text-editor">
         <state line="163" column="0" selection-start="3473" selection-end="3473" vertical-scroll-proportion="0.6064442" vertical-offset="2570" max-vertical-offset="3439" />
@@ -316,38 +309,34 @@
         <state line="781" column="12" selection-start="29795" selection-end="29795" vertical-scroll-proportion="1.1806674" vertical-offset="7410" max-vertical-offset="9158" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/water_mesh.js">
+    <entry file="file://$PROJECT_DIR$/libs/gl-matrix.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="517" column="29" selection-start="15685" selection-end="15685" vertical-scroll-proportion="0.0" vertical-offset="4686" max-vertical-offset="6840">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="n#!!block;n#initGL#0" expanded="false" />
-            <element signature="n#!!block;n#getShader#0" expanded="false" />
-            <element signature="n#!!block;n#initSimShader#0" expanded="false" />
-            <element signature="n#!!block;n#initCopyShader#0" expanded="false" />
-            <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
-            <element signature="n#!!block;n#initTextureFramebuffer#0" expanded="false" />
-            <element signature="n#!!block;n#initCopyTextureFramebuffer#0" expanded="false" />
-            <element signature="n#!!block;n#translateGridCoord#0" expanded="false" />
-            <element signature="n#!!block;n#initQuad#0" expanded="false" />
-            <element signature="n#!!block;n#initTextures#0" expanded="false" />
-            <element signature="n#!!block;n#handleTextureLoaded#0" expanded="false" />
-            <element signature="n#!!block;n#firstpass#0" expanded="false" />
-            <element signature="n#!!block;n#secondpass#0" expanded="false" />
-            <element signature="n#!!block;n#animate#0" expanded="false" />
-            <element signature="n#!!block;n#tick#0" expanded="false" />
-            <element signature="n#!!block;n#initHeightField#0" expanded="false" />
-            <element signature="n#!!block;n#initLoadedCubeMap#0" expanded="false" />
-            <element signature="n#!!block;n#initCubeMap#0" expanded="false" />
-            <element signature="n#!!block;n#webGLStart#0" expanded="false" />
-          </folding>
+        <state line="1697" column="9" selection-start="53020" selection-end="53020" vertical-scroll-proportion="0.0" vertical-offset="32134" max-vertical-offset="65683">
+          <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/water.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="152" column="0" selection-start="3998" selection-end="3998" vertical-scroll-proportion="0.42807826" vertical-offset="2516" max-vertical-offset="3458">
+        <state line="152" column="3" selection-start="4013" selection-end="4013" vertical-scroll-proportion="-13.392858" vertical-offset="2513" max-vertical-offset="3686">
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water_mesh.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="366" column="30" selection-start="10508" selection-end="10508" vertical-scroll-proportion="0.48279816" vertical-offset="4842" max-vertical-offset="8398">
+          <folding>
+            <element signature="n#!!block;n#initGL#0" expanded="false" />
+            <element signature="n#!!block;n#initGrid#0" expanded="false" />
+            <element signature="n#!!block;n#initQuad#0" expanded="false" />
+            <element signature="n#!!block;n#initTextures#0" expanded="false" />
+            <element signature="n#!!block;n#handleTextureLoaded#0" expanded="false" />
+            <element signature="n#!!block;n#firstpass#0" expanded="false" />
+            <element signature="n#!!block;n#secondpass#0" expanded="false" />
+            <element signature="n#!!block;n#updateNormal#0" expanded="false" />
+            <element signature="n#!!block;n#updateNormalMap#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>

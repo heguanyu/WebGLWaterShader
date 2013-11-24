@@ -23,10 +23,11 @@ var NUM_WIDTH_PTS=64;
 var NUM_HEIGHT_PTS=64;
 var starttime;
 var canvas = document.getElementById("canvas");
+
 var persp = mat4.create();
-mat4.perspective(45.0, 0.5, 0.1, 100.0, persp);
-var eye = [2.0, 1.0, 3.0];
-var center = [0.0, 0.0, 0.0];
+mat4.perspective(60, 1.0, 0.1, 1000.0, persp);
+var eye = [0.0, 6.0, 4.0];
+var center = [0.0, -2.0,2.0];
 var up = [0.0, 0.0, 1.0];
 var view = mat4.create();
 mat4.lookAt(eye, center, up, view);
@@ -349,77 +350,23 @@ function initQuad()
 var cubeTexture;
 var cubeImage;
 
-function updateNormal(index, newnormal)
-{
-    normals[index*3]=newnormal.x;
-    normals[index*3+1]=newnormal.y;
-    normals[index*3+2]=newnormal.z;
-}
 
-function updateNormalMap(w,h)
+function initHeightField(w,h)
 {
-    for(var i=0;i<w;i++) for(var j=0;j<h;j++)
+    heightfield=new Array(w);
+    velfield=new Array(w);
+
+    for(var i=0;i<w;i++)
     {
-        var useleft=true;
-        var useright=true;
-        var useup=true;
-        var usedown=true;
-        var left = i-1; if(left<0) useleft=false;
-        var right = i+1; if(right>=w) useright=false;
-        var up = j-1; if(up<0) useup=false;
-        var down = j+1; if(down>=h) usedown=false;
-
-        var count=0;
-        var leftcoord;
-        var leftPos=new Vec3(0,0,0);
-        var rightcoord,rightPos=new Vec3(0,0,0),upcoord,upPos=new Vec3(0,0,0),downcoord,downPos=new Vec3(0,0,0);
-        if(useleft)
+        heightfield[i]=new Array(h);
+        velfield[i]=new Array(h);
+        for(var j=0;j<h;j++)
         {
-            leftcoord=translateGridCoord(left,j,w);
-            leftPos=new Vec3(positions[leftcoord*3],positions[leftcoord*3+1],positions[leftcoord*3+2]);
+            heightfield[i][j]=Math.sqrt(
+                (i-w*0.3)*(i-w*0.3)/w/w+
+                (j+h*0.25)*(j+h*0.25)/h/h);
+            velfield[i][j]=0.0;
         }
-        if(useright)
-        {
-            rightcoord=translateGridCoord(right,j,w);
-            rightPos=new Vec3(positions[rightcoord*3],positions[rightcoord*3+1],positions[rightcoord*3+2]);
-        }
-        if(useup)
-        {
-            upcoord=translateGridCoord(i,up,w);
-            upPos=new Vec3(positions[upcoord*3],positions[upcoord*3+1],positions[upcoord*3+2]);
-        }
-        if(usedown)
-        {
-            downcoord=translateGridCoord(i,down,w);
-            downPos=new Vec3(positions[downcoord*3],positions[downcoord*3+1],positions[downcoord*3+2]);
-        }
-
-        var mycoord = translateGridCoord(i,j,w);
-        var myPos=new Vec3(positions[mycoord*3],positions[mycoord*3+1],positions[mycoord*3+2]);
-        var totalNormal=new Vec3(0,0,0);
-
-        if(useleft&&useup)
-        {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(leftPos,myPos),vecMinus(upPos,myPos))));
-        }
-        if(useright&&useup)
-        {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(upPos,myPos),vecMinus(rightPos,myPos))));
-        }
-        if(usedown&&useright)
-        {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(rightPos,myPos),vecMinus(downPos,myPos))));
-        }
-        if(usedown&&useleft)
-        {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(downPos,myPos),vecMinus(leftPos,myPos))));
-        }
-        totalNormal=vecMultiply(totalNormal,1.0/count);
-        updateNormal(mycoord,totalNormal);
     }
 }
 
@@ -497,6 +444,80 @@ function secondpass()
     gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
+function updateNormal(index, newnormal)
+{
+    normals[index*3]=newnormal.x;
+    normals[index*3+1]=newnormal.y;
+    normals[index*3+2]=newnormal.z;
+}
+
+function updateNormalMap(w,h)
+{
+    for(var i=0;i<w;i++) for(var j=0;j<h;j++)
+    {
+        var useleft=true;
+        var useright=true;
+        var useup=true;
+        var usedown=true;
+        var left = i-1; if(left<0) useleft=false;
+        var right = i+1; if(right>=w) useright=false;
+        var up = j-1; if(up<0) useup=false;
+        var down = j+1; if(down>=h) usedown=false;
+
+        var count=0;
+        var leftcoord;
+        var leftPos=new Vec3(0,0,0);
+        var rightcoord,rightPos=new Vec3(0,0,0),upcoord,upPos=new Vec3(0,0,0),downcoord,downPos=new Vec3(0,0,0);
+        if(useleft)
+        {
+            leftcoord=translateGridCoord(left,j,w);
+            leftPos=new Vec3(positions[leftcoord*3],positions[leftcoord*3+1],positions[leftcoord*3+2]);
+        }
+        if(useright)
+        {
+            rightcoord=translateGridCoord(right,j,w);
+            rightPos=new Vec3(positions[rightcoord*3],positions[rightcoord*3+1],positions[rightcoord*3+2]);
+        }
+        if(useup)
+        {
+            upcoord=translateGridCoord(i,up,w);
+            upPos=new Vec3(positions[upcoord*3],positions[upcoord*3+1],positions[upcoord*3+2]);
+        }
+        if(usedown)
+        {
+            downcoord=translateGridCoord(i,down,w);
+            downPos=new Vec3(positions[downcoord*3],positions[downcoord*3+1],positions[downcoord*3+2]);
+        }
+
+        var mycoord = translateGridCoord(i,j,w);
+        var myPos=new Vec3(positions[mycoord*3],positions[mycoord*3+1],positions[mycoord*3+2]);
+        var totalNormal=new Vec3(0,0,0);
+
+        if(useleft&&useup)
+        {
+            count+=1;
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(leftPos,myPos),vecMinus(upPos,myPos))));
+        }
+        if(useright&&useup)
+        {
+            count+=1;
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(upPos,myPos),vecMinus(rightPos,myPos))));
+        }
+        if(usedown&&useright)
+        {
+            count+=1;
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(rightPos,myPos),vecMinus(downPos,myPos))));
+        }
+        if(usedown&&useleft)
+        {
+            count+=1;
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(downPos,myPos),vecMinus(leftPos,myPos))));
+        }
+        totalNormal=vecMultiply(totalNormal,1.0/count);
+        updateNormal(mycoord,totalNormal);
+    }
+}
+
 function finalrender()
 {
     //This is the 3rd path that use GLSL to render the image, using rttTexture to be the height field of the wave
@@ -506,7 +527,10 @@ function finalrender()
 
     gl.useProgram(shaderProgram);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
     gl.viewport(0, 0, canvaswidth,canvasheight);
+
+    debugarea.innerHTML=canvaswidth+"  "+canvasheight;
     //gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.activeTexture(gl.TEXTURE2);
@@ -515,12 +539,15 @@ function finalrender()
 
     var model = mat4.create();
     mat4.identity(model);
-    mat4.translate(model, [-1.1, -1.0, 0.0]);
-    mat4.scale(model, [2.0, 2.0, 2.0]);
+    mat4.scale(model, [8.0, 8.0, 2.0]);
+    mat4.translate(model, [-0.5, -0.5, 0.0]);
+
     var mv = mat4.create();
     mat4.multiply(view, model, mv);
     var mvp = mat4.create();
     mat4.multiply(persp, mv, mvp);
+
+    gl.uniform3f(gl.getUniformLocation(shaderProgram, "lightPos"),  eye[0],eye[1],eye[2]);
 
     gl.uniform1f(shader_utimeloc, curtime);
     gl.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
@@ -575,7 +602,7 @@ function simulateHeightField(w,h)
                 heightfield[i][up]+
                 heightfield[i][down])*0.25-heightfield[i][j];
 
-            velfield[i][j]*=0.9999;
+            velfield[i][j]*=0.999;
         }
     }
     for(var i=0;i<w;i++)
@@ -596,68 +623,8 @@ function simulateHeightField(w,h)
     gl.bufferData(gl.ARRAY_BUFFER,normals,gl.STATIC_DRAW);
 }
 
-function initHeightField(w,h)
-{
-    heightfield=new Array(w);
-    velfield=new Array(w);
-
-    for(var i=0;i<w;i++)
-    {
-        heightfield[i]=new Array(h);
-        velfield[i]=new Array(h);
-        for(var j=0;j<h;j++)
-        {
-            heightfield[i][j]=Math.sqrt((i-w*0.5)*(i-w*0.5)/w/w+(j-h*0.5)*(j-h*0.5)/h/h);
-            velfield[i][j]=0.0;
-        }
-    }
-}
 
 var cubemapimages;
-
-
-function initLoadedCubeMap(texture, image, face) {
-
-
-    //gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-}
-
-function initCubeMap()
-{
-    skyboxTex = gl.createTexture();
-
-    var cubeImages = [
-        [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "left.png"],
-        [gl.TEXTURE_CUBE_MAP_POSITIVE_X, "right.png"],
-        [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "bottom.png"],
-        [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "top.png"],
-        [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "back.png"],
-        [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "front.png"]];
-
-
-    cubemapimages=new Array(6);
-
-    for(var i=0;i<6;i++)
-        cubemapimages[i] = new Image();
-
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-   for (var i = 0; i < 6; ++i) {
-
-        var face = cubeImages[i][0];
-       cubemapimages[i].src = "right.png";
-       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-       gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
-        debugarea.innerHTML+=face+"  "+cubemapimages[i]+ "\r\n" ;
-       gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cubemapimages[i]);
-    }
-
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-}
 
 function webGLStart() {
     starttime=new Date().getTime();
