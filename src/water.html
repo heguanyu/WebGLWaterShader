@@ -114,11 +114,14 @@
 precision mediump float;
 
   attribute vec3 position;
+  attribute vec3 normal;
+
   uniform mat4 u_modelViewPerspective;
   uniform sampler2D uSampler;
   uniform float u_time;
   varying vec2 heightfieldtexcoord;
   varying float height;
+  varying vec3 thenormal;
 
   void main(void)
   {
@@ -131,7 +134,7 @@ precision mediump float;
         gl_Position = u_modelViewPerspective * vec4(vec3(position.xy, h), 1.0);
         //gl_Position = u_modelViewPerspective * vec4(position, 1.0);
         height = h;
-
+        thenormal=normal;
   }
 </script>
 <script id="fs_render" type="x-shader/x-fragment">
@@ -141,17 +144,20 @@ precision mediump float;
 
     uniform sampler2D uSampler;
     uniform float u_time;
-varying float height;
-
+    varying float height;
+    varying vec3 thenormal;
 
   void main(void)
   {
   	vec3 outcolor=vec3(1.0);
 
   //	outcolor=vec3(0,0,1)*texture2D(uSampler, heightfieldtexcoord).z;
+
   	outcolor=vec3(0,0,1)*height;
-    gl_FragColor = vec4(outcolor, 1.0);
-    //gl_FragColor = vec4(1,0,0,1.0);
+  	outcolor=vec3(0,0,1);
+  	float diffuse = max(0.0,-dot(normalize(thenormal),normalize(vec3(0,-1.0,-1.0))));
+    gl_FragColor = vec4(outcolor*diffuse, 1.0);
+    //gl_FragColor = vec4(thenormal,1.0);
   }
 </script>
 

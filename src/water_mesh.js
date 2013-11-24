@@ -19,24 +19,17 @@
 
 var gl;
 var debugarea;
-
-var NUM_WIDTH_PTS=256;
-var NUM_HEIGHT_PTS=256;
-
+var NUM_WIDTH_PTS=64;
+var NUM_HEIGHT_PTS=64;
 var starttime;
-
 var canvas = document.getElementById("canvas");
-
-
 var persp = mat4.create();
 mat4.perspective(45.0, 0.5, 0.1, 100.0, persp);
-
 var eye = [2.0, 1.0, 3.0];
 var center = [0.0, 0.0, 0.0];
 var up = [0.0, 0.0, 1.0];
 var view = mat4.create();
 mat4.lookAt(eye, center, up, view);
-
 var heightfield;
 var velfield;
 
@@ -53,6 +46,7 @@ var simindicesbuffer;
 
 var waterfacepositionbuffer;
 var waterfaceindicesbuffer;
+var waterfacenormalbuffer;
 
 var sim_utimeloc;
 var shader_utimeloc;
@@ -68,7 +62,44 @@ var rttTexture;
 var copyFramebuffer;
 var copyTexture;
 
+var normals;
 var positions;
+
+var skyboxTex;
+function Vec3(x,y,z)
+{
+    this.x=x;
+    this.y=y;
+    this.z=z;
+}
+function vecCross(a,b)
+{
+    return new Vec3(a.y* b.z- b.y* a.z, b.x* a.z- a.x* b.z, a.x* b.y-  b.x*a.y);
+}
+function vecAdd(a,b)
+{
+    return new Vec3(a.x+ b.x, a.y+ b.y, a.z+ b.z);
+}
+function vecMinus(a,b)
+{
+    //alert(a);
+    return new Vec3(a.x- b.x, a.y- b.y, a.z- b.z);
+}
+function vecMultiply(a,b)
+{
+    return new Vec3(a.x*b, a.y*b, a.z*b);
+}
+
+function vecLength(a)
+{
+    return Math.sqrt(a.x* a.x+ a.y* a.y+ a.z* a.z);
+}
+function vecNormalize(a)
+{
+    var l=vecLength(a);
+    if(l<0.0000001) return new Vec3(0,0,0);
+    return new Vec3(a.x/l, a.y/l,a.z/l);
+}
 
 function initGL(canvas) {
     try {
@@ -179,6 +210,8 @@ function initRenderShader()
     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
+    shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
+    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
     u_modelViewPerspectiveLocation = gl.getUniformLocation(shaderProgram,"u_modelViewPerspective");
     shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
@@ -245,22 +278,33 @@ function translateGridCoord(i,j,w)
     return i+j*w;
 }
 
+
 function initGrid()
 {
     var w=NUM_WIDTH_PTS;
     var h=NUM_HEIGHT_PTS;
 
     positions = new Float32Array(w*h*3);
+    normals = new Float32Array(w*h*3);
+
     for(var i=0;i<w;i++)for(var j=0;j<h;j++)
     {
         var idx=translateGridCoord(i,j,w);
         positions[idx*3]=i/(w-1);
         positions[idx*3+1] = j/(h-1);
         positions[idx*3+2]=0.0;
+
+        normals[idx*3]=0.0;
+        normals[idx*3+1]=1.0;
+        normals[idx*3+2]=0.0;
     }
     waterfacepositionbuffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacepositionbuffer);
     gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
+
+    waterfacenormalbuffer=gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,waterfacenormalbuffer);
+    gl.bufferData(gl.ARRAY_BUFFER,normals,gl.STATIC_DRAW);
 
 
     var indices = new Uint16Array((w-1)*(h-1)*6);
@@ -304,6 +348,81 @@ function initQuad()
 
 var cubeTexture;
 var cubeImage;
+
+function updateNormal(index, newnormal)
+{
+    normals[index*3]=newnormal.x;
+    normals[index*3+1]=newnormal.y;
+    normals[index*3+2]=newnormal.z;
+}
+
+function updateNormalMap(w,h)
+{
+    for(var i=0;i<w;i++) for(var j=0;j<h;j++)
+    {
+        var useleft=true;
+        var useright=true;
+        var useup=true;
+        var usedown=true;
+        var left = i-1; if(left<0) useleft=false;
+        var right = i+1; if(right>=w) useright=false;
+        var up = j-1; if(up<0) useup=false;
+        var down = j+1; if(down>=h) usedown=false;
+
+        var count=0;
+        var leftcoord;
+        var leftPos=new Vec3(0,0,0);
+        var rightcoord,rightPos=new Vec3(0,0,0),upcoord,upPos=new Vec3(0,0,0),downcoord,downPos=new Vec3(0,0,0);
+        if(useleft)
+        {
+            leftcoord=translateGridCoord(left,j,w);
+            leftPos=new Vec3(positions[leftcoord*3],positions[leftcoord*3+1],positions[leftcoord*3+2]);
+        }
+        if(useright)
+        {
+            rightcoord=translateGridCoord(right,j,w);
+            rightPos=new Vec3(positions[rightcoord*3],positions[rightcoord*3+1],positions[rightcoord*3+2]);
+        }
+        if(useup)
+        {
+            upcoord=translateGridCoord(i,up,w);
+            upPos=new Vec3(positions[upcoord*3],positions[upcoord*3+1],positions[upcoord*3+2]);
+        }
+        if(usedown)
+        {
+            downcoord=translateGridCoord(i,down,w);
+            downPos=new Vec3(positions[downcoord*3],positions[downcoord*3+1],positions[downcoord*3+2]);
+        }
+
+        var mycoord = translateGridCoord(i,j,w);
+        var myPos=new Vec3(positions[mycoord*3],positions[mycoord*3+1],positions[mycoord*3+2]);
+        var totalNormal=new Vec3(0,0,0);
+
+        if(useleft&&useup)
+        {
+            count+=1;
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(leftPos,myPos),vecMinus(upPos,myPos))));
+        }
+        if(useright&&useup)
+        {
+            count+=1;
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(upPos,myPos),vecMinus(rightPos,myPos))));
+        }
+        if(usedown&&useright)
+        {
+            count+=1;
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(rightPos,myPos),vecMinus(downPos,myPos))));
+        }
+        if(usedown&&useleft)
+        {
+            count+=1;
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(downPos,myPos),vecMinus(leftPos,myPos))));
+        }
+        totalNormal=vecMultiply(totalNormal,1.0/count);
+        updateNormal(mycoord,totalNormal);
+    }
+}
+
 function initTextures() {
     cubeTexture = gl.createTexture();
     cubeImage = new Image();
@@ -381,6 +500,10 @@ function secondpass()
 function finalrender()
 {
     //This is the 3rd path that use GLSL to render the image, using rttTexture to be the height field of the wave
+
+
+
+
     gl.useProgram(shaderProgram);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.viewport(0, 0, canvaswidth,canvasheight);
@@ -392,8 +515,8 @@ function finalrender()
 
     var model = mat4.create();
     mat4.identity(model);
-    mat4.translate(model, [-0.5, -0.5, 0.0]);
-    mat4.scale(model, [1.0, 1.0, 1.0]);
+    mat4.translate(model, [-1.1, -1.0, 0.0]);
+    mat4.scale(model, [2.0, 2.0, 2.0]);
     var mv = mat4.create();
     mat4.multiply(view, model, mv);
     var mvp = mat4.create();
@@ -404,6 +527,10 @@ function finalrender()
 
     gl.bindBuffer(gl.ARRAY_BUFFER, waterfacepositionbuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, waterfacenormalbuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterfaceindicesbuffer);
     gl.drawElements(gl.TRIANGLES, waterfaceindicesbuffer.numitems, gl.UNSIGNED_SHORT,0);
 }
@@ -419,11 +546,10 @@ function animate()
     var nowtime=new Date().getTime();
     if(nowtime-1000>starttime)
     {
-        document.title = "WebGL Water Shader _ fps["+new Number(totalframes*1000/(new Date().getTime()-starttime)).toPrecision(3)+"]";
+        document.title = "WebGL Water Shader ["+new Number(totalframes*1000/(new Date().getTime()-starttime)).toPrecision(3)+"fps]";
         starttime=nowtime;
         totalframes=0;
     }
-
 }
 
 function tick(){
@@ -465,6 +591,9 @@ function simulateHeightField(w,h)
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacepositionbuffer);
     gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
 
+    updateNormalMap(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
+    gl.bindBuffer(gl.ARRAY_BUFFER,waterfacenormalbuffer);
+    gl.bufferData(gl.ARRAY_BUFFER,normals,gl.STATIC_DRAW);
 }
 
 function initHeightField(w,h)
@@ -483,9 +612,54 @@ function initHeightField(w,h)
         }
     }
 }
+
+var cubemapimages;
+
+
+function initLoadedCubeMap(texture, image, face) {
+
+
+    //gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+}
+
+function initCubeMap()
+{
+    skyboxTex = gl.createTexture();
+
+    var cubeImages = [
+        [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "left.png"],
+        [gl.TEXTURE_CUBE_MAP_POSITIVE_X, "right.png"],
+        [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "bottom.png"],
+        [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "top.png"],
+        [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "back.png"],
+        [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "front.png"]];
+
+
+    cubemapimages=new Array(6);
+
+    for(var i=0;i<6;i++)
+        cubemapimages[i] = new Image();
+
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+   for (var i = 0; i < 6; ++i) {
+
+        var face = cubeImages[i][0];
+       cubemapimages[i].src = "right.png";
+       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+       gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+        debugarea.innerHTML+=face+"  "+cubemapimages[i]+ "\r\n" ;
+       gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cubemapimages[i]);
+    }
+
+    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+}
+
 function webGLStart() {
-
-
     starttime=new Date().getTime();
     totalframes = 0;
     var canvas = document.getElementById("canvas1");
@@ -503,6 +677,7 @@ function webGLStart() {
     initCopyTextureFramebuffer();
     initQuad();
     initGrid();
+//    initCubeMap();
     //initTextures();
 
     gl.viewport(0,0,canvaswidth,canvasheight);
