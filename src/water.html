@@ -10,107 +10,166 @@
 <title>Water Shader</title>
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE -->
-<script id="vs_sim" type="x-shader/x-vertex">
-      attribute vec2 position;
-  uniform mat4 u_modelViewPerspective;
-  uniform float u_time;
 
-	varying float theheight;
-
-	vec3 permute(vec3 x) {
-	  x = ((x*34.0)+1.0)*x;
-	  return x - floor(x * (1.0 / 289.0)) * 289.0;
-	}
-
-	float snoise(vec2 v)
-	  {
-	  const vec4 C = vec4(0.211324865405187, 0.366025403784439,  -0.577350269189626, 0.024390243902439);
-
-	  vec2 i  = floor(v + dot(v, C.yy) );
-	  vec2 x0 = v -   i + dot(i, C.xx);
-
-	  vec2 i1;
-	  i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
-
-	  vec4 x12 = x0.xyxy + C.xxzz;
-	  x12.xy -= i1;
-
-	  i = i - floor(i * (1.0 / 289.0)) * 289.0;
-
-	  vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
-	        + i.x + vec3(0.0, i1.x, 1.0 ));
-
-	  vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
-	  m = m*m ;
-	  m = m*m ;
-
-	  vec3 x = 2.0 * fract(p * C.www) - 1.0;
-	  vec3 h = abs(x) - 0.5;
-	  vec3 ox = floor(x + 0.5);
-	  vec3 a0 = x - ox;
-
-	  m *= inversesqrt( a0*a0 + h*h );
-
-	  vec3 g;
-	  g.x  = a0.x  * x0.x  + h.x  * x0.y;
-	  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
-	  return 130.0 * dot(m, g);
-	}
+  <script id="vs_copy" type="x-shader/x-vertex">
+  attribute vec2 position;
+  varying vec2 f_Pos;
+  void main(void)
+  {
+        f_Pos = position.xy;
+		gl_Position= vec4(position*2.0-vec2(1.0),0,1.0);
+  }
+</script>
+<script id="fs_copy" type="x-shader/x-fragment">
+   precision mediump float;
+   varying vec2 f_Pos;
+   uniform sampler2D uSampler;
+   uniform float u_time;
 
   void main(void)
   {
-		vec2 simplexVec = vec2(u_time, position);
-		float s_contrib = snoise(simplexVec);
-		float t_contrib = snoise(vec2(s_contrib,u_time));
+    vec3 color=texture2D(uSampler,f_Pos).xyz;
+	gl_FragColor = vec4(color,1.0);
+  }
+</script>
+<script id="vs_sim" type="x-shader/x-vertex">
+    precision mediump float;
+    attribute vec2 position;
+    varying vec2 f_Pos;
+  void main(void)
+  {
 
-		float height = s_contrib*t_contrib;
-		theheight=height;
-		vec2 offsetpos=position*2.0-vec2(1.0);
-
-		theheight=sqrt((offsetpos.x*offsetpos.x+offsetpos.y*offsetpos.y)/2.0);
-		gl_Position = u_modelViewPerspective * vec4(vec3(position, theheight), 1.0);
-		gl_Position = vec4(offsetpos,theheight,1.0);
+        f_Pos = position;
+		gl_Position= vec4(position,0,1.0);
   }
 </script>
 <script id="fs_sim" type="x-shader/x-fragment">
    precision mediump float;
-    varying float theheight;
+    uniform sampler2D uSampler;
+    uniform float u_time;
+    varying vec2 f_Pos;
 
+  float isValid(vec2 texcoord)
+  {
+    if(texcoord.x<0.0) return 0.0;
+    if(texcoord.y<0.0) return 0.0;
+    if(texcoord.x>1.0) return 0.0;
+    if(texcoord.y>1.0) return 0.0;
+    return 1.0;
+  }
+  vec2 adjustTexcoord(vec2 texcoord)
+  {
+    vec2 result = texcoord;
+    if(result.x<0.0) result.x=0.0;
+    if(result.y<0.0) result.y=0.0;
+    if(result.x>1.0) result.x=1.0;
+    if(result.y>1.0) result.y=1.0;
+    return result;
+  }
+  float getAverage(sampler2D samp, vec2 texcoord)
+  {
+    int count = 0;
+    float delta=1.0/256.0;
+    vec2 upcoord = adjustTexcoord(texcoord + vec2(0,delta));
+    vec2 downcoord =adjustTexcoord( texcoord - vec2(0,delta));
+    vec2 leftcoord = adjustTexcoord(texcoord + vec2(delta,0));
+    vec2 rightcoord =adjustTexcoord( texcoord - vec2(delta,0));
+    float totalz=0.0;
+    if(isValid(upcoord)>0.5)
+    { count+=1; totalz+=texture2D(samp,upcoord).z;}
+    if(isValid(downcoord)>0.5)
+    { count+=1; totalz+=texture2D(samp,downcoord).z;}
+    if(isValid(leftcoord)>0.5)
+    { count+=1; totalz+=texture2D(samp,leftcoord).z;}
+    if(isValid(rightcoord)>0.5)
+    { count+=1; totalz+=texture2D(samp,rightcoord).z;}
+    if(count==0) return 0.0;
+    return totalz/float(count);
+  }
   void main(void)
   {
-  	vec3 outcolor=vec3(0.0,1.0,0.0)*(1.0-theheight)*0.5+vec3(0.0,0.0,1.0)*(theheight+0.1)*0.5;
-		gl_FragColor = vec4(outcolor, 1.0);
+
+    vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
+
+
+    float height=0.0;
+    float heightaround=0.0;
+    float vel=0.0;
+    if(u_time<0.015)
+    {
+        height = (1.0-length(f_Pos))*1.01;
+    }
+    else{
+        vec2 vel_h=texture2D(uSampler, texcoord).yz;
+        height=vel_h.y;
+        heightaround =getAverage(uSampler, texcoord);
+         vel = vel_h.x;
+        vel += (heightaround-height)*0.99;
+        height = height+vel;
+    }
+	gl_FragColor = vec4(0,vel,height,1.0);
   }
 </script>
 <script id="vs_render" type="x-shader/x-vertex">
-  attribute vec2 position;
-  uniform mat4 u_modelViewPerspective;
-  uniform float u_time;
-  uniform sampler2D uSampler;
+precision mediump float;
 
+  attribute vec3 position;
+  attribute vec3 normal;
+
+  uniform mat4 u_modelViewPerspective;
+  uniform sampler2D uSampler;
+  uniform float u_time;
   varying vec2 heightfieldtexcoord;
-  varying vec3 fColor;
+  varying float height;
+  varying vec3 thenormal;
+  varying vec3 theposition;
 
   void main(void)
   {
-		vec2 offsetpos=position*2.0-vec2(1.0);
-        heightfieldtexcoord=position;
-        fColor=texture2D(uSampler, position).xyz;
-        gl_Position = u_modelViewPerspective * vec4(vec3(position, fColor.y), 1.0);
+
+		vec2 offsetpos=position.xy*2.0-vec2(1.0);
+        heightfieldtexcoord=position.xy;
+        float h = texture2D(uSampler,heightfieldtexcoord).z;
+
+        h=position.z;
+        gl_Position = u_modelViewPerspective * vec4(vec3(position.xy, h), 1.0);
+        height = h;
+        thenormal=normal;
+        theposition=position;
   }
 </script>
 <script id="fs_render" type="x-shader/x-fragment">
     precision mediump float;
 
 	varying vec2 heightfieldtexcoord;
-	varying vec3 fColor;
-    uniform sampler2D uSampler;
 
+    uniform vec3 lightPos;
+    uniform sampler2D uSampler;
+    uniform float u_time;
+    varying float height;
+    varying vec3 thenormal;
+    varying vec3 theposition;
   void main(void)
   {
-  	vec3 outcolor=texture2D(uSampler, heightfieldtexcoord).xyz;
-    gl_FragColor = vec4(fColor, 1.0);
+  	vec3 outcolor=vec3(1.0);
 
+  //	outcolor=vec3(0,0,1)*texture2D(uSampler, heightfieldtexcoord).z;
+
+  	//outcolor=vec3(0,0,1.0)*height;
+    vec3 light1=vec3(0.95,0.75,0.45);
+    vec3 light2=vec3(92.0,162.0,206.0)/255.0;
+    vec3 incidentdir = normalize(vec3(0.0,-80.0,90.0)-theposition);
+    vec3 standardnormal = normalize(thenormal);
+    vec3 reflectiondir = normalize(2.0*standardnormal*dot(incidentdir,standardnormal)-incidentdir);
+    vec3 eyepos = lightPos;
+
+  	float specular1 = pow(max(0.01,dot(normalize(eyepos-theposition),reflectiondir)),2000.0);
+
+  	float diffuse2 = max(0.0,-dot(standardnormal,normalize(vec3(0.0,0.0,-1.0))));
+
+    outcolor = 3.0*specular1*light1+1.0*diffuse2*light2;
+    gl_FragColor = vec4(outcolor, 1.0);
+    //gl_FragColor = vec4(thenormal,1.0);
   }
 </script>
 
@@ -118,10 +177,11 @@
 </head>
 
 <body onload="webGLStart();">
+
 <p style="font-size:30px">This is WebGL water shader</p>
-<a href="index.html">Go Back to Main Page</a></br>
 <div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
-<canvas id="canvas" style="border: none;" width="256" height="256" tabindex="1"></canvas>
+<div id = "debug_text"></div>
+<canvas id="canvas1" style="border: none;" width="1024" height="1024" tabindex="1"></canvas>
 
 </body>
 
