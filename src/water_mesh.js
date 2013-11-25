@@ -182,7 +182,6 @@ function initSkyboxShader() {
 var skyboxTex;
 
 function initSkyboxTex() {
-	
 	skyboxTex = gl.createTexture();	
     // javaScript arrays can be of mixed types
     var cubeImages = [[gl.TEXTURE_CUBE_MAP_POSITIVE_X, "desertsky_ft.png"],
@@ -285,6 +284,7 @@ function intializeSkybox() {
 
 
 function drawSkybox(){
+
 	gl.useProgram(programSkybox);
 
     // enable attributes for this program
