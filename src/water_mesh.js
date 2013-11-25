@@ -7,7 +7,8 @@
 //////   IN UNIVERSITY OF PENNSYLVANIA UNLESS SPECIAL AUTHORIZATION.
 //////
 //////   CONTACT INFO: heguanyu9037@gmail.com
-//////
+//////       		   wuhao1117@gmail.com
+//////        
 ////////////////FILE INFO ///////////////////////////////
 //////   THIS IS THE MAIN FILE OF THE WATER RENDERING
 //////   INCLUDING THE SETUP OF THE 3 PASSES IN RENDERING
@@ -136,7 +137,15 @@ function sphericalToCartesian(r, azimuth, zenith) {
     var z = r * Math.cos(zenith);
 
     return [x, y, z];
-}
+ }
+/*function sphericalToCartesian(r, azimuth, zenith) {
+    var x = r * Math.sin(zenith) * Math.sin(azimuth);
+    var y = r * Math.cos(zenith);
+    var z = r * Math.sin(zenith) * Math.cos(azimuth);
+
+    return [x, y, z];
+
+}*/
 ////////////////////////////////////////skybox program/////////////////////////////////
 var programSkybox;
 
@@ -176,12 +185,12 @@ function initSkyboxTex() {
 	
 	skyboxTex = gl.createTexture();	
     // javaScript arrays can be of mixed types
-    var cubeImages = [[gl.TEXTURE_CUBE_MAP_POSITIVE_X, "right.png"],
-                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "left.png"],
-                      [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "top.png"],
-                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "bottom.png"],
-                      [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "front.png"],
-                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "back.png"]];
+    var cubeImages = [[gl.TEXTURE_CUBE_MAP_POSITIVE_X, "desertsky_ft.png"],
+                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "desertsky_bk.png"],
+                      [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "desertsky_up.png"],
+                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "desertsky_dn.png"],
+                      [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "desertsky_rt.png"],
+                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "desertsky_lf.png"]];
 
     // While a texture is bound, GL operations on the target to which it is
     // bound affect the bound texture, and queries of the target to which it
@@ -879,7 +888,7 @@ function webGLStart() {
     gl.enable(gl.DEPTH_TEST);
 
     persp = mat4.create();
-    mat4.perspective(45.0, canvas.width / canvas.height, 0.1, 100.0, persp);
+    mat4.perspective(45.0, canvas.width / canvas.height, 0.1, 200.0, persp);
     
     eye = sphericalToCartesian(radius, azimuth, zenith);   
     view = mat4.create();
