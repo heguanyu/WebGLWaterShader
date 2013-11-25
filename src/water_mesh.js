@@ -79,7 +79,7 @@ var radius = 35.0;
 var azimuth = Math.PI / 2.0;
 var zenith = Math.PI / 2.5;
 
-var center = [0.0, 0.0, 0.0];
+var center = [0.0, 5.0, 0.0];
 var up = [0.0, 1.0, 0.0];
 
 var persp;
@@ -122,7 +122,7 @@ function handleMouseMove(event) {
     }
     else {
         radius += 0.01 * deltaY;
-        radius = Math.min(Math.max(radius, 2.0), 19.0);
+        radius = Math.min(Math.max(radius, 2.0), 100.0);
     }
     eye = sphericalToCartesian(radius, azimuth, zenith);
     view = mat4.create();
@@ -615,16 +615,20 @@ function initHeightField(w,h)
         }
     }
 
-    for(var stepsize=32;stepsize>=2.0;stepsize/=4.0)
+    for(var stepsize=64;stepsize>=1.0;stepsize/=16.0)
     {
 
         for(var i=0;i<w;i+=stepsize)
         {
             for(var j=0;j<h;j+=stepsize)
             {
-                var temp=Math.random()*stepsize/64.0;
+                var temp=Math.random()*stepsize/32.0;
                 for(var x=i;x<i+stepsize;x++)for(var y=j;y<j+stepsize;y++)
-                    heightfield[x][y]+=temp;
+                {
+                    var c1=Math.cos((x-i-stepsize*0.5)/stepsize*(Math.PI*0.5));
+                    var c2=Math.cos((y-j-stepsize*0.5)/stepsize*(Math.PI*0.5));
+                    heightfield[x][y]+=c1*c2*temp;
+                }
             }
         }
     }
