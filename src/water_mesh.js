@@ -75,11 +75,11 @@ var lastMouseX = null;
 var lastMouseY = null;
 
 var radius = 15.0;
-var azimuth = Math.PI / 4.0;
-var zenith = Math.PI / 4.0;
+var azimuth = Math.PI / 2.0;
+var zenith = Math.PI / 2.5;
 
 var center = [0.0, 0.0, 0.0];
-var up = [0.0, 0.0, 1.0];
+var up = [0.0, 1.0, 0.0];
 
 var persp;
 var eye;
@@ -130,22 +130,22 @@ function handleMouseMove(event) {
     lastMouseX = newX;
     lastMouseY = newY;
 }
-
+/*
 function sphericalToCartesian(r, azimuth, zenith) {
 	var x = r * Math.sin(zenith) * Math.cos(azimuth);
     var y = r * Math.sin(zenith) * Math.sin(azimuth);    
     var z = r * Math.cos(zenith);
 
     return [x, y, z];
- }
-/*function sphericalToCartesian(r, azimuth, zenith) {
+ }*/
+function sphericalToCartesian(r, azimuth, zenith) {
     var x = r * Math.sin(zenith) * Math.sin(azimuth);
     var y = r * Math.cos(zenith);
     var z = r * Math.sin(zenith) * Math.cos(azimuth);
 
     return [x, y, z];
 
-}*/
+}
 ////////////////////////////////////////skybox program/////////////////////////////////
 var programSkybox;
 
@@ -535,12 +535,15 @@ function initGrid()
     {
         var idx=translateGridCoord(i,j,w);
         positions[idx*3]=i/(w-1);
-        positions[idx*3+1] = j/(h-1);
-        positions[idx*3+2]=0.0;
+
+
+        positions[idx*3+1]=0.0;
+        ////Y is up
+        positions[idx*3+2] = j/(h-1);
 
         normals[idx*3]=0.0;
-        normals[idx*3+1]=1.0;
-        normals[idx*3+2]=0.0;
+        normals[idx*3+1]=0.0;
+        normals[idx*3+2]=1.0;
     }
     waterfacepositionbuffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacepositionbuffer);
@@ -606,8 +609,8 @@ function initHeightField(w,h)
         for(var j=0;j<h;j++)
         {
             heightfield[i][j]=Math.sqrt(
-                (i-w*0.3)*(i-w*0.3)/w/w+
-                (j+h*0.25)*(j+h*0.25)/h/h);
+                (i-w*0.5)*(i-w*0.5)/w/w+
+                (j-h*0.5)*(j-h*0.5)/h/h);
             velfield[i][j]=0.0;
         }
     }
@@ -690,7 +693,7 @@ function secondpass()
 function updateNormal(index, newnormal)
 {
     normals[index*3]=newnormal.x;
-    normals[index*3+1]=newnormal.y;
+    normals[index*3+1]=-newnormal.y;
     normals[index*3+2]=newnormal.z;
 }
 
@@ -778,8 +781,8 @@ function finalrender()
 
     var model = mat4.create();
     mat4.identity(model);
-    mat4.scale(model, [8.0, 8.0, 2.0]);
-    mat4.translate(model, [-0.5, -0.5, 0.0]);
+    mat4.scale(model, [18.0, 5.0, 18.0]);
+    mat4.translate(model, [-0.5, 0.0, -0.5]);
 
     var mv = mat4.create();
     mat4.multiply(view, model, mv);
@@ -856,7 +859,9 @@ function simulateHeightField(w,h)
         {
             heightfield[i][j]+=velfield[i][j];
             var idx=translateGridCoord(i,j,w);
-            positions[idx*3+2]=heightfield[i][j];
+
+            ///Y is up
+            positions[idx*3+1]=heightfield[i][j];
             //positions[idx*3+2]=0.0;
         }
     }

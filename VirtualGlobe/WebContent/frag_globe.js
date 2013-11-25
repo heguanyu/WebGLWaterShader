@@ -90,6 +90,69 @@ function initializeShader() {
 
 var skyboxTex;
 
+<<<<<<< HEAD:VirtualGlobe/WebContent/frag_globe.js
+    //gl.activeTexture(gl.TEXTURE3);
+    var skyboxTex = gl.createTexture();
+
+    //(function initSkybox() {
+    var cubeTexture ;
+    var cubeImage ;
+
+    initTextures();
+
+    function initTextures() {
+        cubeTexture = gl.createTexture();
+        cubeImage = new Image();
+        cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); }
+        cubeImage.src = "left.png";
+    }
+
+    function handleTextureLoaded(image, texture) {
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+	    // javaScript arrays can be of mixed types
+	    var cubeImages = [[gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "left.png"],
+	                      [gl.TEXTURE_CUBE_MAP_POSITYVE_X, "right.png"],
+	                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "bottom.png"],
+	                      [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "top.png"],
+	                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "back.png"],
+	                      [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "front.png"]];
+	    // While a texture is bound, GL operations on the target to which it is
+        // bound affect the bound texture, and queries of the target to which it
+        // is bound return state from the bound texture.
+
+	    gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+	    
+	    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	
+	    for (var i = 0; i < 6; ++i) {
+		    var image = new Image();
+		    var face = cubeImages[i][0];
+
+		    image.onload = function () {
+		    	initLoadedCubeMap(skyboxTex, image, face);
+		    };
+         image.src = cubeImages[0][1];
+	    }
+	    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+
+   // })();
+	    function initLoadedCubeMap(texture, image, face) {
+
+	    	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+            gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+	    	gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	    	//gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+	    }
+=======
 function initSkyboxTex() {
 	
 	skyboxTex = gl.createTexture();	
@@ -142,6 +205,7 @@ function initSkyboxTex() {
         };*/
         image.src = cubeImages[i][1];
     }
+>>>>>>> cfa1bf94b6d6f4f7fd31c4efe6066c9e3b2ba840:Virtual Globe/WebContent/frag_globe.js
 
 }
 
@@ -361,6 +425,21 @@ function handleMouseMove(event) {
     var deltaX = newX - lastMouseX;
     var deltaY = newY - lastMouseY;
 
+<<<<<<< HEAD:VirtualGlobe/WebContent/frag_globe.js
+        gl.uniformMatrix4fv(u_skyboxViewLocation, false, view);
+        //gl.uniformMatrix4fv(u_ModelViewInverseLocation, false, modelViewMatrixInverse);
+        gl.uniformMatrix4fv(u_skyboxPerspLocation, false, persp);
+        gl.uniformMatrix4fv(u_skyboxInvTransLocation, false, invTrans);
+        gl.uniform3fv(u_CameraSpaceLightPosLocation, lightPos);
+        
+        gl.activeTexture(gl.TEXTURE6);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+        gl.uniform1i(u_cubeTextureLocation, 6);
+/*
+        gl.activeTexture(gl.TEXTURE5);
+        gl.bindTexture(gl.TEXTURE_2D,cubeTexture );
+        gl.uniform1i(u_cubeTextureLocation, 5);*/
+=======
     if (mouseLeftDown) {
         azimuth -= 0.01 * deltaX;
         zenith -= 0.01 * deltaY;
@@ -373,6 +452,7 @@ function handleMouseMove(event) {
     eye = sphericalToCartesian(radius, azimuth, zenith);
     view = mat4.create();
     mat4.lookAt(eye, center, up, view);
+>>>>>>> cfa1bf94b6d6f4f7fd31c4efe6066c9e3b2ba840:Virtual Globe/WebContent/frag_globe.js
 
     lastMouseX = newX;
     lastMouseY = newY;

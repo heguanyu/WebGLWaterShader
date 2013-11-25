@@ -212,11 +212,28 @@
 
 	uniform samplerCube u_cubeTexture;
 
+<<<<<<< HEAD:VirtualGlobe/WebContent/index.html
+//uniform sampler2D u_cubeTexture;
+    varying vec3 v_Normal;              // surface normal in camera coordinates
+    varying vec2 v_Texcoord;
+    varying vec3 v_Position;      
+    
+    void main(void)
+    {
+		vec4 color = textureCube(u_cubeTexture, v_Position);
+		//vec4 color = texture2D(u_cubeTexture, v_Position.xy);
+        vec3 L = normalize(u_CameraSpaceLightPos - v_Position);
+        vec3 normal = normalize(v_Normal);
+        float diffuse = clamp(dot(L, normal), 0.0, 1.0);
+        gl_FragColor = vec4(diffuse*vec3(1.0), 1.0);
+		gl_FragColor = color;
+=======
     varying vec3 v_Texcoord;
     
     void main(void)
     {
 		gl_FragColor = textureCube(u_cubeTexture, v_Texcoord);
+>>>>>>> cfa1bf94b6d6f4f7fd31c4efe6066c9e3b2ba840:Virtual Globe/WebContent/index.html
     }    
 </script>
 <script>
