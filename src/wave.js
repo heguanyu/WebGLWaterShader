@@ -1,10 +1,14 @@
-const var A = 1e-7;
-
 const var meshSize = 256;
 const var spectrumW = meshSize + 4;
 const var spectrumH = meshSize + 1;
 
+//simulation parameters
+const var g = 9.81;              // gravitational constant
+const var A = 1e-7;              // wave scale factor
 const var patchSize = 100;        // patch size
+var windSpeed = 100.0;
+var windDir = Math.PI/3.0;
+var dirDepend = 0.07;
 
 function gauss()
 {

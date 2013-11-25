@@ -614,10 +614,12 @@ function initHeightField(w,h)
             heightfield[i][j]=Math.sqrt(
                 (i-w*0.5)*(i-w*0.5)/w/w+
                 (j-h*0.5)*(j-h*0.5)/h/h);
+        	//heightfield[i][j] = Math.random();
             velfield[i][j]=0.0;
         }
     }
 }
+
 
 function initTextures() {
     cubeTexture = gl.createTexture();
