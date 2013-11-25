@@ -615,18 +615,18 @@ function initHeightField(w,h)
         }
     }
 
-    for(var stepsize=64;stepsize>=1.0;stepsize/=16.0)
+    for(var stepsize=64;stepsize>=1.0;stepsize/=4.0)
     {
 
         for(var i=0;i<w;i+=stepsize)
         {
             for(var j=0;j<h;j+=stepsize)
             {
-                var temp=Math.random()*stepsize/32.0;
-                for(var x=i;x<i+stepsize;x++)for(var y=j;y<j+stepsize;y++)
+                var temp=Math.random()*stepsize/64.0;
+                    for(var x=i;x<i+stepsize;x++)for(var y=j;y<j+stepsize;y++)
                 {
-                    var c1=Math.cos((x-i-stepsize*0.5)/stepsize*(Math.PI*0.5));
-                    var c2=Math.cos((y-j-stepsize*0.5)/stepsize*(Math.PI*0.5));
+                    var c1=Math.cos((x-i-stepsize*0.5)/stepsize*(Math.PI));
+                    var c2=Math.cos((y-j-stepsize*0.5)/stepsize*(Math.PI));
                     heightfield[x][y]+=c1*c2*temp;
                 }
             }
@@ -800,7 +800,7 @@ function finalrender()
     var model = mat4.create();
     mat4.identity(model);
     mat4.scale(model, [128.0, 15.0, 128.0]);
-    mat4.translate(model, [-0.5, 0.0, -0.5]);
+    mat4.translate(model, [-0.5, -0.0, -0.5]);
 
     var mv = mat4.create();
     mat4.multiply(view, model, mv);
