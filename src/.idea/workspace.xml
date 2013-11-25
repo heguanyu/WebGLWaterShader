@@ -23,22 +23,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="water_mesh.js" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="water_mesh.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/water_mesh.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="461" column="132" selection-start="13930" selection-end="13970" vertical-scroll-proportion="-11.6" vertical-offset="8127" max-vertical-offset="16777">
-              <folding>
-                <element signature="n#!!block;n#firstpass#0" expanded="false" />
-                <element signature="n#!!block;n#secondpass#0" expanded="false" />
-              </folding>
+            <state line="853" column="16" selection-start="26647" selection-end="26647" vertical-scroll-proportion="1.2786697" vertical-offset="14750" max-vertical-offset="17841">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="water.html" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="water.html" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/water.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="176" column="22" selection-start="4735" selection-end="4735" vertical-scroll-proportion="0.43728423" vertical-offset="2964" max-vertical-offset="4769">
+            <state line="178" column="0" selection-start="4844" selection-end="4844" vertical-scroll-proportion="1.3571428" vertical-offset="3420" max-vertical-offset="4769">
               <folding />
             </state>
           </provider>
@@ -54,8 +51,8 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/water_mesh.js" />
         <option value="$PROJECT_DIR$/water.html" />
+        <option value="$PROJECT_DIR$/water_mesh.js" />
       </list>
     </option>
   </component>
@@ -145,9 +142,9 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
     </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
@@ -164,11 +161,22 @@
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
+        <state line="461" column="132" selection-start="13930" selection-end="13970" vertical-scroll-proportion="0.0" vertical-offset="8759" max-vertical-offset="18107">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="176" column="22" selection-start="4735" selection-end="4735" vertical-scroll-proportion="0.0" vertical-offset="2964" max-vertical-offset="4769">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water_mesh.js">
+      <provider selected="true" editor-type-id="text-editor">
         <state line="85" column="9" selection-start="1923" selection-end="1923" vertical-scroll-proportion="0.0" vertical-offset="1615" max-vertical-offset="17366">
-          <folding>
-            <element signature="n#!!block;n#firstpass#0" expanded="false" />
-            <element signature="n#!!block;n#secondpass#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -182,10 +190,7 @@
     <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="616" column="1" selection-start="18656" selection-end="18656" vertical-scroll-proportion="0.0" vertical-offset="11704" max-vertical-offset="17366">
-          <folding>
-            <element signature="n#!!block;n#firstpass#0" expanded="false" />
-            <element signature="n#!!block;n#secondpass#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -199,10 +204,7 @@
     <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="695" column="24" selection-start="21195" selection-end="21195" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="17708">
-          <folding>
-            <element signature="n#!!block;n#firstpass#0" expanded="false" />
-            <element signature="n#!!block;n#secondpass#0" expanded="false" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -213,19 +215,16 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/water_mesh.js">
+    <entry file="file://$PROJECT_DIR$/water.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="461" column="132" selection-start="13930" selection-end="13970" vertical-scroll-proportion="-11.6" vertical-offset="8127" max-vertical-offset="16777">
-          <folding>
-            <element signature="n#!!block;n#firstpass#0" expanded="false" />
-            <element signature="n#!!block;n#secondpass#0" expanded="false" />
-          </folding>
+        <state line="178" column="0" selection-start="4844" selection-end="4844" vertical-scroll-proportion="1.3571428" vertical-offset="3420" max-vertical-offset="4769">
+          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/water.html">
+    <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="176" column="22" selection-start="4735" selection-end="4735" vertical-scroll-proportion="0.43728423" vertical-offset="2964" max-vertical-offset="4769">
+        <state line="853" column="16" selection-start="26647" selection-end="26647" vertical-scroll-proportion="1.2786697" vertical-offset="14750" max-vertical-offset="17841">
           <folding />
         </state>
       </provider>
