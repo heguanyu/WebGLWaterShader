@@ -79,7 +79,7 @@ var azimuth = Math.PI / 4.0;
 var zenith = Math.PI / 4.0;
 
 var center = [0.0, 0.0, 0.0];
-var up = [0.0, 0.0, 1.0];
+var up = [0.0, 1.0, 0.0];
 
 var persp;
 var eye;
@@ -535,12 +535,15 @@ function initGrid()
     {
         var idx=translateGridCoord(i,j,w);
         positions[idx*3]=i/(w-1);
-        positions[idx*3+1] = j/(h-1);
-        positions[idx*3+2]=0.0;
+
+
+        positions[idx*3+1]=0.0;
+        ////Y is up
+        positions[idx*3+2] = j/(h-1);
 
         normals[idx*3]=0.0;
-        normals[idx*3+1]=1.0;
-        normals[idx*3+2]=0.0;
+        normals[idx*3+1]=0.0;
+        normals[idx*3+2]=1.0;
     }
     waterfacepositionbuffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacepositionbuffer);
@@ -690,7 +693,7 @@ function secondpass()
 function updateNormal(index, newnormal)
 {
     normals[index*3]=newnormal.x;
-    normals[index*3+1]=newnormal.y;
+    normals[index*3+1]=-newnormal.y;
     normals[index*3+2]=newnormal.z;
 }
 
@@ -778,8 +781,8 @@ function finalrender()
 
     var model = mat4.create();
     mat4.identity(model);
-    mat4.scale(model, [8.0, 8.0, 2.0]);
-    mat4.translate(model, [-0.5, -0.5, 0.0]);
+    mat4.scale(model, [8.0, 2.0, 8.0]);
+    mat4.translate(model, [-0.5, 0.0, -0.5]);
 
     var mv = mat4.create();
     mat4.multiply(view, model, mv);
@@ -856,7 +859,9 @@ function simulateHeightField(w,h)
         {
             heightfield[i][j]+=velfield[i][j];
             var idx=translateGridCoord(i,j,w);
-            positions[idx*3+2]=heightfield[i][j];
+
+            ///Y is up
+            positions[idx*3+1]=heightfield[i][j];
             //positions[idx*3+2]=0.0;
         }
     }
