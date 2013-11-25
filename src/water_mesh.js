@@ -74,7 +74,7 @@ var mouseRightDown = false;
 var lastMouseX = null;
 var lastMouseY = null;
 
-var radius = 15.0;
+var radius = 35.0;
 var azimuth = Math.PI / 2.0;
 var zenith = Math.PI / 2.5;
 
@@ -121,7 +121,7 @@ function handleMouseMove(event) {
     }
     else {
         radius += 0.01 * deltaY;
-        radius = Math.min(Math.max(radius, 2.0), 19.0);
+        radius = Math.min(Math.max(radius, 2.0), 50.0);
     }
     eye = sphericalToCartesian(radius, azimuth, zenith);
     view = mat4.create();
@@ -531,20 +531,23 @@ function initGrid()
     positions = new Float32Array(w*h*3);
     normals = new Float32Array(w*h*3);
 
-    for(var i=0;i<w;i++)for(var j=0;j<h;j++)
-    {
-        var idx=translateGridCoord(i,j,w);
-        positions[idx*3]=i/(w-1);
-
-
-        positions[idx*3+1]=0.0;
-        ////Y is up
-        positions[idx*3+2] = j/(h-1);
-
-        normals[idx*3]=0.0;
-        normals[idx*3+1]=0.0;
-        normals[idx*3+2]=1.0;
-    }
+    for(var i=0;i<w;i++)
+	{
+    	for(var j=0;j<h;j++)
+	    {
+	        var idx=translateGridCoord(i,j,w);
+	        positions[idx*3]=i/(w-1);
+	
+	
+	        positions[idx*3+1]=0.0;
+	        ////Y is up
+	        positions[idx*3+2] = j/(h-1);
+	
+	        normals[idx*3]=0.0;
+	        normals[idx*3+1]=0.0;
+	        normals[idx*3+2]=1.0;
+	    }
+	}
     waterfacepositionbuffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacepositionbuffer);
     gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);

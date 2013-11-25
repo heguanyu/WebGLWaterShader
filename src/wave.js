@@ -1,11 +1,19 @@
+const var A = 1e-7;
+
+const var meshSize = 256;
+const var spectrumW = meshSize + 4;
+const var spectrumH = meshSize + 1;
+
+const var patchSize = 100;        // patch size
+
 function gauss()
 {
 	var u1 = Math.random();
     var u2 = Math.random();
 
-    if (u1 < 1e-6f)
+    if (u1 < 1e-6)
     {
-        u1 = 1e-6f;
+        u1 = 1e-6;
     }
 
     return Math.sqrt(-2 * Math.log(u1)) * Math.cos(2*Math.PI * u2);
@@ -50,29 +58,29 @@ function phillips(Kx, Ky, Vdir, V, A, dir_depend)
 // Generate base heightfield in frequency space
 function generate_h0(float2 *h0)
 {
-    for (unsigned int y = 0; y<=meshSize; y++)
+    for (var y = 0; y<=meshSize; y++)
     {
-        for (unsigned int x = 0; x<=meshSize; x++)
+        for (var x = 0; x<=meshSize; x++)
         {
-            float kx = (-(int)meshSize / 2.0f + x) * (2.0f * CUDART_PI_F / patchSize);
-            float ky = (-(int)meshSize / 2.0f + y) * (2.0f * CUDART_PI_F / patchSize);
+            var kx = (-meshSize / 2.0 + x) * (2.0 * Math.PI / patchSize);
+            var ky = (-meshSize / 2.0 + y) * (2.0 * Math.PI / patchSize);
 
-            float P = sqrtf(phillips(kx, ky, windDir, windSpeed, A, dirDepend));
+            var P = Math.sqrt(phillips(kx, ky, windDir, windSpeed, A, dirDepend));
 
-            if (kx == 0.0f && ky == 0.0f)
+            if (kx == 0.0 && ky == 0.0)
             {
-                P = 0.0f;
+                P = 0.0;
             }
 
             //float Er = urand()*2.0f-1.0f;
             //float Ei = urand()*2.0f-1.0f;
-            float Er = gauss();
-            float Ei = gauss();
+            var Er = gauss();
+            var Ei = gauss();
 
-            float h0_re = Er * P * CUDART_SQRT_HALF_F;
-            float h0_im = Ei * P * CUDART_SQRT_HALF_F;
+            float h0_re = Er * P * Math.SQRT1_2;
+            float h0_im = Ei * P * Math.SQRT1_2;
 
-            int i = y*spectrumW+x;
+            var i = y*spectrumW+x;
             h0[i].x = h0_re;
             h0[i].y = h0_im;
         }
