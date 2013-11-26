@@ -20,7 +20,7 @@
 
 var gl;
 var debugarea;
-var NUM_WIDTH_PTS=64;
+var NUM_WIDTH_PTS=128;
 var NUM_HEIGHT_PTS=NUM_WIDTH_PTS;
 var starttime;
 var canvas = document.getElementById("canvas");
@@ -37,6 +37,7 @@ var velfield;
 
 var u_modelViewPerspectiveLocation;
 var u_modelViewPerspectiveLocation_Inverse_Transpose;
+var u_modelLocation;
 
 var curtime=0.0;
 var totalframes;
@@ -67,6 +68,8 @@ var copyTexture;
 
 var normals;
 var positions;
+var positions_World;
+var model;
 
 /////////////////////////////////////////mouse control//////////////////////////////////
 //Camera control
@@ -76,8 +79,8 @@ var lastMouseX = null;
 var lastMouseY = null;
 
 var radius = 35.0;
-var azimuth = Math.PI / 2.0;
-var zenith = Math.PI / 2.5;
+var azimuth = Math.PI / 2.0-Math.PI / 2.0;
+var zenith = Math.PI / 2.4;
 
 var center = [0.0, 5.0, 0.0];
 var up = [0.0, 1.0, 0.0];
@@ -319,7 +322,7 @@ function Vec3(x,y,z)
 }
 function vecCross(a,b)
 {
-    return new Vec3(a.y* b.z- b.y* a.z, b.x* a.z- a.x* b.z, a.x* b.y-  b.x*a.y);
+    return new Vec3(a.y* b.z- b.y* a.z, (b.x* a.z- a.x* b.z), a.x* b.y-  b.x*a.y);
 }
 function vecAdd(a,b)
 {
@@ -342,7 +345,7 @@ function vecLength(a)
 function vecNormalize(a)
 {
     var l=vecLength(a);
-    if(l<0.0000001) return new Vec3(0,0,0);
+    if(l<0.0000001) return a;
     return new Vec3(a.x/l, a.y/l,a.z/l);
 }
 
@@ -460,6 +463,7 @@ function initRenderShader()
 
     u_modelViewPerspectiveLocation = gl.getUniformLocation(shaderProgram,"u_modelViewPerspective");
     u_modelViewPerspectiveLocation_Inverse_Transpose = gl.getUniformLocation(shaderProgram,"u_modelViewPerspective_Inverse_Transpose");
+    u_modelLocation = gl.getUniformLocation(shaderProgram, "u_model");
     shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
     shader_utimeloc= gl.getUniformLocation(shaderProgram, "u_time");
 
@@ -531,14 +535,14 @@ function initGrid()
     var h=NUM_HEIGHT_PTS;
 
     positions = new Float32Array(w*h*3);
+    positions_World = new Float32Array(w*h*3);
+
     normals = new Float32Array(w*h*3);
 
     for(var i=0;i<w;i++)for(var j=0;j<h;j++)
     {
         var idx=translateGridCoord(i,j,w);
         positions[idx*3]=i/(w-1);
-
-
         positions[idx*3+1]=0.0;
         ////Y is up
         positions[idx*3+2] = j/(h-1);
@@ -615,14 +619,14 @@ function initHeightField(w,h)
         }
     }
 
-    for(var stepsize=64;stepsize>=1.0;stepsize/=4.0)
+    for(var stepsize=w;stepsize>=1.0;stepsize/=8.0)
     {
 
         for(var i=0;i<w;i+=stepsize)
         {
             for(var j=0;j<h;j+=stepsize)
             {
-                var temp=Math.random()*stepsize/64.0;
+                var temp=Math.random()*Math.pow(stepsize/w,1.0)/2.0;
                     for(var x=i;x<i+stepsize;x++)for(var y=j;y<j+stepsize;y++)
                 {
                     var c1=Math.cos((x-i-stepsize*0.5)/stepsize*(Math.PI));
@@ -735,49 +739,45 @@ function updateNormalMap(w,h)
         if(useleft)
         {
             leftcoord=translateGridCoord(left,j,w);
-            leftPos=new Vec3(positions[leftcoord*3],positions[leftcoord*3+1],positions[leftcoord*3+2]);
+            leftPos=new Vec3(positions_World[leftcoord*3],positions_World[leftcoord*3+1],positions_World[leftcoord*3+2]);
         }
         if(useright)
         {
             rightcoord=translateGridCoord(right,j,w);
-            rightPos=new Vec3(positions[rightcoord*3],positions[rightcoord*3+1],positions[rightcoord*3+2]);
+            rightPos=new Vec3(positions_World[rightcoord*3],positions_World[rightcoord*3+1],positions_World[rightcoord*3+2]);
         }
         if(useup)
         {
             upcoord=translateGridCoord(i,up,w);
-            upPos=new Vec3(positions[upcoord*3],positions[upcoord*3+1],positions[upcoord*3+2]);
+            upPos=new Vec3(positions_World[upcoord*3],positions_World[upcoord*3+1],positions_World[upcoord*3+2]);
         }
         if(usedown)
         {
             downcoord=translateGridCoord(i,down,w);
-            downPos=new Vec3(positions[downcoord*3],positions[downcoord*3+1],positions[downcoord*3+2]);
+            downPos=new Vec3(positions_World[downcoord*3],positions_World[downcoord*3+1],positions_World[downcoord*3+2]);
         }
 
         var mycoord = translateGridCoord(i,j,w);
-        var myPos=new Vec3(positions[mycoord*3],positions[mycoord*3+1],positions[mycoord*3+2]);
+        var myPos=new Vec3(positions_World[mycoord*3],positions_World[mycoord*3+1],positions_World[mycoord*3+2]);
         var totalNormal=new Vec3(0,0,0);
 
         if(useleft&&useup)
         {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(leftPos,myPos),vecMinus(upPos,myPos))));
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,leftPos),vecMinus(upPos,myPos))));
         }
         if(useright&&useup)
         {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(upPos,myPos),vecMinus(rightPos,myPos))));
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,upPos),vecMinus(rightPos,myPos))));
         }
         if(usedown&&useright)
         {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(rightPos,myPos),vecMinus(downPos,myPos))));
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,rightPos),vecMinus(downPos,myPos))));
         }
         if(usedown&&useleft)
         {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(downPos,myPos),vecMinus(leftPos,myPos))));
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,downPos),vecMinus(leftPos,myPos))));
         }
-        totalNormal=vecMultiply(totalNormal,1.0/count);
+        totalNormal=vecNormalize(totalNormal);
         updateNormal(mycoord,totalNormal);
     }
 }
@@ -797,10 +797,6 @@ function finalrender()
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
     gl.uniform1i(shaderProgram.samplerUniform, 2);
 
-    var model = mat4.create();
-    mat4.identity(model);
-    mat4.scale(model, [128.0, 15.0, 128.0]);
-    mat4.translate(model, [-0.5, -0.0, -0.5]);
 
     var mv = mat4.create();
     mat4.multiply(view, model, mv);
@@ -817,14 +813,18 @@ function finalrender()
     gl.uniform1f(shader_utimeloc, curtime);
     gl.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
     gl.uniformMatrix4fv(u_modelViewPerspectiveLocation_Inverse_Transpose, false, mvpit);
+    gl.uniformMatrix4fv(u_modelLocation, false, model);
 
     //shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
     gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
     gl.bindBuffer(gl.ARRAY_BUFFER, waterfacepositionbuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
+
     gl.bindBuffer(gl.ARRAY_BUFFER, waterfacenormalbuffer);
     gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+
+    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterfaceindicesbuffer);
@@ -859,6 +859,21 @@ function tick(){
         animate();
 }
 
+function updateWorldPositions(w , h)
+{
+    for(var i=0;i<w;i++)
+    {
+        for(var j=0;j<h;j++)
+        {
+            var mycoord = translateGridCoord(i,j,w);
+            var worldPos=vec4.create();
+            mat4.multiplyVec4(model,[positions[mycoord*3],positions[mycoord*3+1],positions[mycoord*3+2],1.0],worldPos);
+            positions_World[mycoord*3]=worldPos[0];
+            positions_World[mycoord*3+1]=worldPos[1];
+            positions_World[mycoord*3+2]=worldPos[2];
+        }
+    }
+}
 function simulateHeightField(w,h)
 {
     for(var i=0;i<w;i++)
@@ -890,9 +905,19 @@ function simulateHeightField(w,h)
             //positions[idx*3+2]=0.0;
         }
     }
+
+
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacepositionbuffer);
     gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
 
+
+    mat4.identity(model);
+    mat4.scale(model, [120.0, 15.0, 120.0]);
+    mat4.translate(model, [-0.5, -0.0, -0.5]);
+
+
+
+    updateWorldPositions(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
     updateNormalMap(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacenormalbuffer);
     gl.bufferData(gl.ARRAY_BUFFER,normals,gl.STATIC_DRAW);
@@ -923,6 +948,8 @@ function webGLStart() {
     eye = sphericalToCartesian(radius, azimuth, zenith);   
     view = mat4.create();
     mat4.lookAt(eye, center, up, view);
+
+    model = mat4.create();
 
     gl.getExtension('OES_texture_float');
 
