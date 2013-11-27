@@ -77,7 +77,7 @@ var lastMouseY = null;
 
 var radius = 35.0;
 var azimuth = Math.PI / 2.0;
-var zenith = Math.PI / 2.5;
+var zenith = Math.PI / 4;
 
 var center = [0.0, 5.0, 0.0];
 var up = [0.0, 1.0, 0.0];
@@ -622,11 +622,11 @@ function initHeightField(w,h)
         {
             for(var j=0;j<h;j+=stepsize)
             {
-                var temp=Math.random()*stepsize/32.0;
+                var temp=Math.random()*stepsize/64.0;
                 for(var x=i;x<i+stepsize;x++)for(var y=j;y<j+stepsize;y++)
                 {
-                    var c1=Math.cos((x-i-stepsize*0.5)/stepsize*(Math.PI*0.5));
-                    var c2=Math.cos((y-j-stepsize*0.5)/stepsize*(Math.PI*0.5));
+                    var c1=Math.cos((x-i-stepsize*0.5)/stepsize*(Math.PI));
+                    var c2=Math.cos((y-j-stepsize*0.5)/stepsize*(Math.PI));
                     heightfield[x][y]+=c1*c2*temp;
                 }
             }
