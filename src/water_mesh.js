@@ -1,17 +1,17 @@
 ////////////////COPYRIGHT DECLARATION//////////////////////
 //////
-//////   COPYRIGHT  GUANYU HE AND HAO WU, 2013
-//////   ALL THE FOLLOWING CODE IS PROTECTED BY THE COPYRIGHT
+////// COPYRIGHT GUANYU HE AND HAO WU, 2013
+////// ALL THE FOLLOWING CODE IS PROTECTED BY THE COPYRIGHT
 //////
-//////   THE CODE IN THIS FILE CANNOT BE REUSED OUTSIDE CIS565 GPU PROGRAMMING COURSE
-//////   IN UNIVERSITY OF PENNSYLVANIA UNLESS SPECIAL AUTHORIZATION.
+////// THE CODE IN THIS FILE CANNOT BE REUSED OUTSIDE CIS565 GPU PROGRAMMING COURSE
+////// IN UNIVERSITY OF PENNSYLVANIA UNLESS SPECIAL AUTHORIZATION.
 //////
-//////   CONTACT INFO: heguanyu9037@gmail.com
-//////       		   wuhao1117@gmail.com
-//////        
+////// CONTACT INFO: heguanyu9037@gmail.com
+//////                  wuhao1117@gmail.com
+//////
 ////////////////FILE INFO ///////////////////////////////
-//////   THIS IS THE MAIN FILE OF THE WATER RENDERING
-//////   INCLUDING THE SETUP OF THE 3 PASSES IN RENDERING
+////// THIS IS THE MAIN FILE OF THE WATER RENDERING
+////// INCLUDING THE SETUP OF THE 3 PASSES IN RENDERING
 //////
 //////
 //////
@@ -20,8 +20,8 @@
 
 var gl;
 var debugarea;
-var NUM_WIDTH_PTS=64;
-var NUM_HEIGHT_PTS=64;
+var NUM_WIDTH_PTS=128;
+var NUM_HEIGHT_PTS=NUM_WIDTH_PTS;
 var starttime;
 var canvas = document.getElementById("canvas");
 
@@ -36,6 +36,8 @@ var heightfield;
 var velfield;
 
 var u_modelViewPerspectiveLocation;
+var u_modelViewPerspectiveLocation_Inverse_Transpose;
+var u_modelLocation;
 
 var curtime=0.0;
 var totalframes;
@@ -66,6 +68,8 @@ var copyTexture;
 
 var normals;
 var positions;
+var positions_World;
+var model;
 
 /////////////////////////////////////////mouse control//////////////////////////////////
 //Camera control
@@ -75,10 +79,10 @@ var lastMouseX = null;
 var lastMouseY = null;
 
 var radius = 35.0;
-var azimuth = Math.PI / 2.0;
-var zenith = Math.PI / 2.5;
+var azimuth = Math.PI / 2.0-Math.PI / 2.0;
+var zenith = Math.PI / 2.4;
 
-var center = [0.0, 0.0, 0.0];
+var center = [0.0, 5.0, 0.0];
 var up = [0.0, 1.0, 0.0];
 
 var persp;
@@ -121,7 +125,7 @@ function handleMouseMove(event) {
     }
     else {
         radius += 0.01 * deltaY;
-        radius = Math.min(Math.max(radius, 2.0), 50.0);
+        radius = Math.min(Math.max(radius, 2.0), 100.0);
     }
     eye = sphericalToCartesian(radius, azimuth, zenith);
     view = mat4.create();
@@ -132,12 +136,12 @@ function handleMouseMove(event) {
 }
 /*
 function sphericalToCartesian(r, azimuth, zenith) {
-	var x = r * Math.sin(zenith) * Math.cos(azimuth);
-    var y = r * Math.sin(zenith) * Math.sin(azimuth);    
-    var z = r * Math.cos(zenith);
+        var x = r * Math.sin(zenith) * Math.cos(azimuth);
+var y = r * Math.sin(zenith) * Math.sin(azimuth);
+var z = r * Math.cos(zenith);
 
-    return [x, y, z];
- }*/
+return [x, y, z];
+}*/
 function sphericalToCartesian(r, azimuth, zenith) {
     var x = r * Math.sin(zenith) * Math.sin(azimuth);
     var y = r * Math.cos(zenith);
@@ -157,8 +161,8 @@ var u_skyboxPerspLocation;
 var u_cubeTextureLocation;
 
 function initSkyboxShader() {
-	// create programGlobe for skybox shading
-	var skyboxVS = getShader(gl, "skyboxVS");
+        // create programGlobe for skybox shading
+        var skyboxVS = getShader(gl, "skyboxVS");
     var skyboxFS = getShader(gl, "skyboxFS");
 
     programSkybox = gl.createProgram();
@@ -182,7 +186,8 @@ function initSkyboxShader() {
 var skyboxTex;
 
 function initSkyboxTex() {
-	skyboxTex = gl.createTexture();	
+        
+        skyboxTex = gl.createTexture();        
     // javaScript arrays can be of mixed types
     var cubeImages = [[gl.TEXTURE_CUBE_MAP_POSITIVE_X, "desertsky_ft.png"],
                       [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "desertsky_bk.png"],
@@ -202,33 +207,33 @@ function initSkyboxTex() {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 
     /*function initLoadedCubeMap(texture, face, image) {
-    	//alert(image.complete);
-    	gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-    	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    	gl.texImage2D(face, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-    	//message.innerHTML += image.complete + "\n";
-    	
-    	gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-    }*/
+        //alert(image.complete);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(face, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+        //message.innerHTML += image.complete + "\n";
+        
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+}*/
     
     for (var i = 0; i < cubeImages.length; i++) {
         var face = cubeImages[i][0];
         var image = new Image();
         image.onload = function(texture, face, image) {
             return function() {
-            	gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+                    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
                 gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
             };
         } (skyboxTex, face, image);
         // image load functions that do not work
         /*image.onload = function() {
-                gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
-                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-                gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        };*/
+gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+};*/
         /* image.onload = function() {
-        	return initLoadedCubeMap(skyboxTex, face, image)
-        };*/
+        return initLoadedCubeMap(skyboxTex, face, image)
+};*/
         image.src = cubeImages[i][1];
     }
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
@@ -241,8 +246,8 @@ var skyboxIndices;
 var numberOfSkyboxIndices;
 
 function intializeSkybox() {
-	var positions = new Float32Array([
-	      // neg z, back                            	
+        var positions = new Float32Array([
+         // neg z, back         
           -50.0, 50.0, -50.0, -50.0, -50.0, -50.0, 50.0, -50.0, -50.0,
           50.0, -50.0, -50.0, 50.0, 50.0, -50.0, -50.0, 50.0, -50.0,
           // neg x, left
@@ -284,8 +289,7 @@ function intializeSkybox() {
 
 
 function drawSkybox(){
-
-	gl.useProgram(programSkybox);
+        gl.useProgram(programSkybox);
 
     // enable attributes for this program
     gl.bindBuffer(gl.ARRAY_BUFFER, skyboxPosBuffer);
@@ -318,7 +322,7 @@ function Vec3(x,y,z)
 }
 function vecCross(a,b)
 {
-    return new Vec3(a.y* b.z- b.y* a.z, b.x* a.z- a.x* b.z, a.x* b.y-  b.x*a.y);
+    return new Vec3(a.y* b.z- b.y* a.z, (b.x* a.z- a.x* b.z), a.x* b.y- b.x*a.y);
 }
 function vecAdd(a,b)
 {
@@ -341,7 +345,7 @@ function vecLength(a)
 function vecNormalize(a)
 {
     var l=vecLength(a);
-    if(l<0.0000001) return new Vec3(0,0,0);
+    if(l<0.0000001) return a;
     return new Vec3(a.x/l, a.y/l,a.z/l);
 }
 
@@ -458,6 +462,8 @@ function initRenderShader()
     //gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
     u_modelViewPerspectiveLocation = gl.getUniformLocation(shaderProgram,"u_modelViewPerspective");
+    u_modelViewPerspectiveLocation_Inverse_Transpose = gl.getUniformLocation(shaderProgram,"u_modelViewPerspective_Inverse_Transpose");
+    u_modelLocation = gl.getUniformLocation(shaderProgram, "u_model");
     shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
     shader_utimeloc= gl.getUniformLocation(shaderProgram, "u_time");
 
@@ -529,25 +535,22 @@ function initGrid()
     var h=NUM_HEIGHT_PTS;
 
     positions = new Float32Array(w*h*3);
+    positions_World = new Float32Array(w*h*3);
+
     normals = new Float32Array(w*h*3);
 
-    for(var i=0;i<w;i++)
-	{
-    	for(var j=0;j<h;j++)
-	    {
-	        var idx=translateGridCoord(i,j,w);
-	        positions[idx*3]=i/(w-1);
-	
-	
-	        positions[idx*3+1]=0.0;
-	        ////Y is up
-	        positions[idx*3+2] = j/(h-1);
-	
-	        normals[idx*3]=0.0;
-	        normals[idx*3+1]=0.0;
-	        normals[idx*3+2]=1.0;
-	    }
-	}
+    for(var i=0;i<w;i++)for(var j=0;j<h;j++)
+    {
+        var idx=translateGridCoord(i,j,w);
+        positions[idx*3]=i/(w-1);
+        positions[idx*3+1]=0.0;
+        ////Y is up
+        positions[idx*3+2] = j/(h-1);
+
+        normals[idx*3]=0.0;
+        normals[idx*3+1]=0.0;
+        normals[idx*3+2]=1.0;
+    }
     waterfacepositionbuffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacepositionbuffer);
     gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
@@ -611,15 +614,29 @@ function initHeightField(w,h)
         velfield[i]=new Array(h);
         for(var j=0;j<h;j++)
         {
-            heightfield[i][j]=Math.sqrt(
-                (i-w*0.5)*(i-w*0.5)/w/w+
-                (j-h*0.5)*(j-h*0.5)/h/h);
-        	//heightfield[i][j] = Math.random();
+            heightfield[i][j]=0.0;
             velfield[i][j]=0.0;
         }
     }
-}
 
+    for(var stepsize=w;stepsize>=1.0;stepsize/=8.0)
+    {
+
+        for(var i=0;i<w;i+=stepsize)
+        {
+            for(var j=0;j<h;j+=stepsize)
+            {
+                var temp=Math.random()*Math.pow(stepsize/w,1.0)/2.0;
+                    for(var x=i;x<i+stepsize;x++)for(var y=j;y<j+stepsize;y++)
+                {
+                    var c1=Math.cos((x-i-stepsize*0.5)/stepsize*(Math.PI));
+                    var c2=Math.cos((y-j-stepsize*0.5)/stepsize*(Math.PI));
+                    heightfield[x][y]+=c1*c2*temp;
+                }
+            }
+        }
+    }
+}
 
 function initTextures() {
     cubeTexture = gl.createTexture();
@@ -698,7 +715,7 @@ function secondpass()
 function updateNormal(index, newnormal)
 {
     normals[index*3]=newnormal.x;
-    normals[index*3+1]=-newnormal.y;
+    normals[index*3+1]=newnormal.y;
     normals[index*3+2]=newnormal.z;
 }
 
@@ -722,49 +739,45 @@ function updateNormalMap(w,h)
         if(useleft)
         {
             leftcoord=translateGridCoord(left,j,w);
-            leftPos=new Vec3(positions[leftcoord*3],positions[leftcoord*3+1],positions[leftcoord*3+2]);
+            leftPos=new Vec3(positions_World[leftcoord*3],positions_World[leftcoord*3+1],positions_World[leftcoord*3+2]);
         }
         if(useright)
         {
             rightcoord=translateGridCoord(right,j,w);
-            rightPos=new Vec3(positions[rightcoord*3],positions[rightcoord*3+1],positions[rightcoord*3+2]);
+            rightPos=new Vec3(positions_World[rightcoord*3],positions_World[rightcoord*3+1],positions_World[rightcoord*3+2]);
         }
         if(useup)
         {
             upcoord=translateGridCoord(i,up,w);
-            upPos=new Vec3(positions[upcoord*3],positions[upcoord*3+1],positions[upcoord*3+2]);
+            upPos=new Vec3(positions_World[upcoord*3],positions_World[upcoord*3+1],positions_World[upcoord*3+2]);
         }
         if(usedown)
         {
             downcoord=translateGridCoord(i,down,w);
-            downPos=new Vec3(positions[downcoord*3],positions[downcoord*3+1],positions[downcoord*3+2]);
+            downPos=new Vec3(positions_World[downcoord*3],positions_World[downcoord*3+1],positions_World[downcoord*3+2]);
         }
 
         var mycoord = translateGridCoord(i,j,w);
-        var myPos=new Vec3(positions[mycoord*3],positions[mycoord*3+1],positions[mycoord*3+2]);
+        var myPos=new Vec3(positions_World[mycoord*3],positions_World[mycoord*3+1],positions_World[mycoord*3+2]);
         var totalNormal=new Vec3(0,0,0);
 
         if(useleft&&useup)
         {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(leftPos,myPos),vecMinus(upPos,myPos))));
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,leftPos),vecMinus(upPos,myPos))));
         }
         if(useright&&useup)
         {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(upPos,myPos),vecMinus(rightPos,myPos))));
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,upPos),vecMinus(rightPos,myPos))));
         }
         if(usedown&&useright)
         {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(rightPos,myPos),vecMinus(downPos,myPos))));
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,rightPos),vecMinus(downPos,myPos))));
         }
         if(usedown&&useleft)
         {
-            count+=1;
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(downPos,myPos),vecMinus(leftPos,myPos))));
+            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,downPos),vecMinus(leftPos,myPos))));
         }
-        totalNormal=vecMultiply(totalNormal,1.0/count);
+        totalNormal=vecNormalize(totalNormal);
         updateNormal(mycoord,totalNormal);
     }
 }
@@ -777,35 +790,41 @@ function finalrender()
 
     gl.viewport(0, 0, canvaswidth,canvasheight);
 
-    debugarea.innerHTML=canvaswidth+"  "+canvasheight;
+    debugarea.innerHTML=canvaswidth+" "+canvasheight;
     //gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
     gl.uniform1i(shaderProgram.samplerUniform, 2);
 
-    var model = mat4.create();
-    mat4.identity(model);
-    mat4.scale(model, [18.0, 5.0, 18.0]);
-    mat4.translate(model, [-0.5, 0.0, -0.5]);
 
     var mv = mat4.create();
     mat4.multiply(view, model, mv);
     var mvp = mat4.create();
     mat4.multiply(persp, mv, mvp);
+    var mvpit=mat4.create();
+    mvpit=mat4.inverse(mvp,mvpit);
+    mvpit=mat4.transpose(mvpit,mvpit);
 
-    gl.uniform3f(gl.getUniformLocation(shaderProgram, "lightPos"),  eye[0],eye[1],eye[2]);
+
+
+    gl.uniform3f(gl.getUniformLocation(shaderProgram, "eyePos"), eye[0],eye[1],eye[2]);
 
     gl.uniform1f(shader_utimeloc, curtime);
     gl.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
+    gl.uniformMatrix4fv(u_modelViewPerspectiveLocation_Inverse_Transpose, false, mvpit);
+    gl.uniformMatrix4fv(u_modelLocation, false, model);
 
     //shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
     gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
     gl.bindBuffer(gl.ARRAY_BUFFER, waterfacepositionbuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
 
+
     gl.bindBuffer(gl.ARRAY_BUFFER, waterfacenormalbuffer);
     gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+
+    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterfaceindicesbuffer);
@@ -815,8 +834,8 @@ function finalrender()
 }
 function animate()
 {
- //   firstpass();
- //   secondpass();
+ // firstpass();
+ // secondpass();
 
     simulateHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
 
@@ -836,9 +855,25 @@ function tick(){
     requestAnimFrame(tick);
     curtime=curtime+0.01;
     totalframes++;
-    animate();
+    if(totalframes%2==0)
+        animate();
 }
 
+function updateWorldPositions(w , h)
+{
+    for(var i=0;i<w;i++)
+    {
+        for(var j=0;j<h;j++)
+        {
+            var mycoord = translateGridCoord(i,j,w);
+            var worldPos=vec4.create();
+            mat4.multiplyVec4(model,[positions[mycoord*3],positions[mycoord*3+1],positions[mycoord*3+2],1.0],worldPos);
+            positions_World[mycoord*3]=worldPos[0];
+            positions_World[mycoord*3+1]=worldPos[1];
+            positions_World[mycoord*3+2]=worldPos[2];
+        }
+    }
+}
 function simulateHeightField(w,h)
 {
     for(var i=0;i<w;i++)
@@ -855,7 +890,7 @@ function simulateHeightField(w,h)
                 heightfield[i][up]+
                 heightfield[i][down])*0.25-heightfield[i][j];
 
-            velfield[i][j]*=0.999;
+            velfield[i][j]*=0.9999;
         }
     }
     for(var i=0;i<w;i++)
@@ -870,9 +905,19 @@ function simulateHeightField(w,h)
             //positions[idx*3+2]=0.0;
         }
     }
+
+
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacepositionbuffer);
     gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
 
+
+    mat4.identity(model);
+    mat4.scale(model, [120.0, 15.0, 120.0]);
+    mat4.translate(model, [-0.5, -0.0, -0.5]);
+
+
+
+    updateWorldPositions(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
     updateNormalMap(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
     gl.bindBuffer(gl.ARRAY_BUFFER,waterfacenormalbuffer);
     gl.bufferData(gl.ARRAY_BUFFER,normals,gl.STATIC_DRAW);
@@ -885,7 +930,7 @@ function webGLStart() {
     starttime=new Date().getTime();
     totalframes = 0;
     var canvas = document.getElementById("canvas1");
-    debugarea  = document.getElementById("debug_text");
+    debugarea = document.getElementById("debug_text");
     initGL(canvas);
 
     canvas.onmousedown = handleMouseDown;
@@ -900,9 +945,11 @@ function webGLStart() {
     persp = mat4.create();
     mat4.perspective(45.0, canvas.width / canvas.height, 0.1, 200.0, persp);
     
-    eye = sphericalToCartesian(radius, azimuth, zenith);   
+    eye = sphericalToCartesian(radius, azimuth, zenith);
     view = mat4.create();
     mat4.lookAt(eye, center, up, view);
+
+    model = mat4.create();
 
     gl.getExtension('OES_texture_float');
 
@@ -918,7 +965,6 @@ function webGLStart() {
     initGrid();
     intializeSkybox();
     initSkyboxTex();
-//    initCubeMap();
     //initTextures();
 
     gl.viewport(0,0,canvaswidth,canvasheight);
