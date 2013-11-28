@@ -965,7 +965,6 @@ function webGLStart() {
     initGrid();
     intializeSkybox();
     initSkyboxTex();
-// initCubeMap();
     //initTextures();
 
     gl.viewport(0,0,canvaswidth,canvasheight);

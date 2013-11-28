@@ -11,7 +11,7 @@
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE -->
 
-  <script id="vs_copy" type="x-shader/x-vertex">
+<script id="vs_copy" type="x-shader/x-vertex">
   attribute vec2 position;
   varying vec2 f_Pos;
   void main(void)
@@ -45,9 +45,9 @@
 </script>
 <script id="fs_sim" type="x-shader/x-fragment">
    precision mediump float;
-    uniform sampler2D uSampler;
-    uniform float u_time;
-    varying vec2 f_Pos;
+   uniform sampler2D uSampler;
+   uniform float u_time;
+   varying vec2 f_Pos;
 
   float isValid(vec2 texcoord)
   {
