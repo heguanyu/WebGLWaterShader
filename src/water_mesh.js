@@ -1,17 +1,17 @@
 ////////////////COPYRIGHT DECLARATION//////////////////////
 //////
-//////   COPYRIGHT  GUANYU HE AND HAO WU, 2013
-//////   ALL THE FOLLOWING CODE IS PROTECTED BY THE COPYRIGHT
+////// COPYRIGHT GUANYU HE AND HAO WU, 2013
+////// ALL THE FOLLOWING CODE IS PROTECTED BY THE COPYRIGHT
 //////
-//////   THE CODE IN THIS FILE CANNOT BE REUSED OUTSIDE CIS565 GPU PROGRAMMING COURSE
-//////   IN UNIVERSITY OF PENNSYLVANIA UNLESS SPECIAL AUTHORIZATION.
+////// THE CODE IN THIS FILE CANNOT BE REUSED OUTSIDE CIS565 GPU PROGRAMMING COURSE
+////// IN UNIVERSITY OF PENNSYLVANIA UNLESS SPECIAL AUTHORIZATION.
 //////
-//////   CONTACT INFO: heguanyu9037@gmail.com
-//////       		   wuhao1117@gmail.com
-//////        
+////// CONTACT INFO: heguanyu9037@gmail.com
+//////                  wuhao1117@gmail.com
+//////
 ////////////////FILE INFO ///////////////////////////////
-//////   THIS IS THE MAIN FILE OF THE WATER RENDERING
-//////   INCLUDING THE SETUP OF THE 3 PASSES IN RENDERING
+////// THIS IS THE MAIN FILE OF THE WATER RENDERING
+////// INCLUDING THE SETUP OF THE 3 PASSES IN RENDERING
 //////
 //////
 //////
@@ -136,12 +136,12 @@ function handleMouseMove(event) {
 }
 /*
 function sphericalToCartesian(r, azimuth, zenith) {
-	var x = r * Math.sin(zenith) * Math.cos(azimuth);
-    var y = r * Math.sin(zenith) * Math.sin(azimuth);    
-    var z = r * Math.cos(zenith);
+        var x = r * Math.sin(zenith) * Math.cos(azimuth);
+var y = r * Math.sin(zenith) * Math.sin(azimuth);
+var z = r * Math.cos(zenith);
 
-    return [x, y, z];
- }*/
+return [x, y, z];
+}*/
 function sphericalToCartesian(r, azimuth, zenith) {
     var x = r * Math.sin(zenith) * Math.sin(azimuth);
     var y = r * Math.cos(zenith);
@@ -161,8 +161,8 @@ var u_skyboxPerspLocation;
 var u_cubeTextureLocation;
 
 function initSkyboxShader() {
-	// create programGlobe for skybox shading
-	var skyboxVS = getShader(gl, "skyboxVS");
+        // create programGlobe for skybox shading
+        var skyboxVS = getShader(gl, "skyboxVS");
     var skyboxFS = getShader(gl, "skyboxFS");
 
     programSkybox = gl.createProgram();
@@ -186,8 +186,8 @@ function initSkyboxShader() {
 var skyboxTex;
 
 function initSkyboxTex() {
-	
-	skyboxTex = gl.createTexture();	
+        
+        skyboxTex = gl.createTexture();        
     // javaScript arrays can be of mixed types
     var cubeImages = [[gl.TEXTURE_CUBE_MAP_POSITIVE_X, "desertsky_ft.png"],
                       [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "desertsky_bk.png"],
@@ -207,33 +207,33 @@ function initSkyboxTex() {
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 
     /*function initLoadedCubeMap(texture, face, image) {
-    	//alert(image.complete);
-    	gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-    	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    	gl.texImage2D(face, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-    	//message.innerHTML += image.complete + "\n";
-    	
-    	gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-    }*/
+        //alert(image.complete);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.texImage2D(face, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+        //message.innerHTML += image.complete + "\n";
+        
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+}*/
     
     for (var i = 0; i < cubeImages.length; i++) {
         var face = cubeImages[i][0];
         var image = new Image();
         image.onload = function(texture, face, image) {
             return function() {
-            	gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+                    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
                 gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
             };
         } (skyboxTex, face, image);
         // image load functions that do not work
         /*image.onload = function() {
-                gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
-                gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-                gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-        };*/
+gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+};*/
         /* image.onload = function() {
-        	return initLoadedCubeMap(skyboxTex, face, image)
-        };*/
+        return initLoadedCubeMap(skyboxTex, face, image)
+};*/
         image.src = cubeImages[i][1];
     }
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
@@ -246,8 +246,8 @@ var skyboxIndices;
 var numberOfSkyboxIndices;
 
 function intializeSkybox() {
-	var positions = new Float32Array([
-	      // neg z, back                            	
+        var positions = new Float32Array([
+         // neg z, back         
           -50.0, 50.0, -50.0, -50.0, -50.0, -50.0, 50.0, -50.0, -50.0,
           50.0, -50.0, -50.0, 50.0, 50.0, -50.0, -50.0, 50.0, -50.0,
           // neg x, left
@@ -289,7 +289,7 @@ function intializeSkybox() {
 
 
 function drawSkybox(){
-	gl.useProgram(programSkybox);
+        gl.useProgram(programSkybox);
 
     // enable attributes for this program
     gl.bindBuffer(gl.ARRAY_BUFFER, skyboxPosBuffer);
@@ -322,7 +322,7 @@ function Vec3(x,y,z)
 }
 function vecCross(a,b)
 {
-    return new Vec3(a.y* b.z- b.y* a.z, (b.x* a.z- a.x* b.z), a.x* b.y-  b.x*a.y);
+    return new Vec3(a.y* b.z- b.y* a.z, (b.x* a.z- a.x* b.z), a.x* b.y- b.x*a.y);
 }
 function vecAdd(a,b)
 {
@@ -790,7 +790,7 @@ function finalrender()
 
     gl.viewport(0, 0, canvaswidth,canvasheight);
 
-    debugarea.innerHTML=canvaswidth+"  "+canvasheight;
+    debugarea.innerHTML=canvaswidth+" "+canvasheight;
     //gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.activeTexture(gl.TEXTURE2);
@@ -808,7 +808,7 @@ function finalrender()
 
 
 
-    gl.uniform3f(gl.getUniformLocation(shaderProgram, "eyePos"),  eye[0],eye[1],eye[2]);
+    gl.uniform3f(gl.getUniformLocation(shaderProgram, "eyePos"), eye[0],eye[1],eye[2]);
 
     gl.uniform1f(shader_utimeloc, curtime);
     gl.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
@@ -834,8 +834,8 @@ function finalrender()
 }
 function animate()
 {
- //   firstpass();
- //   secondpass();
+ // firstpass();
+ // secondpass();
 
     simulateHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
 
@@ -930,7 +930,7 @@ function webGLStart() {
     starttime=new Date().getTime();
     totalframes = 0;
     var canvas = document.getElementById("canvas1");
-    debugarea  = document.getElementById("debug_text");
+    debugarea = document.getElementById("debug_text");
     initGL(canvas);
 
     canvas.onmousedown = handleMouseDown;
@@ -945,7 +945,7 @@ function webGLStart() {
     persp = mat4.create();
     mat4.perspective(45.0, canvas.width / canvas.height, 0.1, 200.0, persp);
     
-    eye = sphericalToCartesian(radius, azimuth, zenith);   
+    eye = sphericalToCartesian(radius, azimuth, zenith);
     view = mat4.create();
     mat4.lookAt(eye, center, up, view);
 
@@ -965,7 +965,6 @@ function webGLStart() {
     initGrid();
     intializeSkybox();
     initSkyboxTex();
-//    initCubeMap();
     //initTextures();
 
     gl.viewport(0,0,canvaswidth,canvasheight);
