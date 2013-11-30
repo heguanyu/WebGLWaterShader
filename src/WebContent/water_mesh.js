@@ -20,10 +20,10 @@
 
 var gl;
 var debugArea;
-var NUM_WIDTH_PTS = 128;
-var NUM_HEIGHT_PTS = 128;
+var NUM_WIDTH_PTS = 512;
+var NUM_HEIGHT_PTS = 512;
 var startTime;
-var canvas = document.getElementById("canvas");
+var canvas = document.getElementById("canvas");	
 
 var heightField;
 var velField;
@@ -38,8 +38,8 @@ var totalFrames;
 var canvasHeight;
 var canvasWidth;
 
-var simPositionBuffer;
-var simIndicesBuffer;
+var quadPositionBuffer;
+var quadIndicesBuffer;
 
 var waterFacePositionBuffer;
 var waterFaceIndicesBuffer;
@@ -71,11 +71,11 @@ var mouseRightDown = false;
 var lastMouseX = null;
 var lastMouseY = null;
 
-var radius = 35.0;
+var radius = 3.50;
 var azimuth = 0.0;
 var zenith = Math.PI / 3.0;
 
-var center = [0.0, 5.0, 0.0];
+var center = [0.0, 0.0, 0.0];
 var up = [0.0, 1.0, 0.0];
 
 var persp;
@@ -400,9 +400,9 @@ function initSimShader() {
     simProgram.vertexPositionAttribute = gl.getAttribLocation(simProgram, "position");
    
     u_simTimeLocation = gl.getUniformLocation(simProgram, "u_time");
-    simProgram.samplerUniform = gl.getUniformLocation(simProgram, "uSampler");
+    simProgram.samplerUniform = gl.getUniformLocation(simProgram, "u_info");
     
-    gl.useProgram(simProgram);
+    //gl.useProgram(simProgram);
 }
 function initCopyShader()
 {
@@ -421,9 +421,9 @@ function initCopyShader()
     copyProgram.vertexPositionAttribute = gl.getAttribLocation(copyProgram, "position");
 
     u_copyTimeLocation = gl.getUniformLocation(copyProgram, "u_time");
-    copyProgram.samplerUniform = gl.getUniformLocation(copyProgram, "uSampler");
+    copyProgram.samplerUniform = gl.getUniformLocation(copyProgram, "u_info");
     
-    gl.useProgram(copyProgram);
+    //gl.useProgram(copyProgram);
 
 }
 
@@ -441,39 +441,42 @@ function initRenderShader()
         alert("Could not initialise rendering shaders");
     }
 
-    gl.useProgram(shaderProgram);
-
+    
     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
     shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
 
     u_modelViewPerspectiveLocation = gl.getUniformLocation(shaderProgram,"u_modelViewPerspective");
     u_invTransLocation = gl.getUniformLocation(shaderProgram,"u_normalMatrix");
     u_modelLocation = gl.getUniformLocation(shaderProgram, "u_model");
-    shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "uSampler");
+    shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "u_info");
     u_shaderTimeLocation= gl.getUniformLocation(shaderProgram, "u_time");
+    
+    //gl.useProgram(shaderProgram);
 
 }
 
 
 function initTextureFramebuffer()
 {
-    rttFramebuffer = gl.createFramebuffer();
+	rttFramebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, rttFramebuffer);
     rttFramebuffer.width = NUM_HEIGHT_PTS;
     rttFramebuffer.height = NUM_HEIGHT_PTS;
-
+    
     rttTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, rttTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    //gl.generateMipmap(gl.TEXTURE_2D);
-
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, rttFramebuffer.width, rttFramebuffer.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, rttFramebuffer.width, rttFramebuffer.height, 0, gl.RGBA, gl.FLOAT, null);
+    
+   
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, rttTexture, 0);
+    
+    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
+        throw new Error("gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE");
+    }
 
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -482,22 +485,38 @@ function initTextureFramebuffer()
 
 function initCopyTextureFramebuffer()
 {
-    copyFramebuffer = gl.createFramebuffer();
+	var testArray = new Float32Array(NUM_WIDTH_PTS*NUM_HEIGHT_PTS*4);
+	var k = 0;
+	for(var j = 0; j < NUM_HEIGHT_PTS; j++)
+		for(var i = 0; i < NUM_WIDTH_PTS; i++) 
+		{
+			var s_contrib = Math.sin(i/(NUM_WIDTH_PTS-1) * 2.0 * Math.PI);
+	        var t_contrib = Math.cos(j/(NUM_HEIGHT_PTS-1)* 2.0 * Math.PI);
+	        var height = s_contrib * t_contrib;
+			testArray[k++] = height; 
+			testArray[k++] = 0.0;
+			testArray[k++] = 0.0;
+			testArray[k++] = 0.0;
+		}
+	
+	copyFramebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, copyFramebuffer);
     copyFramebuffer.width = NUM_HEIGHT_PTS;
     copyFramebuffer.height = NUM_HEIGHT_PTS;
-
+	
     copyTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
- //   gl.generateMipmap(gl.TEXTURE_2D);
-
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, copyFramebuffer.width, copyFramebuffer.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, NUM_WIDTH_PTS, NUM_HEIGHT_PTS, 0, gl.RGBA, gl.FLOAT, testArray);
+    
+    
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, copyTexture, 0);
+    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
+        throw new Error("gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE");
+    }
 
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -522,13 +541,13 @@ function initGrid()
     for(var j=0;j<h;j++) for(var i=0;i<w;i++)
     {
         var idx=translateGridCoord(i,j,w);
-        positions[idx*3]=i/(w-1);
+        positions[idx*3]= j/(h-1);
         positions[idx*3+1]=0.0;
-        positions[idx*3+2] = j/(h-1);
+        positions[idx*3+2] = i/(w-1);
 
         normals[idx*3]=0.0;
-        normals[idx*3+1]=0.0;
-        normals[idx*3+2]=1.0; ///////???????
+        normals[idx*3+1]=1.0;
+        normals[idx*3+2]=0.0; 
     }
     waterFacePositionBuffer=gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,waterFacePositionBuffer);
@@ -539,16 +558,16 @@ function initGrid()
     gl.bufferData(gl.ARRAY_BUFFER,normals,gl.STATIC_DRAW);
 
 
-    var indices = new Uint16Array((w-1)*(h-1)*6);
+    var indices = new Uint32Array((w-1)*(h-1)*6);
     var currentQuad=0;
-    for(var j=0;j<h-1;j++) for(var i=0;i<w-1;i++) 
+    for(var j=0;j<h-1;j++) for(var i=0;i<w-1;i++)  
     {
         indices[currentQuad*6]=translateGridCoord(i,j,w);
-        indices[currentQuad*6+1]=translateGridCoord(i,j+1,w);
-        indices[currentQuad*6+2]=translateGridCoord(i+1,j+1,w);
-        indices[currentQuad*6+3]=translateGridCoord(i+1,j+1,w);
-        indices[currentQuad*6+4]=translateGridCoord(i+1,j,w);
-        indices[currentQuad*6+5]=translateGridCoord(i,j,w);
+        indices[currentQuad*6+1]=translateGridCoord(i+1,j,w);
+        indices[currentQuad*6+2]=translateGridCoord(i,j+1,w);
+        indices[currentQuad*6+3]=translateGridCoord(i+1,j,w);
+        indices[currentQuad*6+4]=translateGridCoord(i+1,j+1,w);
+        indices[currentQuad*6+5]=translateGridCoord(i,j+1,w);
         currentQuad++;
     }
 
@@ -571,14 +590,14 @@ function initQuad()
 	             1.0,1.0,
 	             1.0,-1.0];
 	
-    simPositionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, simPositionBuffer);
+    quadPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(quadPos), gl.STATIC_DRAW );
     
-    var quadidx=[0,1,2,0,2,3];
-    simIndicesBuffer= gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, simIndicesBuffer);   
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(quadidx), gl.STATIC_DRAW);
+    var quadIndices=[0,1,2,0,2,3];
+    quadIndicesBuffer= gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);   
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(quadIndices), gl.STATIC_DRAW);
 }
 
 /*var cubeTexture;
@@ -636,8 +655,9 @@ function handleTextureLoaded(image, texture) {
     gl.bindTexture(gl.TEXTURE_2D, null);
 }*/
 
-function firstPass()
+function simulation()
 {
+	//gl.viewport(0, 0, NUM_HEIGHT_PTS, NUM_HEIGHT_PTS);
     //THIS IS THE FIRST PATH THAT USE GLSL TO COMPUTE THE HEIGHT FIELD TO THE rttTexture BUFFER
     gl.useProgram(simProgram);
     gl.uniform1f(u_simTimeLocation, currentTime);
@@ -646,7 +666,7 @@ function firstPass()
 
     gl.viewport(0, 0, rttFramebuffer.width, rttFramebuffer.height);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, simPositionBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
     gl.vertexAttribPointer(simProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(simProgram.vertexPositionAttribute);
 
@@ -655,10 +675,12 @@ function firstPass()
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
     gl.uniform1i(simProgram.samplerUniform, 0);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, simIndicesBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
     
-    gl.disableVertexAttribArray(simProgram.vertexPositionAttribute);
+    gl.disableVertexAttribArray(simProgram.vertexPositionAttribute);    
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.useProgram(null);
 
 //    gl.bindTexture(gl.TEXTURE_2D, rttTexture);
 //    gl.generateMipmap(gl.TEXTURE_2D);
@@ -666,10 +688,11 @@ function firstPass()
 
 }
 
-function secondPass()
+function copyHeightField()
 {
     // This is the 2nd path that copy the rendered result to the height-map, which can be used in the first step.
 
+	//gl.viewport(0, 0, NUM_HEIGHT_PTS, NUM_HEIGHT_PTS);
     gl.useProgram(copyProgram);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,copyFramebuffer);
@@ -677,26 +700,50 @@ function secondPass()
 
     gl.viewport(0, 0, copyFramebuffer.width, copyFramebuffer.height);
     gl.uniform1f(u_copyTimeLocation, currentTime);
-    gl.bindBuffer(gl.ARRAY_BUFFER, simPositionBuffer);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
     gl.vertexAttribPointer(copyProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(copyProgram.vertexPositionAttribute);
 
+    /*var testArray = new Float32Array(NUM_WIDTH_PTS*NUM_HEIGHT_PTS*4);
+	var k = 0;
+	for(var i = 0; i < NUM_WIDTH_PTS; i++) 
+		for(var j = 0; j < NUM_WIDTH_PTS; j++)
+		{
+			testArray[k++] = 1.0;
+			testArray[k++] = 0.9;
+			testArray[k++] = 1.0;
+			testArray[k++] = 1.0;
+		}
+	
+	var testTexture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, testTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, NUM_WIDTH_PTS, NUM_HEIGHT_PTS, 0, gl.RGBA, gl.FLOAT, testArray);*/
+    
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, rttTexture);
     gl.uniform1i(copyProgram.samplerUniform, 1);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, simIndicesBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
 
-    gl.bindTexture(gl.TEXTURE_2D, copyTexture);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.disableVertexAttribArray(copyProgram.vertexPositionAttribute);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.useProgram(null);
+ //   gl.bindTexture(gl.TEXTURE_2D, copyTexture);
+ //   gl.generateMipmap(gl.TEXTURE_2D);
+ //   gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
 function updateNormal(index, newnormal)
 {
-    normals[index*3]=newnormal.x;
-    normals[index*3+1]=newnormal.y;
-    normals[index*3+2]=newnormal.z;
+    normals[index*3]   = newnormal.x;
+    normals[index*3+1] = newnormal.y;
+    normals[index*3+2] = newnormal.z;
 }
 
 function updateNormalMap(w,h)
@@ -762,9 +809,9 @@ function updateNormalMap(w,h)
     }
 }
 
-function finalRender()
+function render()
 {
-    //This is the 3rd path that use GLSL to render the image, using rttTexture to be the height field of the wave
+    //This is the 3rd pass that use GLSL to render the image, using rttTexture to be the height field of the wave
     gl.useProgram(shaderProgram);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -782,9 +829,9 @@ function finalRender()
     mat4.multiply(view, model, mv);
     var mvp = mat4.create();
     mat4.multiply(persp, mv, mvp);
-    var mvpit=mat4.create();
-    mvpit=mat4.inverse(mvp,mvpit);
-    mvpit=mat4.transpose(mvpit,mvpit);
+    var invTrans=mat4.create();
+    invTrans=mat4.inverse(mvp,invTrans);
+    invTrans=mat4.transpose(invTrans,invTrans);
 
 
 
@@ -792,35 +839,37 @@ function finalRender()
 
     gl.uniform1f(u_shaderTimeLocation, currentTime);
     gl.uniformMatrix4fv(u_modelViewPerspectiveLocation, false, mvp);
-    gl.uniformMatrix4fv(u_invTransLocation, false, mvpit);
+    gl.uniformMatrix4fv(u_invTransLocation, false, invTrans);
     gl.uniformMatrix4fv(u_modelLocation, false, model);
 
     //shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
-    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
     gl.bindBuffer(gl.ARRAY_BUFFER, waterFacePositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, waterFaceNormalBuffer);
-    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
-
-    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
+
+    /*gl.bindBuffer(gl.ARRAY_BUFFER, waterFaceNormalBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);*/
+    
+
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterFaceIndicesBuffer);
-    gl.drawElements(gl.TRIANGLES, waterFaceIndicesBuffer.numitems, gl.UNSIGNED_SHORT,0);
+    gl.drawElements(gl.TRIANGLES, waterFaceIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
+    
+    gl.disableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+    //gl.disableVertexAttribArray(shaderProgram.vertexNormalAttribute);
     
     
 }
 function animate()
 {
- // firstPass();
- // secondPass();
+    simulation();
+    copyHeightField();
 
-    simulateHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
+    //simulateHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
 
-    drawSkybox();
-    finalRender();
+    //drawSkybox();
+    render();
 
     var nowtime=new Date().getTime();
     if(nowtime-1000>startTime)
@@ -833,7 +882,7 @@ function animate()
 
 function tick(){
     requestAnimFrame(tick);
-    currentTime=currentTime+0.01;
+    currentTime=currentTime + 0.01;
     totalFrames++;
     if(totalFrames%2==0)
         animate();
@@ -899,12 +948,13 @@ function simulateHeightField(w,h)
 
     updateWorldPositions(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
     updateNormalMap(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
+    
     gl.bindBuffer(gl.ARRAY_BUFFER,waterFaceNormalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER,normals,gl.STATIC_DRAW);
 }
 
 
-var cubemapimages;
+//var cubemapimages;
 
 function webGLStart() {
     startTime=new Date().getTime();
@@ -920,6 +970,7 @@ function webGLStart() {
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
 
     persp = mat4.create();
@@ -930,28 +981,52 @@ function webGLStart() {
     mat4.lookAt(eye, center, up, view);
 
     model = mat4.create();
+    mat4.identity(model);
+    mat4.scale(model, [1.0, 1.0, 1.0]);
+    mat4.translate(model, [-0.5, -0.0, -0.5]);
 
-    gl.getExtension('OES_texture_float');
+    // Query extension
+    var OES_texture_float = gl.getExtension('OES_texture_float');
+    if (!OES_texture_float) {
+        throw new Error("No support for OES_texture_float");
+    }
+    
+    /*var OES_texture_float_linear =  gl.getExtension('OES_texture_float_linear');
+    if (!OES_texture_float_linear) {
+        throw new Error("No support for OES_texture_float_linear");
+    }*/
+    
+    var OES_element_index_uint = gl.getExtension('OES_element_index_uint');
+    if (!OES_element_index_uint) {
+        throw new Error("No support for OES_element_index_uint");
+    }
+    
+    var MaxVertexTextureImageUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+    if (MaxVertexTextureImageUnits <= 0) {
+        throw new Error("No support for vertex texture fetch");
+    }
 
-    initHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
+    initHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS); 
 
     initSimShader();
     initCopyShader();
     initRenderShader();
     initSkyboxShader();
+    
     initTextureFramebuffer();
     initCopyTextureFramebuffer();
+    
     initQuad();
     initGrid();
     intializeSkybox();
     initSkyboxTex();
     //initTextures();
 
-    gl.viewport(0,0,canvasWidth,canvasHeight);
+    /*gl.viewport(0,0,canvasWidth,canvasHeight);
 
     gl.clearColor(0.0,0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);
+    gl.enable(gl.DEPTH_TEST);*/
 
     tick();
 }
