@@ -17,7 +17,6 @@
   void main(void)
   {
         f_Pos = position;
-		//gl_Position= vec4(position*2.0-vec2(1.0), 0.0, 1.0);
 		gl_Position= vec4(position, 0.0, 1.0);
   }
 </script>
@@ -54,28 +53,7 @@
    uniform float u_time;
    varying vec2 f_Pos;
 
-   const float delta=1.0/512.0;
-
-  float getAverage(sampler2D samp, vec2 texcoord)
-  {
-	/*vec2 upcoord = clamp(texcoord + vec2(0,delta), 0.0, 1.0);
-    vec2 downcoord = clamp(texcoord - vec2(0,delta), 0.0, 1.0);
-    vec2 leftcoord = clamp(texcoord + vec2(delta,0), 0.0, 1.0);
-    vec2 rightcoord = clamp(texcoord - vec2(delta,0), 0.0, 1.0);*/
-
-	vec2 upcoord    = texcoord + vec2(0,delta);
-    vec2 downcoord  = texcoord - vec2(0,delta);
-    vec2 leftcoord  = texcoord - vec2(delta,0);
-    vec2 rightcoord = texcoord + vec2(delta,0);
-    
-	float averageHeight = 0.0;
-	averageHeight += texture2D(samp, upcoord).x;
-	averageHeight += texture2D(samp, downcoord).x;
-	averageHeight += texture2D(samp, leftcoord).x;
-	averageHeight += texture2D(samp, rightcoord).x;
-	averageHeight /= 4.0;
-	return averageHeight;	
-  }
+   const float delta = 1.0/512.0;
 
   void main(void)
   {
@@ -83,36 +61,27 @@
     vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
 	vec4 info = texture2D(u_simData, texcoord);
 
-    float height = 0.0;
-    float vel = 0.0;
-	/*
-    if(u_time<0.015)
-    {
-        height = (1.0-length(f_Pos))*1.01;
-    }
-    else{*/
-        height = info.x;
-		vel = info.y;
-
-        vel += (getAverage(u_simData, texcoord) - height);
-		vel *= 0.99;
-        height += vel;
-		info.x = height;
-		info.y = vel;
-    //}
-
-	// update normals
 	vec2 upcoord 	= texcoord + vec2(0.0, delta);
     vec2 downcoord  = texcoord - vec2(0.0, delta);
     vec2 leftcoord  = texcoord - vec2(delta, 0.0);
     vec2 rightcoord = texcoord + vec2(delta, 0.0);
 
-	float s   = texture2D(u_simData, texcoord).x;
     float s01 = texture2D(u_simData, leftcoord).x;
     float s21 = texture2D(u_simData, rightcoord).x;
     float s10 = texture2D(u_simData, downcoord).x;
     float s12 = texture2D(u_simData, upcoord).x;
 
+    float height = info.x;
+	float vel = info.y;
+
+	// actual simulation
+    vel += ((s01 + s21 + s10 + s12)/4.0 - height);
+	vel *= 0.99;
+    height += vel;
+	info.x = height;
+	info.y = vel;
+
+	// update normals
     vec3 va = normalize(vec3(0.0, s21-s01, 2.0*delta));
     vec3 vb = normalize(vec3(2.0*delta, s12-s10, 0.0));
     vec3 normal = normalize(cross(va, vb));
