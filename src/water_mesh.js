@@ -791,7 +791,7 @@ function finalrender()
     gl.viewport(0, 0, canvaswidth,canvasheight);
 
     debugarea.innerHTML=canvaswidth+" "+canvasheight;
-    //gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
@@ -839,7 +839,7 @@ function animate()
 
     simulateHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
 
-    drawSkybox();
+    //drawSkybox();
     finalrender();
 
     var nowtime=new Date().getTime();
