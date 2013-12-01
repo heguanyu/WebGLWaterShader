@@ -11,13 +11,33 @@
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE -->
 
-<script id="vs_copy" type="x-shader/x-vertex">
+<script id="vs_quad" type="x-shader/x-vertex">
+  precision highp float;
+
   attribute vec2 position;
+
   varying vec2 f_Pos;
+
   void main(void)
   {
         f_Pos = position;
 		gl_Position= vec4(position, 0.0, 1.0);
+  }
+</script>
+<script id="fs_fftHorizontal" type="x-shader/x-fragment">
+   precision highp float;
+
+   varying vec2 f_Pos;
+
+   uniform sampler2D u_fftData;
+
+  void main(void)
+  {
+	vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
+    vec4 info = texture2D(u_simData, texcoord);
+
+
+	gl_FragColor = info;
   }
 </script>
 <script id="fs_copy" type="x-shader/x-fragment">
@@ -31,19 +51,6 @@
 	vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
     vec4 info = texture2D(u_simData, texcoord);
 	gl_FragColor = info;
-  }
-</script>
-<script id="vs_sim" type="x-shader/x-vertex">
-  precision highp float;
-
-  attribute vec2 position;
-
-  varying vec2 f_Pos;
-
-  void main(void)
-  {
-        f_Pos = position;
-		gl_Position= vec4(position, 0.0, 1.0);
   }
 </script>
 <script id="fs_sim" type="x-shader/x-fragment">
@@ -75,8 +82,8 @@
 	float vel = info.y;
 
 	// actual simulation
-    vel += ((s01 + s21 + s10 + s12)/4.0 - height);
-	vel *= 0.99;
+    vel += ((s01 + s21 + s10 + s12)*0.25 - height);
+	vel *= 0.9999;
     height += vel;
 	info.x = height;
 	info.y = vel;

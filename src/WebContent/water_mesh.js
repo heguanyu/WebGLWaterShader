@@ -19,15 +19,12 @@
 ////////////////////////////////////////////////////////////
 
 var gl;
-var debugArea;
 var NUM_WIDTH_PTS = 512;
 var NUM_HEIGHT_PTS = 512;
-var startTime;
+
 var canvas = document.getElementById("canvas");	
 
-var heightField;
-var velField;
-
+var startTime;
 var currentTime = 0.0;
 var totalFrames;
 
@@ -39,8 +36,8 @@ var quadIndicesBuffer;
 
 var waterFacePositionBuffer;
 var waterFaceIndicesBuffer;
-var waterFaceNormalBuffer;
 
+var fftProgram;
 var simProgram;
 var shaderProgram;
 var copyProgram;
@@ -51,9 +48,6 @@ var rttTexture;
 var copyFramebuffer;
 var copyTexture;
 
-var normals;
-var positions;
-var positions_World;
 var model;
 
 /////////////////////////////////////////mouse control//////////////////////////////////
@@ -291,43 +285,7 @@ function drawSkybox(){
     gl.disableVertexAttribArray(skyboxPositionLocation);
 }
 
-////////////////////////////////////////skybox program/////////////////////////////////
-
-
-function vec3(x,y,z)
-{
-    this.x=x;
-    this.y=y;
-    this.z=z;
-}
-function vecCross(a,b)
-{
-    return new vec3(a.y* b.z- b.y* a.z, b.x* a.z- a.x* b.z, a.x* b.y- b.x*a.y);
-}
-function vecAdd(a,b)
-{
-    return new vec3(a.x+ b.x, a.y+ b.y, a.z+ b.z);
-}
-function vecMinus(a,b)
-{
-    //alert(a);
-    return new vec3(a.x- b.x, a.y- b.y, a.z- b.z);
-}
-function vecMultiply(a,b)
-{
-    return new vec3(a.x*b, a.y*b, a.z*b);
-}
-
-function vecLength(a)
-{
-    return Math.sqrt(a.x* a.x+ a.y* a.y+ a.z* a.z);
-}
-function vecNormalize(a)
-{
-    var l=vecLength(a);
-    if(l < 1) return a;
-    return new vec3(a.x/l, a.y/l,a.z/l);
-}
+////////////////////////////////////////skybox program end/////////////////////////////////
 
 function initGL(canvas) {
     try {
@@ -377,8 +335,26 @@ function getShader(gl, id) {
     return shader;
 }
 
+function initFFTShader() {
+    var vertexShader = getShader(gl, "vs_quad");
+    var fragmentShader = getShader(gl, "fs_fftHorizontal");
+
+    fftProgram = gl.createProgram();
+    gl.attachShader(fftProgram, vertexShader);
+    gl.attachShader(fftProgram, fragmentShader);
+    gl.linkProgram(fftProgram);
+    if (!gl.getProgramParameter(fftProgram, gl.LINK_STATUS)) {
+        alert("Could not initialise FFT shader");
+    }
+ 
+    fftProgram.vertexPositionAttribute = gl.getAttribLocation(fftProgram, "position");
+
+    fftProgram.samplerUniform = gl.getUniformLocation(fftProgram, "u_fftData");
+
+}
+
 function initSimShader() {
-    var vertexShader = getShader(gl, "vs_sim");
+    var vertexShader = getShader(gl, "vs_quad");
     var fragmentShader = getShader(gl, "fs_sim");
 
     simProgram = gl.createProgram();
@@ -395,9 +371,10 @@ function initSimShader() {
     simProgram.samplerUniform = gl.getUniformLocation(simProgram, "u_simData");
 
 }
+
 function initCopyShader()
 {
-    var vertexShader = getShader(gl, "vs_copy");
+    var vertexShader = getShader(gl, "vs_quad");
     var fragmentShader = getShader(gl, "fs_copy");
 
     copyProgram = gl.createProgram();
@@ -540,12 +517,12 @@ function initGrid()
     var currentQuad=0;
     for(var j=0;j<h-1;j++) for(var i=0;i<w-1;i++)  
     {
-        indices[currentQuad*6]=translateGridCoord(i,j,w);
-        indices[currentQuad*6+1]=translateGridCoord(i+1,j,w);
-        indices[currentQuad*6+2]=translateGridCoord(i,j+1,w);
-        indices[currentQuad*6+3]=translateGridCoord(i+1,j,w);
-        indices[currentQuad*6+4]=translateGridCoord(i+1,j+1,w);
-        indices[currentQuad*6+5]=translateGridCoord(i,j+1,w);
+        indices[currentQuad*6]   = translateGridCoord(i,j,w);
+        indices[currentQuad*6+1] = translateGridCoord(i+1,j,w);
+        indices[currentQuad*6+2] = translateGridCoord(i,j+1,w);
+        indices[currentQuad*6+3] = translateGridCoord(i+1,j,w);
+        indices[currentQuad*6+4] = translateGridCoord(i+1,j+1,w);
+        indices[currentQuad*6+5] = translateGridCoord(i,j+1,w);
         currentQuad++;
     }
     waterFaceIndicesBuffer=gl.createBuffer();
@@ -576,56 +553,6 @@ function initQuad()
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(quadIndices), gl.STATIC_DRAW);
 }
 
-function initHeightField(w,h)
-{
-    heightField = new Array(w);
-    velField = new Array(w);
-
-    for(var i=0;i<w;i++)
-    {
-        heightField[i]=new Array(h);
-        velField[i]=new Array(h);
-        for(var j=0;j<h;j++)
-        {
-            heightField[i][j]=0.0;
-            velField[i][j]=0.0;
-        }
-    }
-
-    for(var stepsize=w;stepsize>=1.0;stepsize/=8.0)
-    {
-
-        for(var i=0;i<w;i+=stepsize)
-        {
-            for(var j=0;j<h;j+=stepsize)
-            {
-                var temp=Math.random()*Math.pow(stepsize/w,1.0)/2.0;
-                    for(var x=i;x<i+stepsize;x++)for(var y=j;y<j+stepsize;y++)
-                {
-                    var c1=Math.cos((x-i-stepsize*0.5)/stepsize*(Math.PI));
-                    var c2=Math.cos((y-j-stepsize*0.5)/stepsize*(Math.PI));
-                    heightField[x][y]+=c1*c2*temp;
-                }
-            }
-        }
-    }
-}
-
-/*function initTextures() {
-    cubeTexture = gl.createTexture();
-    cubeImage = new Image();
-    cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); }
-    cubeImage.src = "earthmap50.png";
-}
-
-function handleTextureLoaded(image, texture) {
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.bindTexture(gl.TEXTURE_2D, null);
-}*/
 
 function simulation()
 {
@@ -633,7 +560,7 @@ function simulation()
     gl.useProgram(simProgram);
     
     gl.bindFramebuffer(gl.FRAMEBUFFER, rttFramebuffer);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    
 
     gl.viewport(0, 0, rttFramebuffer.width, rttFramebuffer.height);
 
@@ -682,75 +609,6 @@ function copyHeightField()
     gl.useProgram(null);
 }
 
-function updateNormal(index, newnormal)
-{
-    normals[index*3]   = newnormal.x;
-    normals[index*3+1] = newnormal.y;
-    normals[index*3+2] = newnormal.z;
-}
-
-function updateNormalMap(w,h)
-{
-    for(var i=0;i<w;i++) for(var j=0;j<h;j++)
-    {
-        var useleft=true;
-        var useright=true;
-        var useup=true;
-        var usedown=true;
-        var left = i-1; if(left<0) useleft=false;
-        var right = i+1; if(right>=w) useright=false;
-        var up = j-1; if(up<0) useup=false;
-        var down = j+1; if(down>=h) usedown=false;
-
-        var count=0;
-        var leftcoord;
-        var leftPos=new vec3(0,0,0);
-        var rightcoord,rightPos=new vec3(0,0,0),upcoord,upPos=new vec3(0,0,0),downcoord,downPos=new vec3(0,0,0);
-        if(useleft)
-        {
-            leftcoord=translateGridCoord(left,j,w);
-            leftPos=new vec3(positions_World[leftcoord*3],positions_World[leftcoord*3+1],positions_World[leftcoord*3+2]);
-        }
-        if(useright)
-        {
-            rightcoord=translateGridCoord(right,j,w);
-            rightPos=new vec3(positions_World[rightcoord*3],positions_World[rightcoord*3+1],positions_World[rightcoord*3+2]);
-        }
-        if(useup)
-        {
-            upcoord=translateGridCoord(i,up,w);
-            upPos=new vec3(positions_World[upcoord*3],positions_World[upcoord*3+1],positions_World[upcoord*3+2]);
-        }
-        if(usedown)
-        {
-            downcoord=translateGridCoord(i,down,w);
-            downPos=new vec3(positions_World[downcoord*3],positions_World[downcoord*3+1],positions_World[downcoord*3+2]);
-        }
-
-        var mycoord = translateGridCoord(i,j,w);
-        var myPos=new vec3(positions_World[mycoord*3],positions_World[mycoord*3+1],positions_World[mycoord*3+2]);
-        var totalNormal=new vec3(0,0,0);
-
-        if(useleft&&useup)
-        {
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,leftPos),vecMinus(upPos,myPos))));
-        }
-        if(useright&&useup)
-        {
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,upPos),vecMinus(rightPos,myPos))));
-        }
-        if(usedown&&useright)
-        {
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,rightPos),vecMinus(downPos,myPos))));
-        }
-        if(usedown&&useleft)
-        {
-            totalNormal=vecAdd(totalNormal,vecNormalize(vecCross(vecMinus(myPos,downPos),vecMinus(leftPos,myPos))));
-        }
-        totalNormal=vecNormalize(totalNormal);
-        updateNormal(mycoord,totalNormal);
-    }
-}
 
 function render()
 {
@@ -759,9 +617,8 @@ function render()
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     gl.viewport(0, 0, canvasWidth,canvasHeight);
-
-    //debugArea.innerHTML=canvasWidth+" "+canvasHeight;
-    //gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
@@ -804,11 +661,8 @@ function animate()
 {
     simulation();
     copyHeightField();
-
-    //simulateHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
-
-    //drawSkybox();
     render();
+    //drawSkybox();
 
     var nowtime=new Date().getTime();
     if(nowtime-1000>startTime)
@@ -827,79 +681,11 @@ function tick(){
         animate();
 }
 
-function updateWorldPositions(w , h)
-{
-    for(var i=0;i<w;i++)
-    {
-        for(var j=0;j<h;j++)
-        {
-            var mycoord = translateGridCoord(i,j,w);
-            var worldPos=vec4.create();
-            mat4.multiplyVec4(model,[positions[mycoord*3],positions[mycoord*3+1],positions[mycoord*3+2],1.0],worldPos);
-            positions_World[mycoord*3]=worldPos[0];
-            positions_World[mycoord*3+1]=worldPos[1];
-            positions_World[mycoord*3+2]=worldPos[2];
-        }
-    }
-}
-function simulateHeightField(w,h)
-{
-    for(var i=0;i<w;i++)
-    {
-        for(var j=0;j<h;j++)
-        {
-            var left = i-1; if(left<0) left+=1;
-            var right = i+1; if(right>=w) right-=1;
-            var up = j-1; if(up<0) up+=1;
-            var down = j+1; if(down>=h) down-=1;
-
-            velField[i][j]+=(heightField[left][j]+
-                heightField[right][j]+
-                heightField[i][up]+
-                heightField[i][down])*0.25-heightField[i][j];
-
-            velField[i][j]*=0.9999;
-        }
-    }
-    for(var i=0;i<w;i++)
-    {
-        for(var j=0;j<h;j++)
-        {
-            heightField[i][j]+=velField[i][j];
-            var idx=translateGridCoord(i,j,w);
-
-            ///Y is up
-            positions[idx*3+1]=heightField[i][j];
-            //positions[idx*3+2]=0.0;
-        }
-    }
-
-
-    gl.bindBuffer(gl.ARRAY_BUFFER,waterFacePositionBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
-
-
-    mat4.identity(model);
-    mat4.scale(model, [120.0, 15.0, 120.0]);
-    mat4.translate(model, [-0.5, -0.0, -0.5]);
-
-
-
-    updateWorldPositions(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
-    updateNormalMap(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
-    
-    gl.bindBuffer(gl.ARRAY_BUFFER,waterFaceNormalBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER,normals,gl.STATIC_DRAW);
-}
-
-
-//var cubemapimages;
 
 function webGLStart() {
     startTime=new Date().getTime();
     totalFrames = 0;
     var canvas = document.getElementById("canvas1");
-    debugArea = document.getElementById("debug_text");
     initGL(canvas);
 
     canvas.onmousedown = handleMouseDown;
@@ -944,9 +730,7 @@ function webGLStart() {
     if (MaxVertexTextureImageUnits <= 0) {
         throw new Error("No support for vertex texture fetch");
     }
-
-    initHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS); 
-
+    
     initSimShader();
     initCopyShader();
     initRenderShader();
@@ -959,13 +743,6 @@ function webGLStart() {
     initGrid();
     intializeSkybox();
     initSkyboxTex();
-    //initTextures();
-
-    /*gl.viewport(0,0,canvasWidth,canvasHeight);
-
-    gl.clearColor(0.0,0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.enable(gl.DEPTH_TEST);*/
 
     tick();
 }
