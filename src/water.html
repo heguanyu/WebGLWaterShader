@@ -162,12 +162,16 @@ precision mediump float;
     varying float height;
     varying vec3 thenormal;
     varying vec3 position_World;
+
+
+    vec3 hdr (vec3 color, float exposure) {
+      return 1.0 - exp(-color * exposure);
+    }
+
   void main(void)
   {
   	vec3 outcolor=vec3(1.0);
-
-
-    vec3 light1=vec3(0.95,0.75,0.45);
+   vec3 light1=vec3(0.95,0.75,0.45);
     vec3 light2=vec3(1.0);
     vec3 ambientcolor = vec3(93.0,96.0,255.0)/255.0;
 
@@ -203,8 +207,34 @@ precision mediump float;
 
   	//float diffuse2 = max(0.0,-dot(standardnormal,verticalightdir));
 
-    outcolor = 3.0*specular1*light1+1.0*diffuse2*light2+0.2*ambientcolor;
-    gl_FragColor += vec4(outcolor, 1.0);
+    //outcolor =3.0*specular1*light1+ 1.0*diffuse2*light2+0.2*ambientcolor;
+
+
+         vec3 ocean_color = vec3(0.004, 0.016, 0.047);
+    vec3 sky_color = vec3(3.2, 9.6, 12.8);
+
+     vec3 view = normalize(eyePos - position_World);
+
+     float incidentAngle=acos(abs(dot(thenormal, view)));
+     float transmittanceAngle = asin(sin(incidentAngle)/1.33);      //1.33 is the water transmittance ratio
+     float temp1 = tan(incidentAngle-transmittanceAngle)/tan(incidentAngle+transmittanceAngle);
+     float temp2 = sin(incidentAngle-transmittanceAngle)/sin(incidentAngle+transmittanceAngle);
+
+     float fresnel =(temp1*temp1+temp2*temp2)*0.5;
+
+     vec3 sky = fresnel * sky_color;
+
+     float diffuse = clamp(dot(thenormal, directionalLightDir), 0.0, 1.0);
+
+     vec3 water = (1.0 - fresnel) * ocean_color * sky_color * diffuse;
+
+     outcolor = 100.0*specular1*light1 + sky + water;
+
+
+    gl_FragColor = vec4(hdr(outcolor,0.35), 1.0);
+
+
+    //gl_FragColor = vec4(outcolor, 1.0);
     //gl_FragColor = vec4((thenormal+vec3(1.0))*0.5,1.0);
   }
 </script>

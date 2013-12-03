@@ -78,7 +78,7 @@ var mouseRightDown = false;
 var lastMouseX = null;
 var lastMouseY = null;
 
-var radius = 35.0;
+var radius = 65.0;
 var azimuth = Math.PI / 2.0-Math.PI / 2.0;
 var zenith = Math.PI / 2.4;
 
@@ -246,25 +246,26 @@ var skyboxIndices;
 var numberOfSkyboxIndices;
 
 function intializeSkybox() {
+        var boxsize = 100.0;
         var positions = new Float32Array([
          // neg z, back         
-          -50.0, 50.0, -50.0, -50.0, -50.0, -50.0, 50.0, -50.0, -50.0,
-          50.0, -50.0, -50.0, 50.0, 50.0, -50.0, -50.0, 50.0, -50.0,
+          -boxsize, boxsize, -boxsize, -boxsize, -boxsize, -boxsize, boxsize, -boxsize, -boxsize,
+          boxsize, -boxsize, -boxsize, boxsize, boxsize, -boxsize, -boxsize, boxsize, -boxsize,
           // neg x, left
-          -50.0, -50.0, 50.0, -50.0, -50.0, -50.0, -50.0, 50.0, -50.0,
-          -50.0, 50.0, -50.0, -50.0, 50.0, 50.0, -50.0, -50.0, 50.0,
+          -boxsize, -boxsize, boxsize, -boxsize, -boxsize, -boxsize, -boxsize, boxsize, -boxsize,
+          -boxsize, boxsize, -boxsize, -boxsize, boxsize, boxsize, -boxsize, -boxsize, boxsize,
           // pos x, right
-          50.0, -50.0, -50.0, 50.0, -50.0, 50.0, 50.0, 50.0, 50.0,
-          50.0, 50.0, 50.0, 50.0, 50.0, -50.0, 50.0, -50.0, -50.0,
+          boxsize, -boxsize, -boxsize, boxsize, -boxsize, boxsize, boxsize, boxsize, boxsize,
+          boxsize, boxsize, boxsize, boxsize, boxsize, -boxsize, boxsize, -boxsize, -boxsize,
           // pos z, front
-          -50.0, -50.0, 50.0, -50.0, 50.0, 50.0, 50.0, 50.0, 50.0,
-          50.0, 50.0, 50.0, 50.0, -50.0, 50.0, -50.0, -50.0, 50.0,
+          -boxsize, -boxsize, boxsize, -boxsize, boxsize, boxsize, boxsize, boxsize, boxsize,
+          boxsize, boxsize, boxsize, boxsize, -boxsize, boxsize, -boxsize, -boxsize, boxsize,
           // pos y, top
-          -50.0, 50.0, -50.0, 50.0, 50.0, -50.0, 50.0, 50.0, 50.0,
-          50.0, 50.0, 50.0, -50.0, 50.0, 50.0, -50.0, 50.0, -50.0,
+          -boxsize, boxsize, -boxsize, boxsize, boxsize, -boxsize, boxsize, boxsize, boxsize,
+          boxsize, boxsize, boxsize, -boxsize, boxsize, boxsize, -boxsize, boxsize, -boxsize,
           // neg y, bottom
-          -50.0, -50.0, -50.0, -50.0, -50.0, 50.0, 50.0, -50.0, -50.0,
-          50.0, -50.0, -50.0, -50.0, -50.0, 50.0, 50.0, -50.0, 50.0
+          -boxsize, -boxsize, -boxsize, -boxsize, -boxsize, boxsize, boxsize, -boxsize, -boxsize,
+          boxsize, -boxsize, -boxsize, -boxsize, -boxsize, boxsize, boxsize, -boxsize, boxsize
           ]);
 
     var indices = new Uint16Array(6 * 2 * 3);
@@ -619,18 +620,21 @@ function initHeightField(w,h)
         }
     }
 
-    for(var stepsize=w;stepsize>=1.0;stepsize/=8.0)
+    for(var stepsize=w;stepsize>=2.0;stepsize/=8.0)
     {
 
         for(var i=0;i<w;i+=stepsize)
         {
             for(var j=0;j<h;j+=stepsize)
             {
-                var temp=Math.random()*Math.pow(stepsize/w,1.0)/2.0;
+                var temp=Math.random()*Math.pow(stepsize/w,1.0)/1.0;
+                var phase1 = Math.random()*1.0;
+                var phase2 = Math.random()*1.0;
+
                     for(var x=i;x<i+stepsize;x++)for(var y=j;y<j+stepsize;y++)
                 {
-                    var c1=Math.cos((x-i-stepsize*0.5)/stepsize*(Math.PI));
-                    var c2=Math.cos((y-j-stepsize*0.5)/stepsize*(Math.PI));
+                    var c1=Math.cos(phase1*(Math.PI)+(x-i-stepsize*0.5)/stepsize*(Math.PI));
+                    var c2=Math.cos(phase2*(Math.PI)+(y-j-stepsize*0.5)/stepsize*(Math.PI));
                     heightfield[x][y]+=c1*c2*temp;
                 }
             }
@@ -839,7 +843,7 @@ function animate()
 
     simulateHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
 
-    //drawSkybox();
+    drawSkybox();
     finalrender();
 
     var nowtime=new Date().getTime();
