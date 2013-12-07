@@ -5,6 +5,7 @@
 <script src="libs\three.js" type="text/javascript"></script>-->
 <script src ="libs\gl-matrix.js" type ="text/javascript"></script>
 <script src="libs\webgl-utils.js" type="text/javascript"></script>
+<script src="libs\stats.min.js" type="text/javascript"></script>
 
 <head>
 <title>Water Shader</title>
@@ -103,6 +104,7 @@ precision highp float;
 
   attribute vec3 position;
   attribute vec3 normal;
+  attribute vec2 texCoord;
 
   uniform mat4 u_modelView;
   uniform mat4 u_modelViewPerspective;
@@ -116,15 +118,16 @@ precision highp float;
 
   void main(void)
   {
-        vec2 heightfieldTexcoord = position.zx;
+        vec2 heightfieldTexcoord = texCoord;
         vec4 info = texture2D(u_simData, heightfieldTexcoord);
 		
 		vec3 positionModel = vec3(position.x, info.r, position.z);
 		vec3 normalModel = vec3(info.w, sqrt(1.0- info.w*info.w - info.z*info.z), info.z);
 
 		position_eye = (u_modelView * vec4(positionModel, 1.0)).xyz;
-		normal_eye = normalize(u_normalMatrix * vec4(normalModel, 0.0)).xyz;
+		//normal_eye = normalize(u_normalMatrix * vec4(normalModel, 0.0)).xyz;
 		//normal_eye = normalModel;
+		normal_eye = vec3(positionModel.y*100000.0) ;
 
  		gl_Position = u_modelViewPerspective * vec4(positionModel, 1.0);
   }
@@ -186,8 +189,8 @@ precision highp float;
 	vec3 light = vec3(0.5, 2.0, 0.5);
 	float diffuse = clamp(dot(normal_eye, (u_view * vec4(light, 1.0)).xyz - position_eye), 0.0, 1.0);
 	
-    gl_FragColor = vec4(0.1*vec3(0.0, 0.0, 1.0) + 0.9*diffuse*vec3(0.0, 0.0, 1.0), 1.0);
-    //gl_FragColor = vec4(normal_eye, 1.0);
+    //gl_FragColor = vec4(0.1*vec3(0.0, 0.0, 1.0) + 0.9*diffuse*vec3(0.0, 0.0, 1.0), 1.0);
+    gl_FragColor = vec4(normal_eye, 1.0);
   }
 </script>
 <script id="skyboxVS" type="x-shader/x-vertex">
@@ -221,11 +224,11 @@ precision highp float;
 </script>
 
 <script src="water_mesh.js" type="text/javascript"></script>
+<script src="wave.js" type="text/javascript"></script>
 </head>
 
 <body onload="webGLStart();">
 
-<p style="font-size:30px">This is WebGL water shader</p>
 <div id="message" style="position:absolute;top:100px"></div> <!-- Pixel offset to avoid FPS counter -->
 <div id = "debug_text"></div>
 <canvas id="canvas1" style="border: none;" width="1024" height="1024" tabindex="1"></canvas>

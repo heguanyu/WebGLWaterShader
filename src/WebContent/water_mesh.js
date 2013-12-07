@@ -19,8 +19,8 @@
 ////////////////////////////////////////////////////////////
 
 var gl;
-var NUM_WIDTH_PTS = 512;
-var NUM_HEIGHT_PTS = 512;
+var meshSize = 512;         // grid resolution in both direction
+var patchSize = 100;        // grid size in meters
 
 var canvas = document.getElementById("canvas");	
 
@@ -35,6 +35,7 @@ var quadPositionBuffer;
 var quadIndicesBuffer;
 
 var waterFacePositionBuffer;
+var waterFaceTexCoordBuffer;
 var waterFaceIndicesBuffer;
 
 var fftProgram;
@@ -144,7 +145,7 @@ function initSkyboxShader() {
     if (!gl.getProgramParameter(programSkybox, gl.LINK_STATUS)) {
         alert("Could not initialise Skybox shader");
     }
-  
+
     skyboxPositionLocation = gl.getAttribLocation(programSkybox, "Position");
 
     u_skyboxViewLocation = gl.getUniformLocation(programSkybox, "u_View");
@@ -409,6 +410,7 @@ function initRenderShader()
     
     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
     shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
+    shaderProgram.vertexTexCoordAttribute = gl.getAttribLocation(shaderProgram, "texCoord");
   
     shaderProgram.u_modelLocation = gl.getUniformLocation(shaderProgram, "u_model");
     shaderProgram.u_viewLocation = gl.getUniformLocation(shaderProgram, "u_view");
@@ -428,8 +430,8 @@ function initTextureFramebuffer()
 {
 	rttFramebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, rttFramebuffer);
-    rttFramebuffer.width = NUM_HEIGHT_PTS;
-    rttFramebuffer.height = NUM_HEIGHT_PTS;
+    rttFramebuffer.width = meshSize;
+    rttFramebuffer.height = meshSize;
     
     rttTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, rttTexture);
@@ -453,15 +455,15 @@ function initTextureFramebuffer()
 
 function initCopyTextureFramebuffer()
 {
-	var testArray = new Float32Array(NUM_WIDTH_PTS*NUM_HEIGHT_PTS*4);
+	var testArray = new Float32Array(meshSize*meshSize*4);
 	var k = 0;
-	for(var j = 0; j < NUM_HEIGHT_PTS; j++)
-		for(var i = 0; i < NUM_WIDTH_PTS; i++) 
+	for(var j = 0; j < meshSize; j++)
+		for(var i = 0; i < meshSize; i++) 
 		{
-			var s_contrib = Math.sin(i/(NUM_WIDTH_PTS-1) * 2.0 * Math.PI);
-	        var t_contrib = Math.cos(j/(NUM_HEIGHT_PTS-1)* 2.0 * Math.PI);
+			var s_contrib = Math.sin(i/(meshSize-1) * 2.0 * Math.PI);
+	        var t_contrib = Math.cos(j/(meshSize-1)* 2.0 * Math.PI);
 	        var height = s_contrib * t_contrib;
-			testArray[k++] = height; 
+			testArray[k++] = generate_h0(i, j); 
 			testArray[k++] = 0.0;
 			testArray[k++] = 0.0;
 			testArray[k++] = 0.0;
@@ -469,8 +471,8 @@ function initCopyTextureFramebuffer()
 	
 	copyFramebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, copyFramebuffer);
-    copyFramebuffer.width = NUM_HEIGHT_PTS;
-    copyFramebuffer.height = NUM_HEIGHT_PTS;
+    copyFramebuffer.width = meshSize;
+    copyFramebuffer.height = meshSize;
 	
     copyTexture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
@@ -498,33 +500,41 @@ function translateGridCoord(i,j,w)
 
 function initGrid()
 {
-    var w = NUM_WIDTH_PTS;
-    var h = NUM_HEIGHT_PTS;
-
-    positions = new Float32Array(w*h*3);
-    for(var j=0;j<h;j++) for(var i=0;i<w;i++)
-    {
-        var idx=translateGridCoord(i,j,w);
-        positions[idx*3]= j/(h-1);
-        positions[idx*3+1] = 0.0;
-        positions[idx*3+2] = i/(w-1);
-    }
-    waterFacePositionBuffer=gl.createBuffer();
+    var positions = new Float32Array(meshSize*meshSize*3);
+    var texCoords = new Float32Array(meshSize*meshSize*2);
+    for(var j=0;j<meshSize;j++) 
+    	for(var i=0;i<meshSize;i++)
+	    {
+	        var idx=translateGridCoord(i,j,meshSize);
+	        positions[idx*3]= (j - meshSize/2) * patchSize / meshSize;
+	        positions[idx*3+1] = 0.0;
+	        positions[idx*3+2] = (i - meshSize/2)*patchSize / meshSize;
+	        
+	        texCoords[idx*2]= i/(meshSize-1);
+	        texCoords[idx*2+1] = j/(meshSize-1);	        
+	    }
+    
+    waterFacePositionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER,waterFacePositionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
+    
+    waterFaceTexCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,waterFaceTexCoordBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER,texCoords,gl.STATIC_DRAW);
 
-    var indices = new Uint32Array((w-1)*(h-1)*6);
+    var indices = new Uint32Array((meshSize-1)*(meshSize-1)*6);
     var currentQuad=0;
-    for(var j=0;j<h-1;j++) for(var i=0;i<w-1;i++)  
-    {
-        indices[currentQuad*6]   = translateGridCoord(i,j,w);
-        indices[currentQuad*6+1] = translateGridCoord(i+1,j,w);
-        indices[currentQuad*6+2] = translateGridCoord(i,j+1,w);
-        indices[currentQuad*6+3] = translateGridCoord(i+1,j,w);
-        indices[currentQuad*6+4] = translateGridCoord(i+1,j+1,w);
-        indices[currentQuad*6+5] = translateGridCoord(i,j+1,w);
-        currentQuad++;
-    }
+    for(var j=0;j<meshSize-1;j++) 
+    	for(var i=0;i<meshSize-1;i++)  
+	    {
+	        indices[currentQuad*6]   = translateGridCoord(i,j,meshSize);
+	        indices[currentQuad*6+1] = translateGridCoord(i+1,j,meshSize);
+	        indices[currentQuad*6+2] = translateGridCoord(i,j+1,meshSize);
+	        indices[currentQuad*6+3] = translateGridCoord(i+1,j,meshSize);
+	        indices[currentQuad*6+4] = translateGridCoord(i+1,j+1,meshSize);
+	        indices[currentQuad*6+5] = translateGridCoord(i,j+1,meshSize);
+	        currentQuad++;
+	    }
     waterFaceIndicesBuffer=gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,waterFaceIndicesBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,indices,gl.STATIC_DRAW);
@@ -597,9 +607,9 @@ function copyHeightField()
     gl.vertexAttribPointer(copyProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(copyProgram.vertexPositionAttribute);
     
-    gl.activeTexture(gl.TEXTURE1);
+    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, rttTexture);
-    gl.uniform1i(copyProgram.samplerUniform, 1);
+    gl.uniform1i(copyProgram.samplerUniform, 0);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
@@ -650,21 +660,26 @@ function render()
     gl.bindBuffer(gl.ARRAY_BUFFER, waterFacePositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, waterFaceTexCoordBuffer);
+    gl.vertexAttribPointer(shaderProgram.vertexTexCoordAttribute, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterFaceIndicesBuffer);
     gl.drawElements(gl.TRIANGLES, waterFaceIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
     
     gl.disableVertexAttribArray(shaderProgram.vertexPositionAttribute);     
+    gl.disableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);     
 }
 
 function animate()
 {
-    simulation();
+    //simulation();
     
     /////////////////To replace simulation
-    copyHeightField();
+    //copyHeightField();
     render();
-    drawSkybox();
+    //drawSkybox();
 
     var nowtime=new Date().getTime();
     if(nowtime-1000>startTime)
@@ -685,6 +700,28 @@ function tick(){
 
 
 function webGLStart() {
+	// FPS indicator
+	/*var stats = new Stats();
+    stats.setMode(1); // 0: fps, 1: ms
+
+    // Align top-left
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.left = '0px';
+    stats.domElement.style.top = '0px';
+
+    document.body.appendChild( stats.domElement );
+
+    setInterval( function () {
+
+        stats.begin();
+
+        // your code goes here
+
+        stats.end();
+
+    }, 1000 / 60 );*/
+    
+    
     startTime=new Date().getTime();
     totalFrames = 0;
     var canvas = document.getElementById("canvas1");
@@ -709,8 +746,7 @@ function webGLStart() {
 
     model = mat4.create();
     mat4.identity(model);
-    mat4.scale(model, [1.0, 0.2, 1.0]);
-    mat4.translate(model, [-0.5, -0.0, -0.5]);
+    mat4.scale(model, [0.01, 0.2, 0.01]);
 
     // Query extension
     var OES_texture_float = gl.getExtension('OES_texture_float');
