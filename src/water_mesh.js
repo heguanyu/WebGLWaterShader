@@ -59,6 +59,7 @@ var copy_utimeloc;
 var simulateProgram;
 var shaderProgram;
 var copyProgram;
+var skyProgram;
 
 var rttFramebuffer;
 var rttTexture;
@@ -440,6 +441,28 @@ function initCopyShader()
 
 }
 
+function initSkyShader()
+{
+    var vertexShader = getShader(gl, "skyVS");
+    var fragmentShader = getShader(gl, "skyFS");
+
+    skyProgram = gl.createProgram();
+    gl.attachShader(skyProgram, vertexShader);
+    gl.attachShader(skyProgram, fragmentShader);
+    gl.linkProgram(skyProgram);
+
+    if (!gl.getProgramParameter(skyProgram, gl.LINK_STATUS)) {
+        alert("Could not initialise sky shaders");
+    }
+
+    gl.useProgram(skyProgram);
+
+    skyProgram.vertexPositionAttribute = gl.getAttribLocation(skyProgram, "Position");
+
+
+}
+
+
 function initRenderShader()
 {
     var vertexShader = getShader(gl, "vs_render");
@@ -600,8 +623,8 @@ function initQuad()
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(quadidx), gl.STATIC_DRAW);
 }
 
-var cubeTexture;
-var cubeImage;
+var noiseTexture;
+var noiseImage;
 
 
 function initHeightField(w,h)
@@ -643,10 +666,10 @@ function initHeightField(w,h)
 }
 
 function initTextures() {
-    cubeTexture = gl.createTexture();
-    cubeImage = new Image();
-    cubeImage.onload = function() { handleTextureLoaded(cubeImage, cubeTexture); }
-    cubeImage.src = "earthmap50.png";
+    noiseTexture = gl.createTexture();
+    noiseImage = new Image();
+    noiseImage.onload = function() { handleTextureLoaded(noiseImage, noiseTexture); }
+    noiseImage.src = "noiseBumpMap.png";
 }
 
 function handleTextureLoaded(image, texture) {
@@ -675,9 +698,6 @@ function firstpass()
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
     gl.uniform1i(simulateProgram.samplerUniform, 0);
-
-
-
 
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, simindicesbuffer);
@@ -714,6 +734,28 @@ function secondpass()
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
     gl.generateMipmap(gl.TEXTURE_2D);
     gl.bindTexture(gl.TEXTURE_2D, null);
+}
+
+//// IMPORTANT! NEED TO BE MERGED!
+///  skyRender: Rendering the sky
+function skyrender()
+{
+
+    // This is the 2nd path that copy the rendered result to the height-map, which can be used in the first step.
+
+    gl.useProgram(skyProgram);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvaswidth,canvasheight);
+//    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.enableVertexAttribArray(skyProgram.vertexPositionAttribute);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, simpositionbuffer);
+    gl.vertexAttribPointer(skyProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, simindicesbuffer);
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
+
+    gl.disableVertexAttribArray(skyProgram.vertexPositionAttribute);
 }
 
 function updateNormal(index, newnormal)
@@ -788,6 +830,7 @@ function updateNormalMap(w,h)
 
 function finalrender()
 {
+    //return;
     //This is the 3rd path that use GLSL to render the image, using rttTexture to be the height field of the wave
     gl.useProgram(shaderProgram);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
@@ -795,7 +838,7 @@ function finalrender()
     gl.viewport(0, 0, canvaswidth,canvasheight);
 
     debugarea.innerHTML=canvaswidth+" "+canvasheight;
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    //gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, copyTexture);
@@ -819,31 +862,32 @@ function finalrender()
     gl.uniformMatrix4fv(u_modelViewPerspectiveLocation_Inverse_Transpose, false, mvpit);
     gl.uniformMatrix4fv(u_modelLocation, false, model);
 
-    //shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
     gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
     gl.bindBuffer(gl.ARRAY_BUFFER, waterfacepositionbuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
-
 
     gl.bindBuffer(gl.ARRAY_BUFFER, waterfacenormalbuffer);
     gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false, 0, 0);
 
-    gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
-    gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
-
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterfaceindicesbuffer);
     gl.drawElements(gl.TRIANGLES, waterfaceindicesbuffer.numitems, gl.UNSIGNED_SHORT,0);
-    
-    
+
+
+//    gl.disableVertexAttribArray(skyProgram.vertexPositionAttribute);
+//   gl.disableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+//    gl.disableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 }
 function animate()
 {
  // firstpass();
  // secondpass();
+//drawSkybox();
 
     simulateHeightField(NUM_WIDTH_PTS,NUM_HEIGHT_PTS);
 
-    drawSkybox();
+    skyrender();
     finalrender();
 
     var nowtime=new Date().getTime();
@@ -969,6 +1013,8 @@ function webGLStart() {
     initGrid();
     intializeSkybox();
     initSkyboxTex();
+    initSkyShader();
+
     //initTextures();
 
     gl.viewport(0,0,canvaswidth,canvasheight);
