@@ -28,17 +28,37 @@
 <script id="fs_fftHorizontal" type="x-shader/x-fragment">
    precision highp float;
 
+	vec2 complex_add(vec2 a, vec2 b)
+	{
+	    return vec2(a.x + b.x, a.y + b.y);
+	}
+
+
+	vec2 complex_mult(vec2 a, vec2 b)
+	{
+	    return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+	}
+
    varying vec2 f_Pos;
 
    uniform sampler2D u_fftData;
+   uniform sampler2D u_butterflyData;
 
   void main(void)
   {
 	vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
-    vec4 info = texture2D(u_simData, texcoord);
+	vec4 indicesAndWeight = texture2D(u_butterflyData, texcoord);
 
+	float sourceTexCoord1 = indicesAndWeight.r;
+	float sourceTexcoord2 = indicesAndWeight.g;
+	vec2 weight = indicesAndWeight.ba;
 
-	gl_FragColor = info;
+	vec2 source1 = texture2D(u_fftData, vec2(sourceTexCoord1, texcoord.y).xy;
+	vec2 source2 = texture2D(u_fftData, vec2(sourceTexCoord2, texcoord.y).xy;
+
+	vec2 result = complex_add(source1, complex_mult(source2, weight));
+
+	gl_FragColor = vec4(result, 0.0, 1.0);
   }
 </script>
 <script id="fs_copy" type="x-shader/x-fragment">
@@ -99,6 +119,64 @@
 	gl_FragColor = info;
   }
 </script>
+<script id="fs_simFFT" type="x-shader/x-fragment">
+   precision highp float;
+
+	vec2 conjugate(vec2 arg)
+	{
+	    return vec2(arg.x, -arg.y);
+	}
+
+
+	vec2 complex_exp(float arg)
+	{
+	    return vec2(cos(arg), sin(arg));
+	}
+
+
+	vec2 complex_add(vec2 a, vec2 b)
+	{
+	    return vec2(a.x + b.x, a.y + b.y);
+	}
+
+
+	vec2 complex_mult(vec2 a, vec2 b)
+	{
+	    return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+	}
+
+   uniform sampler2D u_simData;
+   uniform float u_time;
+   varying vec2 f_Pos;
+
+   const float delta = 1.0/512.0;
+   const float PI = 3.14159265359;
+
+  void main(void)
+  {
+    // map to [0, 1] range, not perfectly aligned with texel centers???
+    vec2 texcoord = (f_Pos + vec2(1.0)) * 0.5; // now center of any fragment is from vec2(-1.0 + delta/2.0) to vec2(1.0 - delta/2.0)
+    vec2 texcoordMirrored = vec2(1.0) - texcoord;
+
+	// map texcoord to [0, meshSize) range;
+	vec2 n = (texcoord - vec2(delta/2.0)) * 512.0;
+	// wave vector
+	vec2 k = (-256.0 + n) * (2.0 * PI / 100.0);
+
+    // calculate dispersion w(k)
+    float w = sqrt(9.81 * length(k));
+
+    vec2 h0_k = texture2D(u_simData, texcoord).xy;
+    vec2 h0_mk = texture2D(u_simData, texcoordMirrored).xy;
+
+    // output frequency-space complex values
+    vec2 ht = complex_add(complex_mult(h0_k, complex_exp(w * u_time)), complex_mult(conjugate(h0_mk), complex_exp(-w * u_time)));
+	//vec2 ht = complex_add(h0_k, h0_mk);
+    //vec2 ht = h0_mk;
+
+	gl_FragColor = vec4(ht, 0.0, 1.0);
+  }
+</script>
 <script id="vs_render" type="x-shader/x-vertex">
 precision highp float;
 
@@ -121,7 +199,7 @@ precision highp float;
         vec2 heightfieldTexcoord = texCoord;
         vec4 info = texture2D(u_simData, heightfieldTexcoord);
 		
-		vec3 positionModel = vec3(position.x, info.r, position.z);
+		vec3 positionModel = vec3(position.x, sqrt(info.r*info.r + info.g*info.g), position.z);
 		vec3 normalModel = vec3(info.w, sqrt(1.0- info.w*info.w - info.z*info.z), info.z);
 
 		position_eye = (u_modelView * vec4(positionModel, 1.0)).xyz;
