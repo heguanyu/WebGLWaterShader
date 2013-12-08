@@ -73,11 +73,7 @@ function generate_h0(x, y)
     //float Ei = urand()*2.0f-1.0f;
     var Er = gauss();
     var Ei = gauss();
-
-    //var h0_re = Er * P * Math.SQRT1_2;
-    //var h0_im = Ei * P * Math.SQRT1_2;
     
-    //return Math.sqrt(h0_re*h0_re + h0_im*h0_im);
     this.re = Er * P * Math.SQRT1_2;
     this.im = Ei * P * Math.SQRT1_2;
 

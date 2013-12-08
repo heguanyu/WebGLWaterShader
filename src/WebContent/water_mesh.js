@@ -38,16 +38,11 @@ var waterFacePositionBuffer;
 var waterFaceTexCoordBuffer;
 var waterFaceIndicesBuffer;
 
-var fftProgram;
 var simProgram;
 var shaderProgram;
 var copyProgram;
 
-var spectrumFramebuffer;
-var spectrumTexture;
-
 var copyFramebuffer;
-var initialSpectrumTex;
 
 var model;
 
@@ -336,24 +331,6 @@ function getShader(gl, id) {
     return shader;
 }
 
-function initFFTShader() {
-    var vertexShader = getShader(gl, "vs_quad");
-    var fragmentShader = getShader(gl, "fs_fftHorizontal");
-
-    fftProgram = gl.createProgram();
-    gl.attachShader(fftProgram, vertexShader);
-    gl.attachShader(fftProgram, fragmentShader);
-    gl.linkProgram(fftProgram);
-    if (!gl.getProgramParameter(fftProgram, gl.LINK_STATUS)) {
-        alert("Could not initialise FFT shader");
-    }
- 
-    fftProgram.vertexPositionAttribute = gl.getAttribLocation(fftProgram, "position");
-
-    fftProgram.samplerUniform = gl.getUniformLocation(fftProgram, "u_fftData");
-    fftProgram.butterflyUniform = gl.getUniformLocation(fftProgram, "u_butterflyData");
-
-}
 
 function initSimShader() {
     var vertexShader = getShader(gl, "vs_quad");
@@ -427,55 +404,26 @@ function initRenderShader()
 }
 
 
-function initTextureFramebuffer()
+
+function initSpectrumTexture()
 {
-	spectrumFramebuffer = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
-    spectrumFramebuffer.width = meshSize;
-    spectrumFramebuffer.height = meshSize;
-    
-    spectrumTexture = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D, spectrumTexture);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, spectrumFramebuffer.width, spectrumFramebuffer.height, 0, gl.RGBA, gl.FLOAT, null);
-    
-   
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTexture, 0);
-    
-    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
-        throw new Error("gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE");
-    }
-
-    gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-}
-
-
-function initCopyTextureFramebuffer()
-{
-	var testArray = new Float32Array(meshSize*meshSize*4);
+	var initSpectrumArray = new Float32Array(meshSize*meshSize*4);
 	var k = 0;
 	for(var j = 0; j < meshSize; j++)
 		for(var i = 0; i < meshSize; i++) 
 		{
-			var s_contrib = Math.sin(i/(meshSize-1) * 2.0 * Math.PI);
-	        var t_contrib = Math.cos(j/(meshSize-1)* 2.0 * Math.PI);
-	        var height = s_contrib * t_contrib;
 	        var h0 = new generate_h0(i, j);
-	        //var temp = Math.sqrt(h0.h0_im*h0.h0_im + h0.h0_re*h0.h0_re);
-			testArray[k++] = h0.re; 
-			testArray[k++] = h0.im;
-			testArray[k++] = 0.0;
-			testArray[k++] = 0.0;
+	        // Swap the real part and imaginary part of input data to use FFT to compute inverse FFT
+			initSpectrumArray[k++] = h0.im;//h0.re; 
+			initSpectrumArray[k++] = h0.re;//h0.im;
+			initSpectrumArray[k++] = 0.0;
+			initSpectrumArray[k++] = 0.0;
 		}
-	
+	/*
 	copyFramebuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, copyFramebuffer);
     copyFramebuffer.width = meshSize;
-    copyFramebuffer.height = meshSize;
+    copyFramebuffer.height = meshSize;*/
 	
     initialSpectrumTex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, initialSpectrumTex);
@@ -483,16 +431,16 @@ function initCopyTextureFramebuffer()
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, copyFramebuffer.width, copyFramebuffer.height, 0, gl.RGBA, gl.FLOAT, testArray);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, meshSize, meshSize, 0, gl.RGBA, gl.FLOAT, initSpectrumArray);
     
-    
+    /*
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, initialSpectrumTex, 0);
     if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
         throw new Error("gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE");
-    }
+    }*/
 
     gl.bindTexture(gl.TEXTURE_2D, null);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+   // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
 function translateGridCoord(i,j,w)
@@ -511,7 +459,7 @@ function initGrid()
 	        var idx=translateGridCoord(i,j,meshSize);
 	        positions[idx*3]= (j - meshSize/2) * patchSize / meshSize;
 	        positions[idx*3+1] = 0.0;
-	        positions[idx*3+2] = (i - meshSize/2)*patchSize / meshSize;
+	        positions[idx*3+2] = (i - meshSize/2) * patchSize / meshSize;
 	        
 	        texCoords[idx*2]= i/(meshSize-1);
 	        texCoords[idx*2+1] = j/(meshSize-1);	        
@@ -569,12 +517,14 @@ function initQuad()
 
 function simulation()
 {
-    //THIS IS THE FIRST PASS THAT USE GLSL TO COMPUTE THE HEIGHT FIELD TO THE spectrumTexture BUFFER
+    //THIS IS THE FIRST PASS THAT USE GLSL TO COMPUTE THE HEIGHT FIELD TO THE spectrumTextureA BUFFER
     gl.useProgram(simProgram);
     
     gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
     
-    gl.viewport(0, 0, spectrumFramebuffer.width, spectrumFramebuffer.height);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureA, 0);
+    
+    gl.viewport(0, 0, meshSize, meshSize);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
     gl.vertexAttribPointer(simProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
@@ -609,7 +559,7 @@ function copyHeightField()
     
     gl.uniform1f(copyProgram.u_copyTimeLocation, currentTime);
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, spectrumTexture);
+    gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
     gl.uniform1i(copyProgram.samplerUniform, 0);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
@@ -620,10 +570,116 @@ function copyHeightField()
     gl.useProgram(null);
 }
 
+function FFT()
+{
+	gl.viewport(0, 0, meshSize, meshSize);
+    // Do two passes for 2D FFT, start with horizontal pass
+    gl.useProgram(fftHorizontalProgram);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
+    gl.vertexAttribPointer(fftHorizontalProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(fftHorizontalProgram.vertexPositionAttribute);
+
+        
+    var isEvenStage = true;
+    for(var i = 0; i < numFFTStages; ++i)
+	{
+    	if(isEvenStage)
+		{
+    		gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
+    		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureB, 0);
+    		
+    		gl.activeTexture(gl.TEXTURE0);
+	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
+	    	gl.uniform1i(fftHorizontalProgram.fftDataUniform, 0);	
+	    	
+	    	gl.activeTexture(gl.TEXTURE1);
+	    	gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
+	    	gl.uniform1i(fftHorizontalProgram.fftDataUniform, 1);	
+	    	
+	            	
+		}
+    	else
+		{
+    		gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
+    		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureA, 0);
+    		
+    		gl.activeTexture(gl.TEXTURE0);
+	    	gl.bindTexture(gl.TEXTURE_2D, spectrumTextureB);	
+	    	gl.uniform1i(fftHorizontalProgram.fftDataUniform, 0);	
+	    	
+	    	gl.activeTexture(gl.TEXTURE1);
+	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
+	    	gl.uniform1i(fftHorizontalProgram.fftDataUniform, 1);	
+		}
+    	
+    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
+    	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
+    	
+    	isEvenStage = !isEvenStage;
+	}
+    
+    
+    gl.disableVertexAttribArray(fftHorizontalProgram.vertexPositionAttribute);    
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.useProgram(null);
+    
+    // FFT vertical pass, note we do not swap the real part and imaginary part back from the result because we still have an inverse FFT pass to do
+    gl.useProgram(fftVerticalProgram);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
+    gl.vertexAttribPointer(fftVerticalProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(fftVerticalProgram.vertexPositionAttribute);
+    
+    for(var i = 0; i < numFFTStages; ++i)
+	{
+    	if(isEvenStage)
+		{
+    		gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
+    		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureB, 0);
+    		
+    		gl.activeTexture(gl.TEXTURE0);
+	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
+	    	gl.uniform1i(fftVerticalProgram.fftDataUniform, 0);	
+	    	
+	    	gl.activeTexture(gl.TEXTURE1);
+	    	gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
+	    	gl.uniform1i(fftVerticalProgram.fftDataUniform, 1);	
+	    	
+	            	
+		}
+    	else
+		{
+    		gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
+    		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureA, 0);
+    		
+    		gl.activeTexture(gl.TEXTURE0);
+	    	gl.bindTexture(gl.TEXTURE_2D, spectrumTextureB);	
+	    	gl.uniform1i(fftVerticalProgram.fftDataUniform, 0);	
+	    	
+	    	gl.activeTexture(gl.TEXTURE1);
+	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
+	    	gl.uniform1i(fftVerticalProgram.fftDataUniform, 1);	
+		}
+    	
+    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
+    	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
+    	
+    	isEvenStage = !isEvenStage;
+	}
+    
+    heightFieldTex = isEvenStage ? spectrumTextureA : spectrumTextureB;
+    
+    // TODO: in updateNormal or render program, swap the real and imaginary part of the result back  
+    gl.disableVertexAttribArray(fftVerticalProgram.vertexPositionAttribute);    
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.useProgram(null);
+
+}
 
 function render()
 {
-    //This is the 3rd pass that use GLSL to render the image, using spectrumTexture to be the height field of the wave
+    //This is the 3rd pass that use GLSL to render the image, using spectrumTextureA to be the height field of the wave
     gl.useProgram(shaderProgram);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
@@ -632,7 +688,7 @@ function render()
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     gl.activeTexture(gl.TEXTURE2);
-    gl.bindTexture(gl.TEXTURE_2D, spectrumTexture);
+    gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
     gl.uniform1i(shaderProgram.samplerUniform, 2);
 
 
@@ -676,7 +732,7 @@ function render()
 function animate()
 {
     simulation();
-    
+    //FFT();
     /////////////////To replace simulation
     //copyHeightField();
     render();
@@ -771,12 +827,15 @@ function webGLStart() {
     }
     
     initSimShader();
-    initCopyShader();
+    //initCopyShader();
+    initFFTHorizontalShader();
+    initFFTVerticalShader();
     initRenderShader();
     initSkyboxShader();
-    
-    initTextureFramebuffer();
-    initCopyTextureFramebuffer();
+      
+    initSpectrumTexture();
+    initButterflyTextures();
+    initFFTFramebuffer();
     
     initQuad();
     initGrid();

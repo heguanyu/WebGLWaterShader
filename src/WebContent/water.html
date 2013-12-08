@@ -6,6 +6,7 @@
 <script src ="libs\gl-matrix.js" type ="text/javascript"></script>
 <script src="libs\webgl-utils.js" type="text/javascript"></script>
 <script src="libs\stats.min.js" type="text/javascript"></script>
+<script src="fft.js" type="text/javascript"></script>
 
 <head>
 <title>Water Shader</title>
@@ -53,12 +54,49 @@
 	float sourceTexcoord2 = indicesAndWeight.g;
 	vec2 weight = indicesAndWeight.ba;
 
-	vec2 source1 = texture2D(u_fftData, vec2(sourceTexCoord1, texcoord.y).xy;
-	vec2 source2 = texture2D(u_fftData, vec2(sourceTexCoord2, texcoord.y).xy;
+	vec2 source1 = texture2D(u_fftData, vec2(sourceTexCoord1, texcoord.y)).xy;
+	vec2 source2 = texture2D(u_fftData, vec2(sourceTexcoord2, texcoord.y)).xy;
 
 	vec2 result = complex_add(source1, complex_mult(source2, weight));
 
 	gl_FragColor = vec4(result, 0.0, 1.0);
+  }
+</script>
+<script id="fs_fftVertical" type="x-shader/x-fragment">
+   precision highp float;
+
+	vec2 complex_add(vec2 a, vec2 b)
+	{
+	    return vec2(a.x + b.x, a.y + b.y);
+	}
+
+
+	vec2 complex_mult(vec2 a, vec2 b)
+	{
+	    return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+	}
+
+   varying vec2 f_Pos;
+
+   uniform sampler2D u_fftData;
+   uniform sampler2D u_butterflyData; // same data as the horizontal stage
+
+  void main(void)
+  {
+	vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
+	vec4 indicesAndWeight = texture2D(u_butterflyData, texcoord.yx); // reverse xy order to reuse the indicesAndWeight texture
+
+	float sourceTexCoord1 = indicesAndWeight.r;
+	float sourceTexcoord2 = indicesAndWeight.g;
+	vec2 weight = indicesAndWeight.ba;
+
+	vec2 source1 = texture2D(u_fftData, vec2(texcoord.x, sourceTexCoord1)).xy;
+	vec2 source2 = texture2D(u_fftData, vec2(texcoord.x, sourceTexcoord2)).xy;
+
+	vec2 result = complex_add(source1, complex_mult(source2, weight));
+
+	gl_FragColor = vec4(result, 0.0, 1.0);
+	//gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
   }
 </script>
 <script id="fs_copy" type="x-shader/x-fragment">
