@@ -89,31 +89,56 @@ function initButterflyTextures()
 {
 	// initialize butterfly indices and weights for every stage
 	numFFTStages = Math.log(meshSize)/Math.LN2;
+	var delta = 1.0/meshSize;
 	butterflyTextures = new Array(numFFTStages);
 	
 	for(var n = 0; n < butterflyTextures.length; ++n)
 	{
 		var butterflyArray = new Float32Array(meshSize*meshSize*4);
-		var k = 0;
-		for(var j = 0; j < meshSize; j++)
+		var k = 0, k0 = 0;
+		var exp = pow(2, numFFTStages - n - 1);
+		var step = Math.pow(2, n+1);
+		// compute for the first row		
+		for(var m = 0; m < step/2; ++m)
+		{
+			k = m*4;
+			for(var l = m; l < meshSize; l += step, k += step*4)
+			{
+				
+				butterflyArray[k++] = (l + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
+				butterflyArray[k--] = (l + step/2 + 0.5)*delta;   // index (stored as texture coordinates) of Source2			
+			}
+		}
+		k = 2;
+		for(var i = 0; i < meshSize; i++, k += 2) 
+		{
+			/*
+			 *   Source1 ----------				- += Output1
+			 * 			 			-		-	
+			 * 			 				- 	
+			 *  		    		-		-
+			 *   Source2 * weight--				- += Output2
+			 *   
+			 * 	 For Source1, weight is stored as it is
+			 * 	 For Source2, weight is stored as -weight
+			 * 
+			 */
+			var r = (i * exp) % meshSize;		
+			butterflyArray[k++] =  cos(2*Math.PI*r/meshSize);   // real part of weight
+			butterflyArray[k++] = -sin(2*Math.PI*r/meshSize);   // imaginary part of weight
+		}
+		// copy the first row to every row
+		for(var j = 1; j < meshSize; j++)
+		{
+			k0 = 0;
 			for(var i = 0; i < meshSize; i++) 
 			{
-				/*
-				 *   Source1 ------------------				- += Output1
-				 * 			 					-		-	
-				 * 			 						- 	
-				 *  		    				-		-
-				 *   Source2 * weight----------				- += Output2
-				 *   
-				 * 	 For Source1, weight is stored as it is
-				 * 	 For Source2, weight is stored as -weight
-				 * 
-				 */
-				butterflyArray[k++] = 0.0;   // index (stored as texture coordinates) of Source1
-				butterflyArray[k++] = 0.0;   // index (stored as texture coordinates) of Source2
-				butterflyArray[k++] = 0.0;   // real part of weight
-				butterflyArray[k++] = 0.0;   // imaginary part of weight
+				butterflyArray[k++] = butterflyArray[k0++];   // index (stored as texture coordinates) of Source1
+				butterflyArray[k++] = butterflyArray[k0++];   // index (stored as texture coordinates) of Source2
+				butterflyArray[k++] = butterflyArray[k0++];   // real part of weight
+				butterflyArray[k++] = butterflyArray[k0++];   // imaginary part of weight
 			}
+		}
 		butterflyTextures[n] = gl.createTexture();
 	    gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[n]);
 	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
