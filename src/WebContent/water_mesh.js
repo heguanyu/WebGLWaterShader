@@ -37,16 +37,13 @@ var canvasWidth;
 var quadPositionBuffer;
 var quadIndicesBuffer;
 
-var waterFacePositionBuffer;
-var waterFaceTexCoordBuffer;
-var waterFaceOffsetBuffer;
-var waterFaceIndicesBuffer;
+var oceanPatchPositionBuffer;
+var oceanPatchTexCoordBuffer;
+var oceanPatchOffsetBuffer;
+var oceanPatchIndicesBuffer;
 
 var simProgram;
 var shaderProgram;
-var copyProgram;
-
-var copyFramebuffer;
 
 var model;
 
@@ -57,7 +54,7 @@ var mouseRightDown = false;
 var lastMouseX = null;
 var lastMouseY = null;
 
-var radius = 3.5;
+var radius = 10.5;
 var azimuth = 0.0;
 var zenith = Math.PI / 3.0;
 
@@ -186,6 +183,8 @@ function initSimShader() {
  
     simProgram.vertexPositionAttribute = gl.getAttribLocation(simProgram, "position");
    
+    simProgram.u_meshSizeLocation = gl.getUniformLocation(simProgram, "u_meshSize");
+    simProgram.u_patchSizeLocation = gl.getUniformLocation(simProgram, "u_patchSize");
     simProgram.u_simTimeLocation = gl.getUniformLocation(simProgram, "u_time");
     simProgram.samplerUniform = gl.getUniformLocation(simProgram, "u_simData");
 
@@ -220,6 +219,7 @@ function initRenderShader()
     shaderProgram.u_invTransLocation = gl.getUniformLocation(shaderProgram,"u_normalMatrix");
     shaderProgram.u_modelViewPerspectiveLocation = gl.getUniformLocation(shaderProgram,"u_modelViewPerspective");
 
+    shaderProgram.u_meshSizeLocation= gl.getUniformLocation(shaderProgram, "u_meshSize");
     shaderProgram.u_shaderTimeLocation= gl.getUniformLocation(shaderProgram, "u_time");
     shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "u_simData");
 
@@ -274,12 +274,12 @@ function initGrid()
 	        texCoords[idx*2+1] = j/(meshSize-1);	        
 	    }
     
-    waterFacePositionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER,waterFacePositionBuffer);
+    oceanPatchPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,oceanPatchPositionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
     
-    waterFaceTexCoordBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER,waterFaceTexCoordBuffer);
+    oceanPatchTexCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,oceanPatchTexCoordBuffer);
     gl.bufferData(gl.ARRAY_BUFFER,texCoords,gl.STATIC_DRAW);
 
     var indices = new Uint32Array((meshSize-1)*(meshSize-1)*6);
@@ -295,10 +295,10 @@ function initGrid()
 	        indices[currentQuad*6+5] = translateGridCoord(i,j+1,meshSize);
 	        currentQuad++;
 	    }
-    waterFaceIndicesBuffer=gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,waterFaceIndicesBuffer);
+    oceanPatchIndicesBuffer=gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,oceanPatchIndicesBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,indices,gl.STATIC_DRAW);
-    waterFaceIndicesBuffer.numitems=currentQuad*6;
+    oceanPatchIndicesBuffer.numitems=currentQuad*6;
     
     // initialize instancing
     var halfPatchCount = patchCount /2.0;
@@ -314,10 +314,10 @@ function initGrid()
             i += 3;
         }
     }
-    waterFaceOffsetBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, waterFaceOffsetBuffer);
+    oceanPatchOffsetBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchOffsetBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, offsetData, gl.STATIC_DRAW);
-    waterFaceOffsetBuffer.instanceCount = patchCount * patchCount;
+    oceanPatchOffsetBuffer.instanceCount = patchCount * patchCount;
 
 }
 
@@ -360,6 +360,9 @@ function simulation()
     gl.enableVertexAttribArray(simProgram.vertexPositionAttribute);
 
     gl.uniform1f(simProgram.u_simTimeLocation, currentTime);
+    gl.uniform1f(simProgram.u_meshSizeLocation, meshSize);
+    gl.uniform1f(simProgram.u_patchSizeLocation, patchSize);
+    
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, initialSpectrumTex);
     gl.uniform1i(simProgram.samplerUniform, 0);
@@ -497,6 +500,8 @@ function render()
     mat4.inverse(mv,invTrans);
     mat4.transpose(invTrans,invTrans);
 
+    gl.uniform1f(shaderProgram.u_meshSizeLocation, meshSize);
+    
     gl.uniform1f(shaderProgram.u_shaderTimeLocation, currentTime);
     gl.uniformMatrix4fv(shaderProgram.u_modelViewLocation, false, mv);
     gl.uniformMatrix4fv(shaderProgram.u_modelViewPerspectiveLocation, false, mvp);
@@ -506,27 +511,27 @@ function render()
     gl.uniformMatrix4fv(shaderProgram.u_perspLocation, false, persp);
     gl.uniformMatrix4fv(shaderProgram.u_modelViewInvLocation, false, invMV);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterFaceIndicesBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, oceanPatchIndicesBuffer);
     
-    gl.bindBuffer(gl.ARRAY_BUFFER, waterFacePositionBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchPositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
     
-    gl.bindBuffer(gl.ARRAY_BUFFER, waterFaceTexCoordBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchTexCoordBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexTexCoordAttribute, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);
 
     
-   // gl.drawElements(gl.TRIANGLES, waterFaceIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
+    gl.drawElements(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
     
-    gl.bindBuffer(gl.ARRAY_BUFFER, waterFaceOffsetBuffer);
+    /*gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchOffsetBuffer);
     gl.enableVertexAttribArray(shaderProgram.vertexOffsetAttribute);
     gl.vertexAttribPointer(shaderProgram.vertexOffsetAttribute, 3, gl.FLOAT, false, 0, 0);
     instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 1);
 
-    instancingEXT.drawElementsInstancedANGLE(gl.TRIANGLES, waterFaceIndicesBuffer.numitems, gl.UNSIGNED_SHORT, 0, waterFaceOffsetBuffer.instanceCount);
+    instancingEXT.drawElementsInstancedANGLE(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_SHORT, 0, oceanPatchOffsetBuffer.instanceCount);
 
-    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 0);    
+    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 0);    */
     gl.disableVertexAttribArray(shaderProgram.vertexPositionAttribute);     
     gl.disableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);     
 }
@@ -590,7 +595,7 @@ function webGLStart() {
 
     model = mat4.create();
     mat4.identity(model);
-    mat4.scale(model, [1.0, 1.0, 1.0]);
+    mat4.scale(model, [0.1, 1.0, 0.1]);
 
     // Query extension
     var OES_texture_float = gl.getExtension('OES_texture_float');

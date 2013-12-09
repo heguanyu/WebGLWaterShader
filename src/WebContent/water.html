@@ -53,23 +53,26 @@
 	    return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
 	}
 
+   uniform float u_meshSize;
+   uniform float u_patchSize;
    uniform sampler2D u_simData;
    uniform float u_time;
+
    varying vec2 f_Pos;
 
-   const float delta = 1.0/512.0;
    const float PI = 3.14159265359;
 
   void main(void)
   {
+ 	float delta = 1.0 / u_meshSize;
     // map to [0, 1] range, not perfectly aligned with texel centers???
     vec2 texcoord = (f_Pos + vec2(1.0)) * 0.5; // now center of any fragment is from vec2(-1.0 + delta/2.0) to vec2(1.0 - delta/2.0)
     vec2 texcoordMirrored = vec2(1.0) - texcoord;
 
 	// map texcoord to [0, meshSize) range;
-	vec2 n = (texcoord - vec2(delta/2.0)) * 512.0;
+	vec2 n = (texcoord - vec2(delta/2.0)) * u_meshSize;
 	// wave vector
-	vec2 k = (-256.0 + n) * (2.0 * PI / 100.0);
+	vec2 k = (-u_meshSize*0.5 + n) * (2.0 * PI / u_patchSize);
 
     // calculate dispersion w(k)
     float w = sqrt(9.81 * length(k));
@@ -172,6 +175,7 @@ precision highp float;
   uniform mat4 u_modelViewPerspective;
   uniform mat4 u_normalMatrix;
   
+  uniform float u_meshSize;
   uniform sampler2D u_simData;
   uniform float u_time;
 
@@ -182,10 +186,10 @@ precision highp float;
   {
         vec4 info = texture2D(u_simData, texCoord);
 		
-		vec3 positionModel = vec3(position.x, sqrt(info.g*info.g), position.z);
+		vec3 positionModel = vec3(position.x, sqrt(info.r*info.r), position.z);
 		vec3 positionWorld = (u_model * vec4(positionModel, 1.0)).xyz + offset;
 
-		float delta = 1.0/512.0;
+		float delta = 1.0 / u_meshSize;
 		vec2 upcoord    = texCoord + vec2(0.0, delta);
     	vec2 downcoord  = texCoord - vec2(0.0, delta);
    		vec2 leftcoord  = texCoord - vec2(delta, 0.0);
