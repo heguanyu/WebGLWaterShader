@@ -4,7 +4,7 @@
 
 function initCopyShader()
 {
-    var vertexShader = getShader(gl, "vs_quad");
+    var vertexShader = getShader(gl, "vs_copy");
     var fragmentShader = getShader(gl, "fs_copy");
 
     copyProgram = gl.createProgram();
@@ -16,10 +16,14 @@ function initCopyShader()
         alert("Could not initialise copying shaders");
     }
 
-    copyProgram.vertexPositionAttribute = gl.getAttribLocation(copyProgram, "position");
+    gl.useProgram(copyProgram);
 
-    copyProgram.u_copyTimeLocation = gl.getUniformLocation(copyProgram, "u_time");
-    copyProgram.samplerUniform = gl.getUniformLocation(copyProgram, "u_simData");
+    copyProgram.vertexPositionAttribute = gl.getAttribLocation(copyProgram, "position");
+    gl.enableVertexAttribArray(copyProgram.vertexPositionAttribute);
+
+    copy_utimeloc = gl.getUniformLocation(copyProgram, "u_time");
+    copyProgram.samplerUniform = gl.getUniformLocation(copyProgram, "uSampler");
+
 }
 
 function initCopyTextureFramebuffer()
@@ -47,28 +51,29 @@ function initCopyTextureFramebuffer()
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
-function copyHeightField()
+function secondpass()
 {
-    // This is the 2nd pass that copy the rendered result to the height-map, which can be used in the first step.
+
+    // This is the 2nd path that copy the rendered result to the height-map, which can be used in the first step.
+
     gl.useProgram(copyProgram);
 
     gl.bindFramebuffer(gl.FRAMEBUFFER,copyFramebuffer);
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     gl.viewport(0, 0, copyFramebuffer.width, copyFramebuffer.height);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
+    gl.uniform1f(copy_utimeloc, curtime);
+    gl.bindBuffer(gl.ARRAY_BUFFER, simpositionbuffer);
     gl.vertexAttribPointer(copyProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(copyProgram.vertexPositionAttribute);
 
-    gl.uniform1f(copyProgram.u_copyTimeLocation, currentTime);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
-    gl.uniform1i(copyProgram.samplerUniform, 0);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, rttTexture);
+    gl.uniform1i(copyProgram.samplerUniform, 1);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, simindicesbuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
 
-    gl.disableVertexAttribArray(copyProgram.vertexPositionAttribute);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.useProgram(null);
+    gl.bindTexture(gl.TEXTURE_2D, copyTexture);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, null);
 }

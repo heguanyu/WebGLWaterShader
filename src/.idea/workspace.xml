@@ -23,31 +23,28 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="water_mesh.js" pinned="false" current="true" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/water_mesh.js">
+      <file leaf-file-name="water.html" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/water.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="589" column="0" selection-start="20766" selection-end="20766" vertical-scroll-proportion="1.2694954" vertical-offset="2883" max-vertical-offset="7087">
-              <folding>
-                <element signature="n#!!doc" expanded="true" />
-                <element signature="n#!!block;n#handleMouseMove#0" expanded="false" />
-                <element signature="n#!!block;n#initKeyboardHandle#0" expanded="false" />
-                <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
-                <element signature="n#!!block;n#initSpectrumTexture#0" expanded="false" />
-                <element signature="n#!!block;n#initGrid#0" expanded="false" />
-                <element signature="n#!!block;n#initQuad#0" expanded="false" />
-                <element signature="n#!!block;n#initHeightField#0" expanded="false" />
-                <element signature="n#!!block;n#updateNormal#0" expanded="false" />
-                <element signature="n#!!block;n#updateNormalMap#0" expanded="false" />
-                <element signature="n#!!block;n#FFT#0" expanded="false" />
-              </folding>
+            <state line="101" column="9" selection-start="2715" selection-end="2715" vertical-scroll-proportion="0.0" vertical-offset="1919" max-vertical-offset="7410">
+              <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="skyshader.js" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="skyshader.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/skyshader.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="193" column="68" selection-start="6772" selection-end="6772" vertical-scroll-proportion="0.0" vertical-offset="2903" max-vertical-offset="3800">
+            <state line="26" column="23" selection-start="479" selection-end="479" vertical-scroll-proportion="0.5507246" vertical-offset="0" max-vertical-offset="3800">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="water_mesh.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/water_mesh.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="15" column="6" selection-start="634" selection-end="634" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="10032">
               <folding />
             </state>
           </provider>
@@ -56,7 +53,25 @@
       <file leaf-file-name="firstpass.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/firstpass.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="72" column="0" selection-start="2477" selection-end="2477" vertical-scroll-proportion="-24.24" vertical-offset="762" max-vertical-offset="1634">
+            <state line="56" column="37" selection-start="2062" selection-end="2062" vertical-scroll-proportion="0.0" vertical-offset="1064" max-vertical-offset="1577">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="secondpass.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/secondpass.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="51" column="21" selection-start="1770" selection-end="1770" vertical-scroll-proportion="0.0" vertical-offset="969" max-vertical-offset="1615">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="utils.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/utils.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="106" column="1" selection-start="2176" selection-end="2176" vertical-scroll-proportion="0.0" vertical-offset="2014" max-vertical-offset="2641">
               <folding />
             </state>
           </provider>
@@ -65,82 +80,17 @@
       <file leaf-file-name="globalVars.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/globalVars.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="30" column="0" selection-start="550" selection-end="550" vertical-scroll-proportion="-21.2" vertical-offset="40" max-vertical-offset="1710">
+            <state line="13" column="14" selection-start="201" selection-end="201" vertical-scroll-proportion="0.0" vertical-offset="247" max-vertical-offset="1748">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="water_mesh.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/Desktop/water_mesh.js">
+      <file leaf-file-name="gl-matrix.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/libs/gl-matrix.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="383" column="54" selection-start="11938" selection-end="11938" vertical-scroll-proportion="8.2" vertical-offset="2523" max-vertical-offset="7144">
-              <folding>
-                <element signature="n#!!block;n#handleMouseDown#0" expanded="false" />
-                <element signature="n#!!block;n#handleMouseUp#0" expanded="false" />
-                <element signature="n#!!block;n#handleMouseMove#0" expanded="false" />
-                <element signature="n#!!block;n#sphericalToCartesian#0" expanded="false" />
-                <element signature="n#!!block;n#initSkyboxShader#0" expanded="false" />
-                <element signature="n#!!block;n#initSkyboxTex#0" expanded="false" />
-                <element signature="n#!!block;n#intializeSkybox#0" expanded="false" />
-                <element signature="n#!!block;n#drawSkybox#0" expanded="false" />
-                <element signature="n#!!block;n#initGL#0" expanded="false" />
-                <element signature="n#!!block;n#getShader#0" expanded="false" />
-                <element signature="n#!!block;n#initCopyShader#0" expanded="false" />
-                <element signature="n#!!block;n#initGrid#0" expanded="false" />
-                <element signature="n#!!block;n#initQuad#0" expanded="false" />
-                <element signature="n#!!block;n#simulation#0" expanded="false" />
-                <element signature="n#!!block;n#copyHeightField#0" expanded="false" />
-                <element signature="n#!!block;n#FFT#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="secondpass.js" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/secondpass.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="73" column="1" selection-start="2699" selection-end="2699" vertical-scroll-proportion="0.0" vertical-offset="604" max-vertical-offset="1501">
+            <state line="1732" column="9" selection-start="54176" selection-end="54176" vertical-scroll-proportion="0.0" vertical-offset="32908" max-vertical-offset="65778">
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="water.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/water.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="109" column="0" selection-start="2882" selection-end="2882" vertical-scroll-proportion="-7.214286" vertical-offset="121" max-vertical-offset="1007">
-              <folding>
-                <element signature="tag#script#0;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#1;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#5;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="e#11203#11800#0" expanded="false" />
-                <element signature="tag#script#9;tag#head#0;tag#html#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="water.html" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$USER_HOME$/Desktop/water.html">
-          <provider selected="true" editor-type-id="text-editor">
-            <state line="318" column="0" selection-start="8557" selection-end="8557" vertical-scroll-proportion="-7.821429" vertical-offset="256" max-vertical-offset="1368">
-              <folding>
-                <element signature="tag#script#0;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#1;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#5;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -157,14 +107,13 @@
       <list>
         <option value="$PROJECT_DIR$/WebContent/water.html" />
         <option value="$PROJECT_DIR$/skybox.js" />
-        <option value="$PROJECT_DIR$/utils.js" />
-        <option value="$PROJECT_DIR$/secondpass.js" />
         <option value="$PROJECT_DIR$/firstpass.js" />
+        <option value="$PROJECT_DIR$/secondpass.js" />
+        <option value="$PROJECT_DIR$/utils.js" />
         <option value="$PROJECT_DIR$/globalVars.js" />
-        <option value="$USER_HOME$/Desktop/water_mesh.js" />
+        <option value="$PROJECT_DIR$/water_mesh.js" />
         <option value="$PROJECT_DIR$/water.html" />
         <option value="$PROJECT_DIR$/skyshader.js" />
-        <option value="$PROJECT_DIR$/water_mesh.js" />
       </list>
     </option>
   </component>
@@ -229,6 +178,14 @@
     <property name="FullScreen" value="false" />
   </component>
   <component name="RunManager">
+    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
+      <option name="VMOptions" />
+      <option name="arguments" />
+      <option name="filePath" />
+      <option name="scope" value="ALL" />
+      <option name="testName" />
+      <method />
+    </configuration>
     <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
       <option name="VMOptions" />
       <option name="arguments" />
@@ -239,23 +196,15 @@
       <option name="showConsoleOnStdOut" value="false" />
       <method />
     </configuration>
-    <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
-      <option name="VMOptions" />
-      <option name="arguments" />
-      <option name="filePath" />
-      <option name="scope" value="ALL" />
-      <option name="testName" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" singleton="true" config-file="">
-      <envs />
-      <method />
-    </configuration>
     <configuration default="true" type="JSTestDriver:ConfigurationType" factoryName="JsTestDriver">
       <setting name="configLocationType" value="CONFIG_FILE" />
       <setting name="settingsFile" value="" />
       <setting name="serverType" value="INTERNAL" />
       <setting name="preferredDebugBrowser" value="CHROME" />
+      <method />
+    </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" singleton="true" config-file="">
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug" singleton="true">
@@ -313,6 +262,41 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/water_mesh.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="649" column="1" selection-start="20192" selection-end="20192" vertical-scroll-proportion="0.0" vertical-offset="12331" max-vertical-offset="17936">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="212" column="54" selection-start="6072" selection-end="6072" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="5491">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water_mesh.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="649" column="1" selection-start="20192" selection-end="20192" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="17936">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="212" column="54" selection-start="6072" selection-end="6072" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="5491">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water_mesh.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="649" column="1" selection-start="20192" selection-end="20192" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="17936">
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="jar://$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/lib/JavaScriptLanguage.jar!/com/intellij/lang/javascript/index/predefined/EcmaScript.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="437" column="0" selection-start="7116" selection-end="7116" vertical-scroll-proportion="0.33333334" vertical-offset="8004" max-vertical-offset="17461" />
@@ -323,123 +307,64 @@
         <state line="365" column="0" selection-start="5736" selection-end="5736" vertical-scroll-proportion="-0.36566332" vertical-offset="7263" max-vertical-offset="72257" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wave.js">
+    <entry file="file://$PROJECT_DIR$/libs/gl-matrix.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="59" column="9" selection-start="1438" selection-end="1438" vertical-scroll-proportion="0.44927537" vertical-offset="718" max-vertical-offset="1615">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/secondpass.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="73" column="1" selection-start="2699" selection-end="2699" vertical-scroll-proportion="0.0" vertical-offset="604" max-vertical-offset="1501">
+        <state line="1732" column="9" selection-start="54176" selection-end="54176" vertical-scroll-proportion="0.0" vertical-offset="32514" max-vertical-offset="65683">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/firstpass.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="72" column="0" selection-start="2477" selection-end="2477" vertical-scroll-proportion="-24.24" vertical-offset="762" max-vertical-offset="1634">
+        <state line="56" column="37" selection-start="2062" selection-end="2062" vertical-scroll-proportion="0.0" vertical-offset="642" max-vertical-offset="1539">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/globalVars.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="30" column="0" selection-start="550" selection-end="550" vertical-scroll-proportion="-21.2" vertical-offset="40" max-vertical-offset="1710">
+        <state line="13" column="14" selection-start="201" selection-end="201" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1710">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fft.js">
+    <entry file="file://$PROJECT_DIR$/utils.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="13" column="0" selection-start="208" selection-end="208" vertical-scroll-proportion="0.25458714" vertical-offset="25" max-vertical-offset="3648">
+        <state line="106" column="1" selection-start="2176" selection-end="2176" vertical-scroll-proportion="0.0" vertical-offset="1592" max-vertical-offset="2603">
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$USER_HOME$/Desktop/water.html">
+    <entry file="file://$PROJECT_DIR$/skybox.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="318" column="0" selection-start="8557" selection-end="8557" vertical-scroll-proportion="-7.821429" vertical-offset="256" max-vertical-offset="1368">
-          <folding>
-            <element signature="tag#script#0;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#1;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#5;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-          </folding>
-        </state>
+        <state line="28" column="0" selection-start="915" selection-end="915" vertical-scroll-proportion="0.5930881" vertical-offset="0" max-vertical-offset="3078" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/water.html">
+    <entry file="file://$PROJECT_DIR$/secondpass.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="109" column="0" selection-start="2882" selection-end="2882" vertical-scroll-proportion="-7.214286" vertical-offset="121" max-vertical-offset="1007">
-          <folding>
-            <element signature="tag#script#0;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#1;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#5;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="e#11203#11800#0" expanded="false" />
-            <element signature="tag#script#9;tag#head#0;tag#html#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$USER_HOME$/Desktop/water_mesh.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="383" column="54" selection-start="11938" selection-end="11938" vertical-scroll-proportion="8.2" vertical-offset="2523" max-vertical-offset="7144">
-          <folding>
-            <element signature="n#!!block;n#handleMouseDown#0" expanded="false" />
-            <element signature="n#!!block;n#handleMouseUp#0" expanded="false" />
-            <element signature="n#!!block;n#handleMouseMove#0" expanded="false" />
-            <element signature="n#!!block;n#sphericalToCartesian#0" expanded="false" />
-            <element signature="n#!!block;n#initSkyboxShader#0" expanded="false" />
-            <element signature="n#!!block;n#initSkyboxTex#0" expanded="false" />
-            <element signature="n#!!block;n#intializeSkybox#0" expanded="false" />
-            <element signature="n#!!block;n#drawSkybox#0" expanded="false" />
-            <element signature="n#!!block;n#initGL#0" expanded="false" />
-            <element signature="n#!!block;n#getShader#0" expanded="false" />
-            <element signature="n#!!block;n#initCopyShader#0" expanded="false" />
-            <element signature="n#!!block;n#initGrid#0" expanded="false" />
-            <element signature="n#!!block;n#initQuad#0" expanded="false" />
-            <element signature="n#!!block;n#simulation#0" expanded="false" />
-            <element signature="n#!!block;n#copyHeightField#0" expanded="false" />
-            <element signature="n#!!block;n#FFT#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skyshader.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="193" column="68" selection-start="6772" selection-end="6772" vertical-scroll-proportion="0.0" vertical-offset="2903" max-vertical-offset="3800">
+        <state line="51" column="21" selection-start="1770" selection-end="1770" vertical-scroll-proportion="0.0" vertical-offset="604" max-vertical-offset="1577">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="589" column="0" selection-start="20766" selection-end="20766" vertical-scroll-proportion="1.2694954" vertical-offset="2883" max-vertical-offset="7087">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="n#!!block;n#handleMouseMove#0" expanded="false" />
-            <element signature="n#!!block;n#initKeyboardHandle#0" expanded="false" />
-            <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
-            <element signature="n#!!block;n#initSpectrumTexture#0" expanded="false" />
-            <element signature="n#!!block;n#initGrid#0" expanded="false" />
-            <element signature="n#!!block;n#initQuad#0" expanded="false" />
-            <element signature="n#!!block;n#initHeightField#0" expanded="false" />
-            <element signature="n#!!block;n#updateNormal#0" expanded="false" />
-            <element signature="n#!!block;n#updateNormalMap#0" expanded="false" />
-            <element signature="n#!!block;n#FFT#0" expanded="false" />
-          </folding>
+        <state line="15" column="6" selection-start="634" selection-end="634" vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="10032">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="101" column="9" selection-start="2715" selection-end="2715" vertical-scroll-proportion="0.0" vertical-offset="1919" max-vertical-offset="7410">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skyshader.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="26" column="23" selection-start="479" selection-end="479" vertical-scroll-proportion="0.5507246" vertical-offset="0" max-vertical-offset="3800">
+          <folding />
         </state>
       </provider>
     </entry>

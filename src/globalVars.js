@@ -14,29 +14,31 @@ var NUM_HEIGHT_PTS=NUM_WIDTH_PTS;
 var starttime;
 var canvas = document.getElementById("canvas");
 
-var meshSize = 512;         // grid resolution in both direction
-var patchSize = 100;        // grid size in meters
-
 var heightfield;
 var velfield;
 
+var u_modelViewPerspectiveLocation;
 var u_modelViewPerspectiveLocation_Inverse_Transpose;
 var u_modelLocation;
 
-var currentTime=0.0;
+var curtime=0.0;
 var totalframes;
 
 var canvasheight;
 var canvaswidth;
 
+var simpositionbuffer;
+var simindicesbuffer;
+
 var waterfacepositionbuffer;
 var waterfaceindicesbuffer;
 var waterfacenormalbuffer;
 
-var quadPositionBuffer;
-var quadIndicesBuffer;
+var sim_utimeloc;
+var shader_utimeloc;
+var copy_utimeloc;
 
-
+var simulateProgram;
 var shaderProgram;
 var copyProgram;
 var skyProgram;

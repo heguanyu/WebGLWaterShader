@@ -5,22 +5,22 @@
 
 
 function initSimShader() {
-    var vertexShader = getShader(gl, "vs_quad");
-    var fragmentShader = getShader(gl, "fs_simFFT");
+    var vertexShader = getShader(gl, "vs_sim");
+    var fragmentShader = getShader(gl, "fs_sim");
 
-    simProgram = gl.createProgram();
-    gl.attachShader(simProgram, vertexShader);
-    gl.attachShader(simProgram, fragmentShader);
-    gl.linkProgram(simProgram);
-    if (!gl.getProgramParameter(simProgram, gl.LINK_STATUS)) {
+    simulateProgram = gl.createProgram();
+    gl.attachShader(simulateProgram, vertexShader);
+    gl.attachShader(simulateProgram, fragmentShader);
+    gl.linkProgram(simulateProgram);
+    if (!gl.getProgramParameter(simulateProgram, gl.LINK_STATUS)) {
         alert("Could not initialise Simulation shader");
     }
+    gl.useProgram(simulateProgram);
 
-    simProgram.vertexPositionAttribute = gl.getAttribLocation(simProgram, "position");
-
-    simProgram.u_simTimeLocation = gl.getUniformLocation(simProgram, "u_time");
-    simProgram.samplerUniform = gl.getUniformLocation(simProgram, "u_simData");
-
+    simulateProgram.vertexPositionAttribute = gl.getAttribLocation(simulateProgram, "position");
+    gl.enableVertexAttribArray(simulateProgram.vertexPositionAttribute);
+    sim_utimeloc = gl.getUniformLocation(simulateProgram, "u_time");
+    simulateProgram.samplerUniform = gl.getUniformLocation(simulateProgram, "uSampler");
 }
 
 
@@ -49,33 +49,30 @@ function initTextureFramebuffer()
     gl.bindTexture(gl.TEXTURE_2D, null);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
-function simulation()
+function firstpass()
 {
-    //THIS IS THE FIRST PASS THAT USE GLSL TO COMPUTE THE HEIGHT FIELD TO THE spectrumTextureA BUFFER
+    //THIS IS THE FIRST PATH THAT USE GLSL TO COMPUTE THE HEIGHT FIELD TO THE rttTexture BUFFER
+    gl.useProgram(simulateProgram);
+    gl.uniform1f(sim_utimeloc, curtime);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, rttFramebuffer);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.viewport(0, 0, rttFramebuffer.width, rttFramebuffer.height);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, simpositionbuffer);
+    gl.vertexAttribPointer(simulateProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
 
 
-    gl.useProgram(simProgram);
-
-    gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
-
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureA, 0);
-
-    gl.viewport(0, 0, meshSize, meshSize);
-
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
-    gl.vertexAttribPointer(simProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(simProgram.vertexPositionAttribute);
-
-    gl.uniform1f(simProgram.u_simTimeLocation, currentTime);
     gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, initialSpectrumTex);
-    gl.uniform1i(simProgram.samplerUniform, 0);
+    gl.bindTexture(gl.TEXTURE_2D, copyTexture);
+    gl.uniform1i(simulateProgram.samplerUniform, 0);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
+
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, simindicesbuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
 
-    gl.disableVertexAttribArray(simProgram.vertexPositionAttribute);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.useProgram(null);
+    gl.bindTexture(gl.TEXTURE_2D, rttTexture);
+    gl.generateMipmap(gl.TEXTURE_2D);
+    gl.bindTexture(gl.TEXTURE_2D, null);
 
 }
