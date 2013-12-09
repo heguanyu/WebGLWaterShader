@@ -19,11 +19,14 @@
 ////////////////////////////////////////////////////////////
 
 var gl;
+var instancingEXT;
 var meshSize = 512;         // grid resolution in both direction
 var patchSize = 100;        // grid size in meters
+var patchCount = 2;        // how many grids to instance?
 
 var canvas = document.getElementById("canvas");	
 
+var stats;
 var startTime;
 var currentTime = 0.0;
 var totalFrames;
@@ -36,6 +39,7 @@ var quadIndicesBuffer;
 
 var waterFacePositionBuffer;
 var waterFaceTexCoordBuffer;
+var waterFaceOffsetBuffer;
 var waterFaceIndicesBuffer;
 
 var simProgram;
@@ -206,6 +210,7 @@ function initRenderShader()
     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
     shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
     shaderProgram.vertexTexCoordAttribute = gl.getAttribLocation(shaderProgram, "texCoord");
+    shaderProgram.vertexOffsetAttribute = gl.getAttribLocation(shaderProgram, "offset");
   
     shaderProgram.u_modelLocation = gl.getUniformLocation(shaderProgram, "u_model");
     shaderProgram.u_viewLocation = gl.getUniformLocation(shaderProgram, "u_view");
@@ -294,6 +299,26 @@ function initGrid()
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,waterFaceIndicesBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,indices,gl.STATIC_DRAW);
     waterFaceIndicesBuffer.numitems=currentQuad*6;
+    
+    // initialize instancing
+    var halfPatchCount = patchCount /2.0;
+
+    var offsetData = new Float32Array(patchCount * patchCount * 3);
+    
+    var i = 0;
+    for(var x = 0; x < patchCount; ++x) {
+        for(var z = 0; z < patchCount; ++z) {
+            offsetData[i] = (x-halfPatchCount) * 50;
+            offsetData[i+1] = 0;
+            offsetData[i+2] = (z-halfPatchCount) * 50;
+            i += 3;
+        }
+    }
+    waterFaceOffsetBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, waterFaceOffsetBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, offsetData, gl.STATIC_DRAW);
+    waterFaceOffsetBuffer.instanceCount = patchCount * patchCount;
+
 }
 
 function initQuad()
@@ -438,7 +463,6 @@ function FFT()
     
     heightFieldTex = isEvenStage ? spectrumTextureA : spectrumTextureB;
     
-    // TODO: in updateNormal or render program, swap the real and imaginary part of the result back  
     gl.disableVertexAttribArray(fftVerticalProgram.vertexPositionAttribute);    
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.useProgram(null);
@@ -482,6 +506,8 @@ function render()
     gl.uniformMatrix4fv(shaderProgram.u_perspLocation, false, persp);
     gl.uniformMatrix4fv(shaderProgram.u_modelViewInvLocation, false, invMV);
 
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterFaceIndicesBuffer);
+    
     gl.bindBuffer(gl.ARRAY_BUFFER, waterFacePositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
@@ -490,9 +516,17 @@ function render()
     gl.vertexAttribPointer(shaderProgram.vertexTexCoordAttribute, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterFaceIndicesBuffer);
-    gl.drawElements(gl.TRIANGLES, waterFaceIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
     
+   // gl.drawElements(gl.TRIANGLES, waterFaceIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, waterFaceOffsetBuffer);
+    gl.enableVertexAttribArray(shaderProgram.vertexOffsetAttribute);
+    gl.vertexAttribPointer(shaderProgram.vertexOffsetAttribute, 3, gl.FLOAT, false, 0, 0);
+    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 1);
+
+    instancingEXT.drawElementsInstancedANGLE(gl.TRIANGLES, waterFaceIndicesBuffer.numitems, gl.UNSIGNED_SHORT, 0, waterFaceOffsetBuffer.instanceCount);
+
+    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 0);    
     gl.disableVertexAttribArray(shaderProgram.vertexPositionAttribute);     
     gl.disableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);     
 }
@@ -502,7 +536,6 @@ function animate()
     simulation();
     FFT();
     render();
-    //drawSkybox();
 
     var nowtime=new Date().getTime();
     if(nowtime-1000>startTime)
@@ -515,17 +548,16 @@ function animate()
 
 function tick(){
     requestAnimFrame(tick);
+    stats.update();
     currentTime=currentTime + 0.01;
     totalFrames++;
-    //if(totalFrames%2==0)
-        animate();
-        //stats.update();
+    animate();
 }
 
 
 function webGLStart() {
 	// FPS indicator
-	var stats = new Stats();
+	stats = new Stats();
     stats.setMode(0); // 0: fps, 1: ms
 
     // Align top-left
@@ -558,7 +590,7 @@ function webGLStart() {
 
     model = mat4.create();
     mat4.identity(model);
-    mat4.scale(model, [0.01, 0.2, 0.01]);
+    mat4.scale(model, [1.0, 1.0, 1.0]);
 
     // Query extension
     var OES_texture_float = gl.getExtension('OES_texture_float');
@@ -581,6 +613,11 @@ function webGLStart() {
         throw new Error("No support for vertex texture fetch");
     }
     
+    instancingEXT = gl.getExtension('ANGLE_instanced_arrays');
+    if (!instancingEXT) {
+        throw new Error("No support for ANGLE_instanced_arrays");
+    }
+    
     initSimShader();
     initFFTHorizontalShader();
     initFFTVerticalShader();
@@ -594,14 +631,5 @@ function webGLStart() {
     initGrid();
     
     tick();
-    setInterval( function () {
-
-        stats.begin();
-
-        // your code goes here
-        
-        stats.end();
-
-    }, 1000 / 60 );
     
 }
