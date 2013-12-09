@@ -26,14 +26,26 @@
       <file leaf-file-name="water.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/water.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="351" column="0" selection-start="10088" selection-end="10088" vertical-scroll-proportion="0.51303315" vertical-offset="3348" max-vertical-offset="4408">
+            <state line="374" column="29" selection-start="11006" selection-end="11006" vertical-scroll-proportion="0.63981044" vertical-offset="1854" max-vertical-offset="2698">
               <folding>
-                <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
                 <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
+                <element signature="tag#script#5;tag#head#0;tag#html#0" expanded="false" />
+                <element signature="e#7004#7601#0" expanded="false" />
                 <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
                 <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-                <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
+                <element signature="n#style#0;n#p#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+                <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="skyshader.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/skyshader.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="72" column="36" selection-start="1312" selection-end="1312" vertical-scroll-proportion="0.0" vertical-offset="946" max-vertical-offset="3629">
+              <folding>
+                <element signature="n#!!doc;n#sqr#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -42,9 +54,67 @@
       <file leaf-file-name="water_mesh.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/water_mesh.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="92" column="9" selection-start="2114" selection-end="2114" vertical-scroll-proportion="34.76" vertical-offset="2617" max-vertical-offset="23712">
+            <state line="15" column="6" selection-start="634" selection-end="634" vertical-scroll-proportion="-11.4" vertical-offset="0" max-vertical-offset="1805">
               <folding>
-                <element signature="n#!!doc" expanded="true" />
+                <element signature="n#!!block;n#refreshViewMat#0" expanded="false" />
+                <element signature="n#!!block;n#handleMouseDown#0" expanded="false" />
+                <element signature="n#!!block;n#handleMouseUp#0" expanded="false" />
+                <element signature="n#!!block;n#handleMouseMove#0" expanded="false" />
+                <element signature="n#!!block;n#initKeyboardHandle#0" expanded="false" />
+                <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
+                <element signature="n#!!block;n#initGrid#0" expanded="false" />
+                <element signature="n#!!block;n#initQuad#0" expanded="false" />
+                <element signature="n#!!block;n#initHeightField#0" expanded="false" />
+                <element signature="n#!!block;n#updateNormalMap#0" expanded="false" />
+                <element signature="n#!!block;n#finalrender#0" expanded="false" />
+                <element signature="n#!!block;n#tick#0" expanded="false" />
+                <element signature="n#!!block;n#updateWorldPositions#0" expanded="false" />
+                <element signature="n#!!block;n#simulateHeightField#0" expanded="false" />
+                <element signature="n#!!block;n#webGLStart#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="firstpass.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/firstpass.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="56" column="37" selection-start="2062" selection-end="2062" vertical-scroll-proportion="0.0" vertical-offset="642" max-vertical-offset="1539">
+              <folding>
+                <element signature="n#!!doc;n#initSimShader#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="secondpass.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/secondpass.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="51" column="21" selection-start="1770" selection-end="1770" vertical-scroll-proportion="0.0" vertical-offset="604" max-vertical-offset="1577">
+              <folding>
+                <element signature="n#!!doc;n#initCopyShader#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="utils.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/utils.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="106" column="1" selection-start="2176" selection-end="2176" vertical-scroll-proportion="0.0" vertical-offset="1592" max-vertical-offset="2603">
+              <folding>
+                <element signature="n#!!doc;n#Vec3#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="globalVars.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/globalVars.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="13" column="14" selection-start="201" selection-end="201" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1710">
+              <folding>
+                <element signature="e#0#43#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -70,6 +140,12 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/WebContent/water.html" />
+        <option value="$PROJECT_DIR$/skybox.js" />
+        <option value="$PROJECT_DIR$/skyshader.js" />
+        <option value="$PROJECT_DIR$/firstpass.js" />
+        <option value="$PROJECT_DIR$/secondpass.js" />
+        <option value="$PROJECT_DIR$/utils.js" />
+        <option value="$PROJECT_DIR$/globalVars.js" />
         <option value="$PROJECT_DIR$/water_mesh.js" />
         <option value="$PROJECT_DIR$/water.html" />
       </list>
@@ -188,15 +264,15 @@
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.09791667" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.09791667" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -205,25 +281,6 @@
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
-    <layout-to-restore>
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.09791667" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-    </layout-to-restore>
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
@@ -235,52 +292,29 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="2" />
+      <option name="time" value="3" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/water.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="363" column="56" selection-start="10395" selection-end="10395" vertical-scroll-proportion="0.0" vertical-offset="3629" max-vertical-offset="3629">
-          <folding>
-            <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/water_mesh.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="835" column="4" selection-start="26645" selection-end="26645" vertical-scroll-proportion="0.0" vertical-offset="15865" max-vertical-offset="19779">
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/water.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="212" column="54" selection-start="6072" selection-end="6072" vertical-scroll-proportion="0.0" vertical-offset="4028" max-vertical-offset="5491">
-          <folding>
-            <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="649" column="1" selection-start="20192" selection-end="20192" vertical-scroll-proportion="0.0" vertical-offset="12331" max-vertical-offset="17936">
           <folding>
-            <element signature="n#!!doc" expanded="true" />
+            <element signature="n#!!block;n#refreshViewMat#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseDown#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseUp#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseMove#0" expanded="false" />
+            <element signature="n#!!block;n#initKeyboardHandle#0" expanded="false" />
+            <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
+            <element signature="n#!!block;n#initGrid#0" expanded="false" />
+            <element signature="n#!!block;n#initQuad#0" expanded="false" />
+            <element signature="n#!!block;n#initHeightField#0" expanded="false" />
+            <element signature="n#!!block;n#updateNormalMap#0" expanded="false" />
+            <element signature="n#!!block;n#finalrender#0" expanded="false" />
+            <element signature="n#!!block;n#tick#0" expanded="false" />
+            <element signature="n#!!block;n#updateWorldPositions#0" expanded="false" />
+            <element signature="n#!!block;n#simulateHeightField#0" expanded="false" />
+            <element signature="n#!!block;n#webGLStart#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -289,12 +323,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="212" column="54" selection-start="6072" selection-end="6072" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="5491">
           <folding>
-            <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
             <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
+            <element signature="tag#script#5;tag#head#0;tag#html#0" expanded="false" />
+            <element signature="e#7004#7601#0" expanded="false" />
             <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
             <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
+            <element signature="n#style#0;n#p#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -303,7 +338,21 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="649" column="1" selection-start="20192" selection-end="20192" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="17936">
           <folding>
-            <element signature="n#!!doc" expanded="true" />
+            <element signature="n#!!block;n#refreshViewMat#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseDown#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseUp#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseMove#0" expanded="false" />
+            <element signature="n#!!block;n#initKeyboardHandle#0" expanded="false" />
+            <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
+            <element signature="n#!!block;n#initGrid#0" expanded="false" />
+            <element signature="n#!!block;n#initQuad#0" expanded="false" />
+            <element signature="n#!!block;n#initHeightField#0" expanded="false" />
+            <element signature="n#!!block;n#updateNormalMap#0" expanded="false" />
+            <element signature="n#!!block;n#finalrender#0" expanded="false" />
+            <element signature="n#!!block;n#tick#0" expanded="false" />
+            <element signature="n#!!block;n#updateWorldPositions#0" expanded="false" />
+            <element signature="n#!!block;n#simulateHeightField#0" expanded="false" />
+            <element signature="n#!!block;n#webGLStart#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -312,12 +361,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="212" column="54" selection-start="6072" selection-end="6072" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="5491">
           <folding>
-            <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
             <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
+            <element signature="tag#script#5;tag#head#0;tag#html#0" expanded="false" />
+            <element signature="e#7004#7601#0" expanded="false" />
             <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
             <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
+            <element signature="n#style#0;n#p#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -326,7 +376,21 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="649" column="1" selection-start="20192" selection-end="20192" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="17936">
           <folding>
-            <element signature="n#!!doc" expanded="true" />
+            <element signature="n#!!block;n#refreshViewMat#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseDown#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseUp#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseMove#0" expanded="false" />
+            <element signature="n#!!block;n#initKeyboardHandle#0" expanded="false" />
+            <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
+            <element signature="n#!!block;n#initGrid#0" expanded="false" />
+            <element signature="n#!!block;n#initQuad#0" expanded="false" />
+            <element signature="n#!!block;n#initHeightField#0" expanded="false" />
+            <element signature="n#!!block;n#updateNormalMap#0" expanded="false" />
+            <element signature="n#!!block;n#finalrender#0" expanded="false" />
+            <element signature="n#!!block;n#tick#0" expanded="false" />
+            <element signature="n#!!block;n#updateWorldPositions#0" expanded="false" />
+            <element signature="n#!!block;n#simulateHeightField#0" expanded="false" />
+            <element signature="n#!!block;n#webGLStart#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -352,25 +416,92 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/skyshader.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="72" column="36" selection-start="1312" selection-end="1312" vertical-scroll-proportion="0.0" vertical-offset="946" max-vertical-offset="3629">
+          <folding>
+            <element signature="n#!!doc;n#sqr#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/firstpass.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="56" column="37" selection-start="2062" selection-end="2062" vertical-scroll-proportion="0.0" vertical-offset="642" max-vertical-offset="1539">
+          <folding>
+            <element signature="n#!!doc;n#initSimShader#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/globalVars.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="13" column="14" selection-start="201" selection-end="201" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1710">
+          <folding>
+            <element signature="e#0#43#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/utils.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="106" column="1" selection-start="2176" selection-end="2176" vertical-scroll-proportion="0.0" vertical-offset="1592" max-vertical-offset="2603">
+          <folding>
+            <element signature="n#!!doc;n#Vec3#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skybox.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="28" column="0" selection-start="915" selection-end="915" vertical-scroll-proportion="0.5930881" vertical-offset="0" max-vertical-offset="3078">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/secondpass.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="51" column="21" selection-start="1770" selection-end="1770" vertical-scroll-proportion="0.0" vertical-offset="604" max-vertical-offset="1577">
+          <folding>
+            <element signature="n#!!doc;n#initCopyShader#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="92" column="9" selection-start="2114" selection-end="2114" vertical-scroll-proportion="34.76" vertical-offset="2617" max-vertical-offset="23712">
+        <state line="15" column="6" selection-start="634" selection-end="634" vertical-scroll-proportion="-11.4" vertical-offset="0" max-vertical-offset="1805">
           <folding>
-            <element signature="n#!!doc" expanded="true" />
+            <element signature="n#!!block;n#refreshViewMat#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseDown#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseUp#0" expanded="false" />
+            <element signature="n#!!block;n#handleMouseMove#0" expanded="false" />
+            <element signature="n#!!block;n#initKeyboardHandle#0" expanded="false" />
+            <element signature="n#!!block;n#initRenderShader#0" expanded="false" />
+            <element signature="n#!!block;n#initGrid#0" expanded="false" />
+            <element signature="n#!!block;n#initQuad#0" expanded="false" />
+            <element signature="n#!!block;n#initHeightField#0" expanded="false" />
+            <element signature="n#!!block;n#updateNormalMap#0" expanded="false" />
+            <element signature="n#!!block;n#finalrender#0" expanded="false" />
+            <element signature="n#!!block;n#tick#0" expanded="false" />
+            <element signature="n#!!block;n#updateWorldPositions#0" expanded="false" />
+            <element signature="n#!!block;n#simulateHeightField#0" expanded="false" />
+            <element signature="n#!!block;n#webGLStart#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/water.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="351" column="0" selection-start="10088" selection-end="10088" vertical-scroll-proportion="0.51303315" vertical-offset="3348" max-vertical-offset="4408">
+        <state line="374" column="29" selection-start="11006" selection-end="11006" vertical-scroll-proportion="0.63981044" vertical-offset="1854" max-vertical-offset="2698">
           <folding>
-            <element signature="tag#script#2;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
             <element signature="tag#script#4;tag#head#0;tag#html#0" expanded="false" />
+            <element signature="tag#script#5;tag#head#0;tag#html#0" expanded="false" />
+            <element signature="e#7004#7601#0" expanded="false" />
             <element signature="tag#script#6;tag#head#0;tag#html#0" expanded="false" />
             <element signature="tag#script#7;tag#head#0;tag#html#0" expanded="false" />
-            <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
+            <element signature="n#style#0;n#p#0;n#body#0;n#html#0;n#!!top" expanded="true" />
+            <element signature="n#style#0;n#div#0;n#body#0;n#html#0;n#!!top" expanded="true" />
           </folding>
         </state>
       </provider>
