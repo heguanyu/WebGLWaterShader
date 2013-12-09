@@ -108,22 +108,31 @@ function initButterflyTextures()
 		var butterflyArray = new Float32Array(meshSize*meshSize*4);
 		var k = 0, k0 = 0;
 		var exp = Math.pow(2, numFFTStages - n - 1);
-		var step = Math.pow(2, n+1);
+		var stepNext = Math.pow(2, n+1);
+		var stepThis = 0.5*stepNext;
 		// compute for the first row		
-		for(var m = 0; m < step/2; ++m)
+		for(var m = 0; m < stepThis; ++m) // loop through butterflies with different weights
 		{
 			k = m*4;
-			for(var l = m; l < meshSize; l += step, k += step*4)
+			for(var l = m; l < meshSize; l += stepNext, k += stepNext*4) // loop through butterflies with same weights
 			{
 				if(n != 0)
 				{
-					butterflyArray[k++] = (l + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
-					butterflyArray[k--] = (l + step/2 + 0.5)*delta;   // index (stored as texture coordinates) of Source2					
+					// indices for upper operand of butterfly
+					butterflyArray[k]   = (l + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
+					butterflyArray[k+1] = (l + stepThis + 0.5)*delta;   // index (stored as texture coordinates) of Source2	
+					// indices for lower operand of butterfly
+					butterflyArray[k+stepThis*4]   = (l + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
+					butterflyArray[k+stepThis*4+1] = (l + stepThis + 0.5)*delta;   // index (stored as texture coordinates) of Source2	
 				}
 				else // scramble the index order for the first stage based on bit reversal
 				{
-					butterflyArray[k++] = (bitReverse(l, numFFTStages) + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
-					butterflyArray[k--] = (bitReverse(l, numFFTStages)  + step/2 + 0.5)*delta;   // index (stored as texture coordinates) of Source2											
+					// indices for upper operand of butterfly
+					butterflyArray[k]   = (bitReverse(l, numFFTStages)+ 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
+					butterflyArray[k+1] = (bitReverse(l + stepThis, numFFTStages) + 0.5)*delta;   // index (stored as texture coordinates) of Source2			
+					// indices for lower operand of butterfly
+					butterflyArray[k+stepThis*4]   = (bitReverse(l, numFFTStages) + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
+					butterflyArray[k+stepThis*4+1] = (bitReverse(l + stepThis, numFFTStages) + 0.5)*delta;   // index (stored as texture coordinates) of Source2
 				}						
 			}
 		}
@@ -148,6 +157,7 @@ function initButterflyTextures()
 			butterflyArray[k++] = -Math.sin(2*Math.PI*r/meshSize);   // imaginary part of weight
 		}
 		// copy the first row to every row
+		k = 4*meshSize;
 		for(var j = 1; j < meshSize; j++)
 		{
 			k0 = 0;

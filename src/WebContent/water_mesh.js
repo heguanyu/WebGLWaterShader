@@ -570,10 +570,11 @@ function copyHeightField()
     gl.useProgram(null);
 }
 
+//Do two passes for 2D FFT
 function FFT()
 {
 	gl.viewport(0, 0, meshSize, meshSize);
-    // Do two passes for 2D FFT, start with horizontal pass
+    // FFT horizontal pass
     gl.useProgram(fftHorizontalProgram);
 
     gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
@@ -590,14 +591,15 @@ function FFT()
     		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureB, 0);
     		
     		gl.activeTexture(gl.TEXTURE0);
-	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
-	    	gl.uniform1i(fftHorizontalProgram.fftDataUniform, 0);	
-	    	
-	    	gl.activeTexture(gl.TEXTURE1);
 	    	gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
-	    	gl.uniform1i(fftHorizontalProgram.fftDataUniform, 1);	
+	    	gl.uniform1i(fftHorizontalProgram.fftDataUniform, 0);
 	    	
-	            	
+    		gl.activeTexture(gl.TEXTURE1);
+	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
+	    	gl.uniform1i(fftHorizontalProgram.butterflyUniform, 1);	
+	    	
+	    		
+          	
 		}
     	else
 		{
@@ -610,7 +612,7 @@ function FFT()
 	    	
 	    	gl.activeTexture(gl.TEXTURE1);
 	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
-	    	gl.uniform1i(fftHorizontalProgram.fftDataUniform, 1);	
+	    	gl.uniform1i(fftHorizontalProgram.butterflyUniform, 1);	
 		}
     	
     	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
@@ -639,14 +641,13 @@ function FFT()
     		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureB, 0);
     		
     		gl.activeTexture(gl.TEXTURE0);
-	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
+	    	gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
 	    	gl.uniform1i(fftVerticalProgram.fftDataUniform, 0);	
 	    	
-	    	gl.activeTexture(gl.TEXTURE1);
-	    	gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
-	    	gl.uniform1i(fftVerticalProgram.fftDataUniform, 1);	
-	    	
-	            	
+    		gl.activeTexture(gl.TEXTURE1);
+	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
+	    	gl.uniform1i(fftVerticalProgram.butterflyUniform, 1);	
+     	
 		}
     	else
 		{
@@ -655,11 +656,12 @@ function FFT()
     		
     		gl.activeTexture(gl.TEXTURE0);
 	    	gl.bindTexture(gl.TEXTURE_2D, spectrumTextureB);	
-	    	gl.uniform1i(fftVerticalProgram.fftDataUniform, 0);	
+	    	gl.uniform1i(fftVerticalProgram.fftDataUniform, 0);		
 	    	
 	    	gl.activeTexture(gl.TEXTURE1);
 	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
-	    	gl.uniform1i(fftVerticalProgram.fftDataUniform, 1);	
+	    	gl.uniform1i(fftVerticalProgram.butterflyUniform, 1);
+	    	
 		}
     	
     	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
@@ -688,7 +690,7 @@ function render()
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
 
     gl.activeTexture(gl.TEXTURE2);
-    gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
+    gl.bindTexture(gl.TEXTURE_2D, heightFieldTex);
     gl.uniform1i(shaderProgram.samplerUniform, 2);
 
 
@@ -733,8 +735,6 @@ function animate()
 {
     simulation();
     FFT();
-    /////////////////To replace simulation
-    //copyHeightField();
     render();
     //drawSkybox();
 
@@ -781,8 +781,6 @@ function webGLStart() {
     document.onmousemove = handleMouseMove;
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
     gl.enable(gl.DEPTH_TEST);
 
     persp = mat4.create();
