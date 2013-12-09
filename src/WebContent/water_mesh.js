@@ -118,170 +118,6 @@ function sphericalToCartesian(r, azimuth, zenith) {
     return [x, y, z];
 
 }
-////////////////////////////////////////skybox program/////////////////////////////////
-var programSkybox;
-
-var skyboxPositionLocation;
-
-var u_skyboxViewLocation;
-var u_skyboxPerspLocation;
-
-var u_cubeTextureLocation;
-
-function initSkyboxShader() {
-    // create programGlobe for skybox shading
-    var skyboxVS = getShader(gl, "skyboxVS");
-    var skyboxFS = getShader(gl, "skyboxFS");
-
-    programSkybox = gl.createProgram();
-    gl.attachShader(programSkybox, skyboxVS);
-    gl.attachShader(programSkybox, skyboxFS);
-    gl.linkProgram(programSkybox);
-    if (!gl.getProgramParameter(programSkybox, gl.LINK_STATUS)) {
-        alert("Could not initialise Skybox shader");
-    }
-
-    skyboxPositionLocation = gl.getAttribLocation(programSkybox, "Position");
-
-    u_skyboxViewLocation = gl.getUniformLocation(programSkybox, "u_View");
-    u_skyboxPerspLocation = gl.getUniformLocation(programSkybox, "u_Persp");
-    
-    u_cubeTextureLocation = gl.getUniformLocation(programSkybox, "u_cubeTexture");
-
-}
-
-
-var skyboxTex;
-
-function initSkyboxTex() {
-        
-    skyboxTex = gl.createTexture();        
-    // javaScript arrays can be of mixed types
-    var cubeImages = [[gl.TEXTURE_CUBE_MAP_POSITIVE_X, "desertsky_ft.png"],
-                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_X, "desertsky_bk.png"],
-                      [gl.TEXTURE_CUBE_MAP_POSITIVE_Y, "desertsky_up.png"],
-                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_Y, "desertsky_dn.png"],
-                      [gl.TEXTURE_CUBE_MAP_POSITIVE_Z, "desertsky_rt.png"],
-                      [gl.TEXTURE_CUBE_MAP_NEGATIVE_Z, "desertsky_lf.png"]];
-
-    // While a texture is bound, GL operations on the target to which it is
-    // bound affect the bound texture, and queries of the target to which it
-    // is bound return state from the bound texture.
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-
-    /*function initLoadedCubeMap(texture, face, image) {
-        //alert(image.complete);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-        gl.texImage2D(face, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
-        //message.innerHTML += image.complete + "\n";
-        
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-}*/
-    
-    for (var i = 0; i < cubeImages.length; i++) {
-        var face = cubeImages[i][0];
-        var image = new Image();
-        image.onload = function(texture, face, image) {
-            return function() {
-                    gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-                gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-            };
-        } (skyboxTex, face, image);
-        // image load functions that do not work
-        /*image.onload = function() {
-gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
-gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-};*/
-        /* image.onload = function() {
-        return initLoadedCubeMap(skyboxTex, face, image)
-};*/
-        image.src = cubeImages[i][1];
-    }
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
-
-}
-
-
-var skyboxPosBuffer;
-var skyboxIndices;
-var numberOfSkyboxIndices;
-
-function intializeSkybox() {
-        var positions = new Float32Array([
-         // neg z, back         
-          -400.0, 400.0, -400.0, -400.0, -400.0, -400.0, 400.0, -400.0, -400.0,
-          400.0, -400.0, -400.0, 400.0, 400.0, -400.0, -400.0, 400.0, -400.0,
-          // neg x, left
-          -400.0, -400.0, 400.0, -400.0, -400.0, -400.0, -400.0, 400.0, -400.0,
-          -400.0, 400.0, -400.0, -400.0, 400.0, 400.0, -400.0, -400.0, 400.0,
-          // pos x, right
-          400.0, -400.0, -400.0, 400.0, -400.0, 400.0, 400.0, 400.0, 400.0,
-          400.0, 400.0, 400.0, 400.0, 400.0, -400.0, 400.0, -400.0, -400.0,
-          // pos z, front
-          -400.0, -400.0, 400.0, -400.0, 400.0, 400.0, 400.0, 400.0, 400.0,
-          400.0, 400.0, 400.0, 400.0, -400.0, 400.0, -400.0, -400.0, 400.0,
-          // pos y, top
-          -400.0, 400.0, -400.0, 400.0, 400.0, -400.0, 400.0, 400.0, 400.0,
-          400.0, 400.0, 400.0, -400.0, 400.0, 400.0, -400.0, 400.0, -400.0,
-          // neg y, bottom
-          -400.0, -400.0, -400.0, -400.0, -400.0, 400.0, 400.0, -400.0, -400.0,
-          400.0, -400.0, -400.0, -400.0, -400.0, 400.0, 400.0, -400.0, 400.0
-          ]);
-
-    var indices = new Uint16Array(6 * 2 * 3);
-    for (var i = 0; i < indices.length; ++i) {
-        indices[i] = i;
-    }
-    
-    // Positions
-    skyboxPosBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, skyboxPosBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
-   
-    // Indices
-    skyboxIndices = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, skyboxIndices);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-
-    numberOfSkyboxIndices = indices.length;
-
-}
-
-
-function drawSkybox(){
-    gl.useProgram(programSkybox);
-
-    // enable attributes for this program
-    gl.bindBuffer(gl.ARRAY_BUFFER, skyboxPosBuffer);
-    gl.vertexAttribPointer(skyboxPositionLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(skyboxPositionLocation);
-
-    // calculate and pass uniforms
-    gl.uniformMatrix4fv(u_skyboxViewLocation, false, view);
-    gl.uniformMatrix4fv(u_skyboxPerspLocation, false, persp);
-
-    // pass textures
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
-    gl.uniform1i(u_cubeTextureLocation, 0);
-
-    // bind element buffer and draw
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, skyboxIndices);
-    gl.drawElements(gl.TRIANGLES, numberOfSkyboxIndices, gl.UNSIGNED_SHORT, 0);
-    
-    // unbind all vertex attribute array used
-    gl.disableVertexAttribArray(skyboxPositionLocation);
-}
-
-////////////////////////////////////////skybox program end/////////////////////////////////
 
 function initGL(canvas) {
     try {
@@ -351,25 +187,6 @@ function initSimShader() {
 
 }
 
-function initCopyShader()
-{
-    var vertexShader = getShader(gl, "vs_quad");
-    var fragmentShader = getShader(gl, "fs_copy");
-
-    copyProgram = gl.createProgram();
-    gl.attachShader(copyProgram, vertexShader);
-    gl.attachShader(copyProgram, fragmentShader);
-    gl.linkProgram(copyProgram);
-
-    if (!gl.getProgramParameter(copyProgram, gl.LINK_STATUS)) {
-        alert("Could not initialise copying shaders");
-    }
-
-    copyProgram.vertexPositionAttribute = gl.getAttribLocation(copyProgram, "position");
-
-    copyProgram.u_copyTimeLocation = gl.getUniformLocation(copyProgram, "u_time");
-    copyProgram.samplerUniform = gl.getUniformLocation(copyProgram, "u_simData");
-}
 
 function initRenderShader()
 {
@@ -413,17 +230,11 @@ function initSpectrumTexture()
 		for(var i = 0; i < meshSize; i++) 
 		{
 	        var h0 = new generate_h0(i, j);
-	        // Swap the real part and imaginary part of input data to use FFT to compute inverse FFT
-			initSpectrumArray[k++] = h0.im;//h0.re; 
-			initSpectrumArray[k++] = h0.re;//h0.im;
+			initSpectrumArray[k++] = h0.re;
+			initSpectrumArray[k++] = h0.im;
 			initSpectrumArray[k++] = 0.0;
 			initSpectrumArray[k++] = 0.0;
 		}
-	/*
-	copyFramebuffer = gl.createFramebuffer();
-    gl.bindFramebuffer(gl.FRAMEBUFFER, copyFramebuffer);
-    copyFramebuffer.width = meshSize;
-    copyFramebuffer.height = meshSize;*/
 	
     initialSpectrumTex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, initialSpectrumTex);
@@ -432,15 +243,8 @@ function initSpectrumTexture()
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, meshSize, meshSize, 0, gl.RGBA, gl.FLOAT, initSpectrumArray);
-    
-    /*
-    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, initialSpectrumTex, 0);
-    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE) {
-        throw new Error("gl.checkFramebufferStatus(gl.FRAMEBUFFER) != gl.FRAMEBUFFER_COMPLETE");
-    }*/
 
     gl.bindTexture(gl.TEXTURE_2D, null);
-   // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
 function translateGridCoord(i,j,w)
@@ -544,50 +348,24 @@ function simulation()
 
 }
 
-function copyHeightField()
-{
-    // This is the 2nd pass that copy the rendered result to the height-map, which can be used in the first step.
-    gl.useProgram(copyProgram);
-
-    gl.bindFramebuffer(gl.FRAMEBUFFER,copyFramebuffer);
-
-    gl.viewport(0, 0, copyFramebuffer.width, copyFramebuffer.height);
-        
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
-    gl.vertexAttribPointer(copyProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(copyProgram.vertexPositionAttribute);
-    
-    gl.uniform1f(copyProgram.u_copyTimeLocation, currentTime);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, spectrumTextureA);
-    gl.uniform1i(copyProgram.samplerUniform, 0);
-
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
-
-    gl.disableVertexAttribArray(copyProgram.vertexPositionAttribute);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.useProgram(null);
-}
-
 //Do two passes for 2D FFT
 function FFT()
 {
 	gl.viewport(0, 0, meshSize, meshSize);
+	gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
+	gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);    
     // FFT horizontal pass
     gl.useProgram(fftHorizontalProgram);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
     gl.vertexAttribPointer(fftHorizontalProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(fftHorizontalProgram.vertexPositionAttribute);
-
-        
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
+    
     var isEvenStage = true;
     for(var i = 0; i < numFFTStages; ++i)
 	{
     	if(isEvenStage)
-		{
-    		gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
+		{   		
     		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureB, 0);
     		
     		gl.activeTexture(gl.TEXTURE0);
@@ -596,14 +374,10 @@ function FFT()
 	    	
     		gl.activeTexture(gl.TEXTURE1);
 	    	gl.bindTexture(gl.TEXTURE_2D, butterflyTextures[i]);
-	    	gl.uniform1i(fftHorizontalProgram.butterflyUniform, 1);	
-	    	
-	    		
-          	
+	    	gl.uniform1i(fftHorizontalProgram.butterflyUniform, 1);	  	
 		}
     	else
 		{
-    		gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
     		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureA, 0);
     		
     		gl.activeTexture(gl.TEXTURE0);
@@ -615,29 +389,24 @@ function FFT()
 	    	gl.uniform1i(fftHorizontalProgram.butterflyUniform, 1);	
 		}
     	
-    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
-    	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
     	
+    	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);  	
     	isEvenStage = !isEvenStage;
 	}
-    
-    
+       
     gl.disableVertexAttribArray(fftHorizontalProgram.vertexPositionAttribute);    
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.useProgram(null);
     
     // FFT vertical pass, note we do not swap the real part and imaginary part back from the result because we still have an inverse FFT pass to do
     gl.useProgram(fftVerticalProgram);
-    
-    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
+        
     gl.vertexAttribPointer(fftVerticalProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(fftVerticalProgram.vertexPositionAttribute);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
     
     for(var i = 0; i < numFFTStages; ++i)
 	{
     	if(isEvenStage)
 		{
-    		gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
     		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureB, 0);
     		
     		gl.activeTexture(gl.TEXTURE0);
@@ -651,7 +420,6 @@ function FFT()
 		}
     	else
 		{
-    		gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
     		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, spectrumTextureA, 0);
     		
     		gl.activeTexture(gl.TEXTURE0);
@@ -663,10 +431,8 @@ function FFT()
 	    	gl.uniform1i(fftVerticalProgram.butterflyUniform, 1);
 	    	
 		}
-    	
-    	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
-    	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
-    	
+    	   	
+    	gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);   	
     	isEvenStage = !isEvenStage;
 	}
     
@@ -816,11 +582,9 @@ function webGLStart() {
     }
     
     initSimShader();
-    //initCopyShader();
     initFFTHorizontalShader();
     initFFTVerticalShader();
     initRenderShader();
-    initSkyboxShader();
       
     initSpectrumTexture();
     initButterflyTextures();
@@ -828,8 +592,6 @@ function webGLStart() {
     
     initQuad();
     initGrid();
-    intializeSkybox();
-    initSkyboxTex();
     
     tick();
     setInterval( function () {
