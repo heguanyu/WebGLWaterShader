@@ -11,144 +11,306 @@
 <meta charset ="utf-8">
 <meta http-equiv="X-UA-Compatible" content="chrome=1">  <!-- Use Chrome Frame in IE -->
 
-<script id="vs_copy" type="x-shader/x-vertex">
+<script id="vs_quad" type="x-shader/x-vertex">
+  precision highp float;
   attribute vec2 position;
   varying vec2 f_Pos;
   void main(void)
   {
-        f_Pos = position.xy;
-		gl_Position= vec4(position*2.0-vec2(1.0),0,1.0);
+        f_Pos = position;
+		gl_Position= vec4(position, 0.0, 1.0);
+  }
+</script>
+<script id="fs_fftHorizontal" type="x-shader/x-fragment">
+   precision highp float;
+
+	vec2 complex_add(vec2 a, vec2 b)
+	{
+	    return vec2(a.x + b.x, a.y + b.y);
+	}
+
+
+	vec2 complex_mult(vec2 a, vec2 b)
+	{
+	    return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+	}
+
+   varying vec2 f_Pos;
+
+   uniform sampler2D u_fftData;
+   uniform sampler2D u_butterflyData;
+
+  void main(void)
+  {
+	vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
+	vec4 indicesAndWeight = texture2D(u_butterflyData, texcoord);
+
+	float sourceTexCoord1 = indicesAndWeight.r;
+	float sourceTexcoord2 = indicesAndWeight.g;
+	vec2 weight = indicesAndWeight.ba;
+
+	vec2 source1 = texture2D(u_fftData, vec2(sourceTexCoord1, texcoord.y)).xy;
+	vec2 source2 = texture2D(u_fftData, vec2(sourceTexcoord2, texcoord.y)).xy;
+
+	vec2 result = complex_add(source1, complex_mult(source2, weight));
+
+	gl_FragColor = vec4(result, 0.0, 1.0);
+  }
+</script>
+<script id="fs_fftVertical" type="x-shader/x-fragment">
+   precision highp float;
+
+	vec2 complex_add(vec2 a, vec2 b)
+	{
+	    return vec2(a.x + b.x, a.y + b.y);
+	}
+
+
+	vec2 complex_mult(vec2 a, vec2 b)
+	{
+	    return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+	}
+
+   varying vec2 f_Pos;
+
+   uniform sampler2D u_fftData;
+   uniform sampler2D u_butterflyData; // same data as the horizontal stage
+
+  void main(void)
+  {
+	vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
+	vec4 indicesAndWeight = texture2D(u_butterflyData, texcoord.yx); // reverse xy order to reuse the indicesAndWeight texture
+
+	float sourceTexCoord1 = indicesAndWeight.r;
+	float sourceTexcoord2 = indicesAndWeight.g;
+	vec2 weight = indicesAndWeight.ba;
+
+	vec2 source1 = texture2D(u_fftData, vec2(texcoord.x, sourceTexCoord1)).xy;
+	vec2 source2 = texture2D(u_fftData, vec2(texcoord.x, sourceTexcoord2)).xy;
+
+	vec2 result = complex_add(source1, complex_mult(source2, weight));
+
+	gl_FragColor = vec4(result, 0.0, 1.0);
+	//gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
   }
 </script>
 <script id="fs_copy" type="x-shader/x-fragment">
-   precision mediump float;
+   precision highp float;
    varying vec2 f_Pos;
-   uniform sampler2D uSampler;
+   uniform sampler2D u_simData;
    uniform float u_time;
 
   void main(void)
   {
-    vec3 color=texture2D(uSampler,f_Pos).xyz;
-	gl_FragColor = vec4(color,1.0);
+	vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
+    vec4 info = texture2D(u_simData, texcoord);
+	gl_FragColor = info;
   }
 </script>
-<script id="vs_sim" type="x-shader/x-vertex">
-    precision mediump float;
-    attribute vec2 position;
-    varying vec2 f_Pos;
-  void main(void)
-  {
 
-        f_Pos = position;
-		gl_Position= vec4(position,0,1.0);
-  }
-</script>
 <script id="fs_sim" type="x-shader/x-fragment">
-   precision mediump float;
-   uniform sampler2D uSampler;
+   precision highp float;
+
+   uniform sampler2D u_simData;
    uniform float u_time;
    varying vec2 f_Pos;
 
-  float isValid(vec2 texcoord)
-  {
-    if(texcoord.x<0.0) return 0.0;
-    if(texcoord.y<0.0) return 0.0;
-    if(texcoord.x>1.0) return 0.0;
-    if(texcoord.y>1.0) return 0.0;
-    return 1.0;
-  }
-  vec2 adjustTexcoord(vec2 texcoord)
-  {
-    vec2 result = texcoord;
-    if(result.x<0.0) result.x=0.0;
-    if(result.y<0.0) result.y=0.0;
-    if(result.x>1.0) result.x=1.0;
-    if(result.y>1.0) result.y=1.0;
-    return result;
-  }
-  float getAverage(sampler2D samp, vec2 texcoord)
-  {
-    int count = 0;
-    float delta=1.0/256.0;
-    vec2 upcoord = adjustTexcoord(texcoord + vec2(0,delta));
-    vec2 downcoord =adjustTexcoord( texcoord - vec2(0,delta));
-    vec2 leftcoord = adjustTexcoord(texcoord + vec2(delta,0));
-    vec2 rightcoord =adjustTexcoord( texcoord - vec2(delta,0));
-    float totalz=0.0;
-    if(isValid(upcoord)>0.5)
-    { count+=1; totalz+=texture2D(samp,upcoord).z;}
-    if(isValid(downcoord)>0.5)
-    { count+=1; totalz+=texture2D(samp,downcoord).z;}
-    if(isValid(leftcoord)>0.5)
-    { count+=1; totalz+=texture2D(samp,leftcoord).z;}
-    if(isValid(rightcoord)>0.5)
-    { count+=1; totalz+=texture2D(samp,rightcoord).z;}
-    if(count==0) return 0.0;
-    return totalz/float(count);
-  }
+   const float delta = 4.0/512.0;
+
   void main(void)
   {
-
+    // map to [0, 1] range
     vec2 texcoord = (f_Pos+vec2(1.0))*0.5;
+	vec4 info = texture2D(u_simData, texcoord);
+
+	vec2 upcoord 	= texcoord + vec2(0.0, delta);
+    vec2 downcoord  = texcoord - vec2(0.0, delta);
+    vec2 leftcoord  = texcoord - vec2(delta, 0.0);
+    vec2 rightcoord = texcoord + vec2(delta, 0.0);
+
+    float s01 = texture2D(u_simData, leftcoord).x;
+    float s21 = texture2D(u_simData, rightcoord).x;
+    float s10 = texture2D(u_simData, downcoord).x;
+    float s12 = texture2D(u_simData, upcoord).x;
+
+    float height = info.x;
+	float vel = info.y;
+
+	// actual simulation
+    vel += ((s01 + s21 + s10 + s12)*0.25 - height);
+	vel *= 0.9999;
+    height += vel;
+	info.x = height;
+	info.y = vel;
+
+	// update normals
+    vec3 va = normalize(vec3(0.0, s21-s01, 2.0*delta));
+    vec3 vb = normalize(vec3(2.0*delta, s12-s10, 0.0));
+    vec3 normal = normalize(cross(va, vb));
+
+	info.wz = normal.xz;
+
+	gl_FragColor = info;
+  }
+</script>
+<script id="fs_simFFT" type="x-shader/x-fragment">
+   precision highp float;
+
+	vec2 conjugate(vec2 arg)
+	{
+	    return vec2(arg.x, -arg.y);
+	}
 
 
-    float height=0.0;
-    float heightaround=0.0;
-    float vel=0.0;
-    if(u_time<0.015)
-    {
-        height = (1.0-length(f_Pos))*1.01;
-    }
-    else{
-        vec2 vel_h=texture2D(uSampler, texcoord).yz;
-        height=vel_h.y;
-        heightaround =getAverage(uSampler, texcoord);
-         vel = vel_h.x;
-        vel += (heightaround-height)*0.99;
-        height = height+vel;
-    }
-	gl_FragColor = vec4(0,vel,height,1.0);
+	vec2 complex_exp(float arg)
+	{
+	    return vec2(cos(arg), sin(arg));
+	}
+
+
+	vec2 complex_add(vec2 a, vec2 b)
+	{
+	    return vec2(a.x + b.x, a.y + b.y);
+	}
+
+
+	vec2 complex_mult(vec2 a, vec2 b)
+	{
+	    return vec2(a.x * b.x - a.y * b.y, a.x * b.y + a.y * b.x);
+	}
+
+   uniform sampler2D u_simData;
+   uniform float u_time;
+   varying vec2 f_Pos;
+
+   const float delta = 1.0/512.0;
+   const float PI = 3.14159265359;
+
+  void main(void)
+  {
+    // map to [0, 1] range, not perfectly aligned with texel centers???
+    vec2 texcoord = (f_Pos + vec2(1.0)) * 0.5; // now center of any fragment is from vec2(-1.0 + delta/2.0) to vec2(1.0 - delta/2.0)
+    vec2 texcoordMirrored = vec2(1.0) - texcoord;
+
+	// map texcoord to [0, meshSize) range;
+	vec2 n = (texcoord - vec2(delta/2.0)) * 512.0;
+	// wave vector
+	vec2 k = (-256.0 + n) * (2.0 * PI / 100.0);
+
+    // calculate dispersion w(k)
+    float w = sqrt(9.81 * length(k));
+
+    vec2 h0_k = texture2D(u_simData, texcoord).xy;
+    vec2 h0_mk = texture2D(u_simData, texcoordMirrored).xy;
+
+    // output frequency-space complex values
+    vec2 ht = complex_add(complex_mult(h0_k, complex_exp(w * u_time)), complex_mult(conjugate(h0_mk), complex_exp(-w * u_time)));
+	//vec2 ht = complex_add(h0_k, h0_mk);
+    //vec2 ht = h0_mk;
+
+	gl_FragColor = vec4(ht, 0.0, 1.0);
   }
 </script>
 <script id="vs_render" type="x-shader/x-vertex">
-precision mediump float;
+precision highp float;
 
   attribute vec3 position;
   attribute vec3 normal;
+  attribute vec2 texCoord;
 
-  uniform mat4 u_modelViewPerspective;
-  uniform mat4 u_modelViewPerspective_Inverse_Transpose;
-  uniform sampler2D uSampler;
-  uniform float u_time;
   uniform mat4 u_model;
+  uniform mat4 u_modelView;
+  uniform mat4 u_modelViewPerspective;
+  uniform mat4 u_normalMatrix;
 
+  uniform sampler2D u_simData;
+  uniform float u_time;
 
-  varying vec2 heightfieldtexcoord;
-  varying float height;
-  varying vec3 thenormal;
-  varying vec3 position_World;
+  varying vec3 normal_eye;
+  varying vec3 position_eye;
+  varying vec3 normal_world;
+  varying vec3 position_world;
+
 
   void main(void)
   {
+        vec2 heightfieldTexcoord = texCoord;
+        vec4 info = texture2D(u_simData, heightfieldTexcoord);
 
-		vec2 offsetpos=position.xy*2.0-vec2(1.0);
-        heightfieldtexcoord=position.xy;
-        float h = texture2D(uSampler,heightfieldtexcoord).z;
+		vec3 positionModel = vec3(position.x, sqrt(info.r*info.r + info.g*info.g), position.z);
+		vec3 normalModel = vec3(info.w, sqrt(1.0- info.w*info.w - info.z*info.z), info.z);
 
-        h=position.z;
-        gl_Position = u_modelViewPerspective * vec4(vec3(position.xy, h), 1.0);
-        height = h;
+		position_eye = (u_modelView * vec4(positionModel, 1.0)).xyz;
+		//normal_eye = normalize(u_normalMatrix * vec4(normalModel, 0.0)).xyz;
+		//normal_eye = normalModel;
+		normal_eye = vec3(positionModel.y) ;
 
-        //use screen space
-        thenormal=normalize(u_modelViewPerspective_Inverse_Transpose*vec4(normalize(normal),0.0)).xyz;
-        position_World=(u_modelViewPerspective * vec4(position, 1.0)).xyz;
 
-        //use world space
-        thenormal = normalize(normal);
-        position_World=(u_model*vec4(position,1.0)).xyz;
+ 		gl_Position = u_modelViewPerspective * vec4(positionModel, 1.0);
   }
 </script>
 <script id="fs_render" type="x-shader/x-fragment">
+    precision highp float;
+
+    uniform sampler2D u_simData;
+    uniform float u_time;
+
+	uniform mat4 u_model;
+	uniform mat4 u_view;
+    uniform mat4 u_persp;
+	uniform mat4 u_modelViewInverse;
+    uniform mat4 u_normal;
+    uniform mat4 u_modelViewPerspective;
+
+    varying vec3 normal_eye;
+	varying vec3 position_eye;
+
+  void main(void)
+  {
+  	/*vec3 outcolor=vec3(1.0);
+
+    vec3 light1 = vec3(0.95,0.75,0.45);
+    vec3 light2 = vec3(92.0,162.0,206.0)/255.0;
+
+    vec3 sunpos = vec3(0.0,-200.0,800.0);
+
+    //use screen space
+    //sunpos = (u_modelViewPerspective * vec4(sunpos, 1.0)).xyz;
+
+    vec3 incidentdir = normalize(sunpos-position_World);
+
+    //use screen space
+    //incidentdir=normalize(u_normalMatrix*vec4(normalize(incidentdir),0.0)).xyz;
+
+    vec3 standardnormal = normalize(thenormal);
+    vec3 reflectiondir = normalize(2.0*standardnormal*dot(incidentdir,standardnormal)-incidentdir);
+
+    vec3 eyepos = eyePos;
+
+    //use screen space
+    //eyepos = vec3(0,0,0);
+
+    vec3 eyeraydir = normalize(eyepos-position_World);
+
+    vec3 verticalightdir = normalize(vec3(0.0,-1.0,-1.0));
+
+    verticalightdir = normalize(sunpos-position_World);
+    //use screen space
+    //verticalightdir=normalize(u_normalMatrix*vec4(normalize(verticalightdir),0.0)).xyz;
+
+  	float specular1 = pow(max(0.01,-dot(eyeraydir,reflectiondir)),5000.0);
+  	float diffuse2 = max(0.0,-dot(standardnormal,verticalightdir));
+
+    outcolor = 3.0*specular1*light1+1.0*diffuse2*light2;*/
+
+	vec3 light = vec3(0.5, 2.0, 0.5);
+	float diffuse = clamp(dot(normal_eye, (u_view * vec4(light, 1.0)).xyz - position_eye), 0.0, 1.0);
+
+    //gl_FragColor = vec4(0.1*vec3(0.0, 0.0, 1.0) + 0.9*diffuse*vec3(0.0, 0.0, 1.0), 1.0);
+    gl_FragColor = vec4(normal_eye, 1.0);
+  }
+</script>
+<script id="fs_render_Nice" type="x-shader/x-fragment">
     precision mediump float;
 
 	varying vec2 heightfieldtexcoord;
@@ -234,10 +396,6 @@ precision mediump float;
 
 
     gl_FragColor = vec4(hdr(outcolor,0.35), 1.0);
-
-
-    //gl_FragColor = vec4(outcolor, 1.0);
-    //gl_FragColor = vec4((thenormal+vec3(1.0))*0.5,1.0);
   }
 </script>
 <!--
@@ -271,19 +429,7 @@ precision mediump float;
     }
 </script>
 -->
-<script id="skyVS" type="x-shader/x-vertex">
-    precision highp float;
 
-    attribute vec2 Position;
- 	varying vec2 f_Pos;
-
-    void main(void)
-    {
-        f_Pos = Position;
-		gl_Position= vec4(Position,0.0,1.0);
-		//gl_Position= vec4(Position);//*0.1,0,1.0);
-    }
-</script>
 <script id="skyFS" type="x-shader/x-fragment">
 precision highp float;
 
@@ -369,7 +515,9 @@ precision highp float;
 <script src="skyshader.js" type="text/javascript"></script>
 <script src="firstpass.js" type="text/javascript"></script>
 <script src="secondpass.js" type="text/javascript"></script>
+<script src="fft.js" type="text/javascript"></script>
 <script src="water_mesh.js" type="text/javascript"></script>
+<script src="wave.js" type="text/javascript"></script>
 </head>
 
 <body onload="webGLStart();">

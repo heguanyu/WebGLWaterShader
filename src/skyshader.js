@@ -74,7 +74,7 @@ function skyprop()
 }
 function initSkyShader()
 {
-    var vertexShader = getShader(gl, "skyVS");
+    var vertexShader = getShader(gl, "vs_quad");
     var fragmentShader = getShader(gl, "skyFS");
 
     skyProgram = gl.createProgram();
@@ -88,7 +88,7 @@ function initSkyShader()
 
     gl.useProgram(skyProgram);
 
-    skyProgram.vertexPositionAttribute = gl.getAttribLocation(skyProgram, "Position");
+    skyProgram.vertexPositionAttribute = gl.getAttribLocation(skyProgram, "position");
 }
 
 function initSky()
@@ -165,7 +165,7 @@ function skyrender()
     gl.useProgram(skyProgram);
     gl.viewport(0, 0, canvaswidth,canvasheight);
 //    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.bindBuffer(gl.ARRAY_BUFFER, simpositionbuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, quadPositionBuffer);
     gl.vertexAttribPointer(skyProgram.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(skyProgram.vertexPositionAttribute);
 
@@ -189,7 +189,7 @@ function skyrender()
      "Para4 "+sky_params4.x.toString()+" "+sky_params4.y.toString()+" "+sky_params4.z.toString()+" "+sky_params4.w.toString()+"\r\n"+
      "Para5 "+sky_params5.x.toString()+" "+sky_params5.y.toString()+" "+sky_params5.z.toString()+" "+sky_params5.w.toString()+"\r\n"+
      "Para6 "+sky_params6.x.toString()+" "+sky_params6.y.toString()+" "+sky_params6.z.toString()+" "+sky_params6.w.toString();*/
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, simindicesbuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, quadIndicesBuffer);
     gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT,0);
     gl.disableVertexAttribArray(skyProgram.vertexPositionAttribute);
 }
