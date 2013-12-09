@@ -243,7 +243,7 @@ precision highp float;
 		position_eye = (u_modelView * vec4(positionModel, 1.0)).xyz;
 		//normal_eye = normalize(u_normalMatrix * vec4(normalModel, 0.0)).xyz;
 		//normal_eye = normalModel;
-		normal_eye = vec3(positionModel.y*100000.0) ;
+		normal_eye = vec3(positionModel.y) ;
 
  		gl_Position = u_modelViewPerspective * vec4(positionModel, 1.0);
   }

@@ -732,7 +732,7 @@ function render()
 function animate()
 {
     simulation();
-    //FFT();
+    FFT();
     /////////////////To replace simulation
     //copyHeightField();
     render();
@@ -753,13 +753,14 @@ function tick(){
     totalFrames++;
     //if(totalFrames%2==0)
         animate();
+        //stats.update();
 }
 
 
 function webGLStart() {
 	// FPS indicator
-	/*var stats = new Stats();
-    stats.setMode(1); // 0: fps, 1: ms
+	var stats = new Stats();
+    stats.setMode(0); // 0: fps, 1: ms
 
     // Align top-left
     stats.domElement.style.position = 'absolute';
@@ -768,17 +769,7 @@ function webGLStart() {
 
     document.body.appendChild( stats.domElement );
 
-    setInterval( function () {
-
-        stats.begin();
-
-        // your code goes here
-
-        stats.end();
-
-    }, 1000 / 60 );*/
-    
-    
+  
     startTime=new Date().getTime();
     totalFrames = 0;
     var canvas = document.getElementById("canvas1");
@@ -841,6 +832,16 @@ function webGLStart() {
     initGrid();
     intializeSkybox();
     initSkyboxTex();
-
+    
     tick();
+    setInterval( function () {
+
+        stats.begin();
+
+        // your code goes here
+        
+        stats.end();
+
+    }, 1000 / 60 );
+    
 }

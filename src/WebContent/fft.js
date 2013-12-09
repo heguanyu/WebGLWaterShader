@@ -85,6 +85,17 @@ function initFFTFramebuffer()
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
+function bitReverse(x, numFFTStages)
+{
+	x = (((x & 0xaaaaaaaa) >> 1) | ((x & 0x55555555) << 1));
+    x = (((x & 0xcccccccc) >> 2) | ((x & 0x33333333) << 2));
+    x = (((x & 0xf0f0f0f0) >> 4) | ((x & 0x0f0f0f0f) << 4));
+    x = (((x & 0xff00ff00) >> 8) | ((x & 0x00ff00ff) << 8));
+    x = ((x >> 16) | (x << 16));
+    x >>>= 32 - numFFTStages;
+    return x;
+}
+
 function initButterflyTextures()
 {
 	// initialize butterfly indices and weights for every stage
@@ -96,7 +107,7 @@ function initButterflyTextures()
 	{
 		var butterflyArray = new Float32Array(meshSize*meshSize*4);
 		var k = 0, k0 = 0;
-		var exp = pow(2, numFFTStages - n - 1);
+		var exp = Math.pow(2, numFFTStages - n - 1);
 		var step = Math.pow(2, n+1);
 		// compute for the first row		
 		for(var m = 0; m < step/2; ++m)
@@ -104,14 +115,23 @@ function initButterflyTextures()
 			k = m*4;
 			for(var l = m; l < meshSize; l += step, k += step*4)
 			{
-				
-				butterflyArray[k++] = (l + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
-				butterflyArray[k--] = (l + step/2 + 0.5)*delta;   // index (stored as texture coordinates) of Source2			
+				if(n != 0)
+				{
+					butterflyArray[k++] = (l + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
+					butterflyArray[k--] = (l + step/2 + 0.5)*delta;   // index (stored as texture coordinates) of Source2					
+				}
+				else // scramble the index order for the first stage based on bit reversal
+				{
+					butterflyArray[k++] = (bitReverse(l, numFFTStages) + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
+					butterflyArray[k--] = (bitReverse(l, numFFTStages)  + step/2 + 0.5)*delta;   // index (stored as texture coordinates) of Source2											
+				}						
 			}
 		}
+		
 		k = 2;
 		for(var i = 0; i < meshSize; i++, k += 2) 
 		{
+			
 			/*
 			 *   Source1 ----------				- += Output1
 			 * 			 			-		-	
@@ -124,8 +144,8 @@ function initButterflyTextures()
 			 * 
 			 */
 			var r = (i * exp) % meshSize;		
-			butterflyArray[k++] =  cos(2*Math.PI*r/meshSize);   // real part of weight
-			butterflyArray[k++] = -sin(2*Math.PI*r/meshSize);   // imaginary part of weight
+			butterflyArray[k++] =  Math.cos(2*Math.PI*r/meshSize);   // real part of weight
+			butterflyArray[k++] = -Math.sin(2*Math.PI*r/meshSize);   // imaginary part of weight
 		}
 		// copy the first row to every row
 		for(var j = 1; j < meshSize; j++)
