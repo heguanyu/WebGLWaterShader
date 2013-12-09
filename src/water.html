@@ -154,10 +154,12 @@ precision mediump float;
 	varying vec2 heightfieldtexcoord;
 
     uniform vec3 eyePos;
+    uniform vec3 u_sunPos;
     uniform sampler2D uSampler;
     uniform float u_time;
     uniform mat4 u_modelViewPerspective_Inverse_Transpose;
     uniform mat4 u_modelViewPerspective;
+
 
     varying float height;
     varying vec3 thenormal;
@@ -175,7 +177,7 @@ precision mediump float;
     vec3 light2=vec3(1.0);
     vec3 ambientcolor = vec3(93.0,96.0,255.0)/255.0;
 
-    vec3 sunpos = vec3(0.0,-200.0,800.0);
+    vec3 sunpos = u_sunPos;
 
     //use screen space
     //sunpos = (u_modelViewPerspective * vec4(sunpos, 1.0)).xyz;
@@ -277,16 +279,87 @@ precision mediump float;
     void main(void)
     {
         f_Pos = Position;
-		gl_Position= vec4(Position,0,1.0);
+		gl_Position= vec4(Position,0.0,1.0);
+		//gl_Position= vec4(Position);//*0.1,0,1.0);
     }
 </script>
 <script id="skyFS" type="x-shader/x-fragment">
-    precision highp float;
+precision highp float;
+
+    uniform vec4 sky_params1;
+    uniform vec4 sky_params2;
+    uniform vec4 sky_params3;
+    uniform vec4 sky_params4;
+    uniform vec4 sky_params5;
+    uniform vec4 sky_params6;
+
+    uniform vec3 eyePos;
+    uniform vec3 u_sunPos;
+    uniform vec3 eyeCenter;
+    uniform vec3 eyeUp;
+    uniform float fov;
+
     varying vec2 f_Pos;
 
-    void main(void)
+    vec3 calcExtinction(float dist) {
+        return exp(dist * sky_params6.xyz);
+    }
+
+    vec3 calcScattering(float cos_theta) {
+        float r_phase = (cos_theta * cos_theta) * sky_params6.w + sky_params6.w;
+        float m_phase = sky_params1.w * pow(sky_params2.w * cos_theta + sky_params3.w, -1.5);
+        return sky_params2.xyz * r_phase + (sky_params3.xyz * m_phase);
+    }
+
+    float baseOpticalDepth(in vec3 ray) {
+        float a1 = sky_params4.x * ray.y;
+        return sqrt(a1 * a1 + sky_params4.w) - a1;
+    }
+
+    float opticalDepth(in vec3 pos, in vec3 ray) {
+        pos.z += sky_params4.x;
+        float a0 = sky_params4.y - dot(pos, pos);
+        float a1 = dot(pos, ray);
+        return sqrt(a1 * a1 + a0) - a1;
+    }
+
+    vec3 get_Pixel_Dir(){
+        vec3 view = normalize(eyeCenter-eyePos);
+        vec3 A= cross(view,eyeUp);
+        vec3 B= cross(A,view);
+        vec3 M=eyePos+view;
+        vec3 V=B*(length(view)*tan(fov)/length(B));
+        vec3 H=-A*(length(view)*tan(fov)/length(A));
+        float t1=f_Pos.x;
+        float t2=f_Pos.y;
+        vec3 P=M-t1*H+t2*V;
+        vec3 R=normalize(P-eyePos);
+        return R;
+    }
+    void main()
     {
-		gl_FragColor = vec4((f_Pos+vec2(1.0))*0.5,0.0,1.0);
+        vec3 view_vec = get_Pixel_Dir();
+        vec3 sun_vector = normalize(eyePos-u_sunPos);
+        float cos_theta = max(dot(view_vec, sun_vector),0.0);
+        float ray_dist = baseOpticalDepth(view_vec);
+
+        vec3 extinction = calcExtinction(ray_dist);
+        vec3 light_ray_pos = view_vec * (ray_dist * sky_params4.z);
+        float light_ray_dist = opticalDepth(light_ray_pos, sun_vector);
+        float light_ray_dist_full = opticalDepth(view_vec * ray_dist, sun_vector);
+        light_ray_dist = max(light_ray_dist, light_ray_dist_full);
+        vec3 incoming_light = calcExtinction(light_ray_dist*0.01);
+
+        vec3 scattering = calcScattering(cos_theta);
+        scattering *= 1.0 - extinction;
+
+        vec3 in_scatter = incoming_light * scattering;
+
+        float sun_strength = clamp(cos_theta * sky_params1.x + sky_params1.y, 0.0, 1.0);
+        sun_strength *= sun_strength;
+        vec3 sun_disk = extinction * sun_strength;
+        gl_FragColor.xyz = sky_params5.xyz * (sky_params5.w * sun_disk + in_scatter);
+        gl_FragColor.w = 1.0;
     }
 </script>
 
