@@ -179,8 +179,8 @@ precision highp float;
         vec2 heightfieldTexcoord = texCoord;
         vec4 info = texture2D(u_simData, heightfieldTexcoord);
 		
-		vec3 positionModel = vec3(position.x, sqrt(info.g*info.g), position.z);
-		vec3 normalModel = vec3(info.w, sqrt(1.0- info.w*info.w - info.z*info.z), info.z);
+		vec3 positionModel = vec3(position.x, sqrt(info.r*info.r), position.z);
+		//vec3 normalModel = vec3(info.w, sqrt(1.0- info.w*info.w - info.z*info.z), info.z);
 
 		position_eye = (u_modelView * vec4(positionModel, 1.0)).xyz;
 		//normal_eye = normalize(u_normalMatrix * vec4(normalModel, 0.0)).xyz;
