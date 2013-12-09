@@ -47,6 +47,7 @@ var shaderProgram;
 
 var model;
 
+var sunPos = [0.0,-10.0,1800.0];
 /////////////////////////////////////////mouse control//////////////////////////////////
 //Camera control
 var mouseLeftDown = false;
@@ -60,12 +61,21 @@ var zenith = Math.PI / 3.0;
 
 var center = [0.0, 0.0, 0.0];
 var up = [0.0, 1.0, 0.0];
+var faceDir = [0.0, 0.0, 1.0];
+var fov = 45.0;
 
 var persp;
 var eye;
 var view;
 
 // mouse control callbacks
+function refreshViewMat()
+{
+    faceDir=sphericalToCartesian(1.0,azimuth,zenith);
+    center=[eye[0]+faceDir[0],eye[1]+faceDir[1],eye[2]+faceDir[2]];
+    view = mat4.create();
+    mat4.lookAt(eye, center, up, view);
+}
 function handleMouseDown(event) {
     if (event.button == 2) {
         mouseLeftDown = false;
@@ -85,6 +95,7 @@ function handleMouseUp(event) {
 }
 
 function handleMouseMove(event) {
+
     if (!(mouseLeftDown || mouseRightDown)) {
         return;
     }
@@ -95,20 +106,67 @@ function handleMouseMove(event) {
     var deltaY = newY - lastMouseY;
 
     if (mouseLeftDown) {
-        azimuth -= 0.01 * deltaX;
-        zenith -= 0.01 * deltaY;
+        azimuth -= 0.002 * deltaX;
+        zenith += 0.002 * deltaY;
         zenith = Math.min(Math.max(zenith, 0.001), Math.PI - 0.001);
     }
     else {
         radius += 0.01 * deltaY;
         radius = Math.min(Math.max(radius, 2.0), 100.0);
     }
-    eye = sphericalToCartesian(radius, azimuth, zenith);
-    view = mat4.create();
-    mat4.lookAt(eye, center, up, view);
-
+    //eye = sphericalToCartesian(radius, azimuth, zenith);
+    refreshViewMat();
     lastMouseX = newX;
     lastMouseY = newY;
+}
+///////////////////
+// Camera used vec3
+///////////////////
+
+function vecadd(a, b)
+{
+    return [a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+}
+function vecsub(a, b)
+{
+    return [a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+}
+function vecl(a)
+{
+    return Math.sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
+}
+function vecnorm(a)
+{
+    var l = vecl(a);
+    if(l<0.00000001) return a;
+    return [a[0]/l,a[1]/l,a[2]/l];
+}
+
+function initKeyboardHandle()
+{
+    document.addEventListener('keydown', function(event) {
+        var movespeed = 0.1;
+        var movdir = [faceDir[0]*movespeed,0.0,faceDir[2]*movespeed];
+
+        movdir = vecnorm(movdir);
+        movdir = [movdir[0]*movespeed,movdir[1]*movespeed,movdir[2]*movespeed];
+
+        var leftdir = [-movdir[2],0.0,movdir[0]];
+
+        if(event.keyCode == 87 || event.keyCode ==38) {
+            eye=vecadd(eye,movdir);
+        }
+        else if(event.keyCode == 83 || event.keyCode == 40) {
+            eye=vecsub(eye,movdir);
+        }
+        else if(event.keyCode == 65 || event.keyCode ==37) {
+            eye=vecsub(eye,leftdir);
+        }
+        else if(event.keyCode == 68|| event.keyCode == 39) {
+            eye=vecadd(eye,leftdir);
+        }
+        refreshViewMat();
+    });
 }
 
 function sphericalToCartesian(r, azimuth, zenith) {
@@ -479,8 +537,8 @@ function render()
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     gl.viewport(0, 0, canvasWidth,canvasHeight);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+   
+    gl.enable(gl.DEPTH_TEST);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, heightFieldTex);
@@ -510,6 +568,9 @@ function render()
     gl.uniformMatrix4fv(shaderProgram.u_viewLocation, false, view);
     gl.uniformMatrix4fv(shaderProgram.u_perspLocation, false, persp);
     gl.uniformMatrix4fv(shaderProgram.u_modelViewInvLocation, false, invMV);
+    
+    gl.uniform3f(gl.getUniformLocation(shaderProgram, "eyePos"), eye[0],eye[1],eye[2]);
+    gl.uniform3f(gl.getUniformLocation(shaderProgram, "u_sunPos"), sunPos[0],sunPos[1],sunPos[2]);
 
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, oceanPatchIndicesBuffer);
     
@@ -538,9 +599,13 @@ function render()
 
 function animate()
 {
+	gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     simulation();
     FFT();
+    skyrender();
     render();
+    
 
     var nowtime=new Date().getTime();
     if(nowtime-1000>startTime)
@@ -584,18 +649,20 @@ function webGLStart() {
     document.onmousemove = handleMouseMove;
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.enable(gl.DEPTH_TEST);
-
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     persp = mat4.create();
-    mat4.perspective(45.0, canvas.width / canvas.height, 0.1, 800.0, persp);
-    
-    eye = sphericalToCartesian(radius, azimuth, zenith);
+    mat4.perspective(fov*2.0, canvas.width / canvas.height, 0.1, 200.0, persp);
+    eye=[0.0,1.5,0.0];
+    faceDir=sphericalToCartesian(1.0,azimuth,zenith);
+    center=[eye[0]+faceDir[0],eye[1]+faceDir[1],eye[2]+faceDir[2]];
     view = mat4.create();
     mat4.lookAt(eye, center, up, view);
-
     model = mat4.create();
+
     mat4.identity(model);
-    mat4.scale(model, [0.1, 1.0, 0.1]);
+    //mat4.scale(model, [0.01, 0.2, 0.01]);
+    var scalar = 0.1;
+    mat4.scale(model, [1.0*scalar, 20.0*scalar, 1.0*scalar]);
 
     // Query extension
     var OES_texture_float = gl.getExtension('OES_texture_float');
@@ -618,15 +685,17 @@ function webGLStart() {
         throw new Error("No support for vertex texture fetch");
     }
     
-    instancingEXT = gl.getExtension('ANGLE_instanced_arrays');
+    /*instancingEXT = gl.getExtension('ANGLE_instanced_arrays');
     if (!instancingEXT) {
         throw new Error("No support for ANGLE_instanced_arrays");
-    }
+    }*/
+    initKeyboardHandle();
     
     initSimShader();
     initFFTHorizontalShader();
     initFFTVerticalShader();
     initRenderShader();
+    initSkyShader();
       
     initSpectrumTexture();
     initButterflyTextures();

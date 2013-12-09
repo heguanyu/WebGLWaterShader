@@ -8,6 +8,7 @@
 <script src="libs\stats.min.js" type="text/javascript"></script>
 <script src="fft.js" type="text/javascript"></script>
 <script src="wave.js" type="text/javascript"></script>
+<script src="skyshader.js" type="text/javascript"></script>
 
 <head>
 <title>Water Shader</title>
@@ -181,35 +182,52 @@ precision highp float;
 
   varying vec3 normal_eye;
   varying vec3 position_eye;
+  varying vec3 normal_world;
+  varying vec3 position_world;
+
+  float plexLength(vec2 a)
+  {
+    return a.x*a.x+a.y*a.y;
+  }
+
 
   void main(void)
   {
+        float patchsize = 100.0;
         vec4 info = texture2D(u_simData, texCoord);
-		
-		vec3 positionModel = vec3(position.x, sqrt(info.r*info.r), position.z);
-		vec3 positionWorld = (u_model * vec4(positionModel, 1.0)).xyz + offset;
+        float delta = 1.0/512.0;
+        vec2 upcoord    = texCoord + vec2(0.0, delta);
+        vec2 downcoord  = texCoord - vec2(0.0, delta);
+        vec2 leftcoord  = texCoord - vec2(delta, 0.0);
+        vec2 rightcoord = texCoord + vec2(delta, 0.0);
 
-		float delta = 1.0 / u_meshSize;
-		vec2 upcoord    = texCoord + vec2(0.0, delta);
-    	vec2 downcoord  = texCoord - vec2(0.0, delta);
-   		vec2 leftcoord  = texCoord - vec2(delta, 0.0);
-   		vec2 rightcoord = texCoord + vec2(delta, 0.0);
+		vec3 positionModel = vec3(position.x, plexLength(info.rg), position.z);
+        vec3 upPositionModel =    vec3(position.x,      plexLength(texture2D(u_simData, upcoord).rg),   position.z+delta*patchsize);
+        vec3 downPositionModel =  vec3(position.x,      plexLength(texture2D(u_simData, downcoord).rg), position.z-delta*patchsize);
+        vec3 leftPositionModel =  vec3(position.x-delta*patchsize,plexLength(texture2D(u_simData, leftcoord).rg), position.z);
+        vec3 rightPositionModel = vec3(position.x+delta*patchsize,plexLength(texture2D(u_simData, rightcoord).rg),position.z);
 
-   		float s01 = texture2D(u_simData, leftcoord).g;
-   		float s21 = texture2D(u_simData, rightcoord).g;
-   		float s10 = texture2D(u_simData, downcoord).g;
-  		float s12 = texture2D(u_simData, upcoord).g;
 
-		vec3 va = normalize(vec3(0.0, s21-s01, 2.0*delta));
-   		vec3 vb = normalize(vec3(2.0*delta, s12-s10, 0.0));
-   		vec3 normalModel = normalize(cross(va, vb));
+             position_world = (u_model*vec4(positionModel,1.0)).xyz;
+        vec3 upPositionWorld =(u_model*vec4(upPositionModel,1.0)).xyz;
+        vec3 downPositionWorld =(u_model*vec4(downPositionModel,1.0)).xyz;
+        vec3 leftPositionWorld =(u_model*vec4(leftPositionModel,1.0)).xyz;
+        vec3 rightPositionWorld =(u_model*vec4(rightPositionModel,1.0)).xyz;
 
-		position_eye = (u_view * vec4(positionWorld, 1.0)).xyz;
-		//normal_eye = normalize(u_normalMatrix * vec4(normalModel, 0.0)).xyz;
-		//normal_eye = normalModel;
-		normal_eye = vec3(normalModel.y);//vec3(positionModel.y) ;
 
- 		gl_Position = u_persp * vec4(position_eye, 1.0);
+
+        vec3 totalNormal=vec3(0.0);
+        totalNormal+=normalize(cross(position_world-leftPositionWorld,upPositionWorld-position_world));
+        totalNormal+=normalize(cross(position_world-upPositionWorld,rightPositionWorld-position_world));
+        totalNormal+=normalize(cross(position_world-rightPositionWorld,downPositionWorld-position_world));
+        totalNormal+=normalize(cross(position_world-downPositionWorld,leftPositionWorld-position_world));
+
+        totalNormal=normalize(totalNormal);
+        normal_world = totalNormal;
+
+		position_eye = (u_modelView * vec4(positionModel, 1.0)).xyz;
+		normal_eye = vec3(positionModel.y) ;
+ 		gl_Position = u_modelViewPerspective * vec4(positionModel, 1.0);
   }
 </script>
 <script id="fs_render" type="x-shader/x-fragment">
@@ -225,55 +243,139 @@ precision highp float;
     uniform mat4 u_normal;
     uniform mat4 u_modelViewPerspective;
 
+	uniform vec3 eyePos;
+    uniform vec3 u_sunPos;
+
     varying vec3 normal_eye;
 	varying vec3 position_eye;
 
+	varying vec3 normal_world;
+	varying vec3 position_world;
+
+	vec3 hdr (vec3 color, float exposure) {
+      return 1.0 - exp(-color * exposure);
+    }
+
   void main(void)
   {
-  	/*vec3 outcolor=vec3(1.0);
+  	vec3 outcolor=vec3(0.0);
+   vec3 light1=vec3(0.95,0.75,0.45);
+    vec3 sunpos = u_sunPos;
+    vec3 incidentdir = normalize(sunpos-position_world);
 
-    vec3 light1 = vec3(0.95,0.75,0.45);
-    vec3 light2 = vec3(92.0,162.0,206.0)/255.0;
-
-    vec3 sunpos = vec3(0.0,-200.0,800.0);
-
-    //use screen space
-    //sunpos = (u_modelViewPerspective * vec4(sunpos, 1.0)).xyz;
-
-    vec3 incidentdir = normalize(sunpos-position_World);
-
-    //use screen space
-    //incidentdir=normalize(u_normalMatrix*vec4(normalize(incidentdir),0.0)).xyz;
-
-    vec3 standardnormal = normalize(thenormal);
+    vec3 standardnormal = normalize(normal_world);
     vec3 reflectiondir = normalize(2.0*standardnormal*dot(incidentdir,standardnormal)-incidentdir);
 
     vec3 eyepos = eyePos;
 
-    //use screen space
-    //eyepos = vec3(0,0,0);
 
-    vec3 eyeraydir = normalize(eyepos-position_World);
+    vec3 eyeraydir = normalize(eyepos-position_world);
+    vec3 directionalLightDir = normalize(vec3(-2.0,-1.0,-2.0));
+  	float specular1 = pow(max(0.01,-dot(eyeraydir,reflectiondir)),1000.0);
 
-    vec3 verticalightdir = normalize(vec3(0.0,-1.0,-1.0));
+     vec3 ocean_color = vec3(0.004, 0.016, 0.047);
+     vec3 sky_color = vec3(3.2, 9.6, 12.8);
 
-    verticalightdir = normalize(sunpos-position_World);
-    //use screen space
-    //verticalightdir=normalize(u_normalMatrix*vec4(normalize(verticalightdir),0.0)).xyz;
+     vec3 view = normalize(eyePos - position_world);
 
-  	float specular1 = pow(max(0.01,-dot(eyeraydir,reflectiondir)),5000.0);
-  	float diffuse2 = max(0.0,-dot(standardnormal,verticalightdir));
+     float incidentAngle=acos(abs(dot(normal_world, view)));
+     float transmittanceAngle = asin(sin(incidentAngle)/1.33);      //1.33 is the water transmittance ratio
+     float temp1 = tan(incidentAngle-transmittanceAngle)/tan(incidentAngle+transmittanceAngle);
+     float temp2 = sin(incidentAngle-transmittanceAngle)/sin(incidentAngle+transmittanceAngle);
 
-    outcolor = 3.0*specular1*light1+1.0*diffuse2*light2;*/
+     float fresnel =(temp1*temp1+temp2*temp2)*0.5;
 
-	vec3 light = vec3(0.5, 2.0, 0.5);
-	float diffuse = clamp(dot(normal_eye, (u_view * vec4(light, 1.0)).xyz - position_eye), 0.0, 1.0);
-	
-    //gl_FragColor = vec4(0.1*vec3(0.0, 0.0, 1.0) + 0.9*diffuse*vec3(0.0, 0.0, 1.0), 1.0);
-    gl_FragColor = vec4(normal_eye, 1.0);
+     vec3 sky = fresnel * sky_color;
+
+     float diffuse = clamp(dot(normal_world, directionalLightDir), 0.0, 1.0);
+
+     vec3 water = (1.0 - fresnel) * ocean_color * sky_color * diffuse;
+
+     outcolor = 100.0*specular1*light1 + sky + water;
+
+
+    gl_FragColor = vec4(hdr(outcolor,0.35), 1.0);
   }
 </script>
+<script id="skyFS" type="x-shader/x-fragment">
+precision highp float;
 
+    uniform vec4 sky_params1;
+    uniform vec4 sky_params2;
+    uniform vec4 sky_params3;
+    uniform vec4 sky_params4;
+    uniform vec4 sky_params5;
+    uniform vec4 sky_params6;
+
+    uniform vec3 eyePos;
+    uniform vec3 u_sunPos;
+    uniform vec3 eyeCenter;
+    uniform vec3 eyeUp;
+    uniform float fov;
+
+    varying vec2 f_Pos;
+
+    vec3 calcExtinction(float dist) {
+        return exp(dist * sky_params6.xyz);
+    }
+
+    vec3 calcScattering(float cos_theta) {
+        float r_phase = (cos_theta * cos_theta) * sky_params6.w + sky_params6.w;
+        float m_phase = sky_params1.w * pow(sky_params2.w * cos_theta + sky_params3.w, -1.5);
+        return sky_params2.xyz * r_phase + (sky_params3.xyz * m_phase);
+    }
+
+    float baseOpticalDepth(in vec3 ray) {
+        float a1 = sky_params4.x * ray.y;
+        return sqrt(a1 * a1 + sky_params4.w) - a1;
+    }
+
+    float opticalDepth(in vec3 pos, in vec3 ray) {
+        pos.z += sky_params4.x;
+        float a0 = sky_params4.y - dot(pos, pos);
+        float a1 = dot(pos, ray);
+        return sqrt(a1 * a1 + a0) - a1;
+    }
+
+    vec3 get_Pixel_Dir(){
+        vec3 view = normalize(eyeCenter-eyePos);
+        vec3 A= cross(view,eyeUp);
+        vec3 B= cross(A,view);
+        vec3 M=eyePos+view;
+        vec3 V=B*(length(view)*tan(fov)/length(B));
+        vec3 H=-A*(length(view)*tan(fov)/length(A));
+        float t1=f_Pos.x;
+        float t2=f_Pos.y;
+        vec3 P=M-t1*H+t2*V;
+        vec3 R=normalize(P-eyePos);
+        return R;
+    }
+    void main()
+    {
+        vec3 view_vec = get_Pixel_Dir();
+        vec3 sun_vector = normalize(eyePos-u_sunPos);
+        float cos_theta = max(dot(view_vec, sun_vector),0.0);
+        float ray_dist = baseOpticalDepth(view_vec);
+
+        vec3 extinction = calcExtinction(ray_dist);
+        vec3 light_ray_pos = view_vec * (ray_dist * sky_params4.z);
+        float light_ray_dist = opticalDepth(light_ray_pos, sun_vector);
+        float light_ray_dist_full = opticalDepth(view_vec * ray_dist, sun_vector);
+        light_ray_dist = max(light_ray_dist, light_ray_dist_full);
+        vec3 incoming_light = calcExtinction(light_ray_dist*0.01);
+
+        vec3 scattering = calcScattering(cos_theta);
+        scattering *= 1.0 - extinction;
+
+        vec3 in_scatter = incoming_light * scattering;
+
+        float sun_strength = clamp(cos_theta * sky_params1.x + sky_params1.y, 0.0, 1.0);
+        sun_strength *= sun_strength;
+        vec3 sun_disk = extinction * sun_strength;
+        gl_FragColor.xyz = sky_params5.xyz * (sky_params5.w * sun_disk + in_scatter);
+        gl_FragColor.w = 1.0;
+    }
+</script>
 <script src="water_mesh.js" type="text/javascript"></script>
 
 </head>
