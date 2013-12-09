@@ -1,5 +1,12 @@
 /**
  * Created by Guanyu He on 13-12-9.
+ *
+ * When doing this part, I mainly refer to the link below.
+ *
+ * http://blog.cloudparty.com/2013/09/19/stunning-procedural-skies-in-webgl-part-1/
+ *
+ * Thanks very much!
+ *
  */
 
 function sqr(val) {
