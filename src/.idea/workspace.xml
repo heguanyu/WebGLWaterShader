@@ -36,13 +36,7 @@
         <entry file="file://$PROJECT_DIR$/water_mesh.js">
           <provider selected="true" editor-type-id="text-editor">
             <state line="154" column="0" selection-start="3697" selection-end="3697" vertical-scroll-proportion="-0.38127092" vertical-offset="2926" max-vertical-offset="13281">
-              <folding>
-                <marker date="1386709866000" expanded="true" signature="9333:9730" placeholder="{...}" />
-                <marker date="1386709866000" expanded="true" signature="11119:11385" placeholder="{...}" />
-                <marker date="1386709866000" expanded="true" signature="22090:22143" placeholder="{...}" />
-                <marker date="1386709866000" expanded="true" signature="22258:22338" placeholder="/*...*/" />
-                <marker date="1386709866000" expanded="true" signature="22889:22996" placeholder="{...}" />
-              </folding>
+              <folding />
             </state>
           </provider>
         </entry>
@@ -94,7 +88,6 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -115,6 +108,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -134,14 +128,14 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="7" />
     <editor active="false" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.146875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.146875" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
@@ -178,13 +172,7 @@
     <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="155" column="0" selection-start="3639" selection-end="3639" vertical-scroll-proportion="0.0" vertical-offset="2945" max-vertical-offset="12616">
-          <folding>
-            <marker date="1386709866000" expanded="true" signature="9333:9730" placeholder="{...}" />
-            <marker date="1386709866000" expanded="true" signature="11119:11385" placeholder="{...}" />
-            <marker date="1386709866000" expanded="true" signature="22090:22143" placeholder="{...}" />
-            <marker date="1386709866000" expanded="true" signature="22258:22338" placeholder="/*...*/" />
-            <marker date="1386709866000" expanded="true" signature="22889:22996" placeholder="{...}" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -198,13 +186,7 @@
     <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="630" column="36" selection-start="19989" selection-end="19989" vertical-scroll-proportion="0.0" vertical-offset="11719" max-vertical-offset="12958">
-          <folding>
-            <marker date="1386709866000" expanded="true" signature="9333:9730" placeholder="{...}" />
-            <marker date="1386709866000" expanded="true" signature="11119:11385" placeholder="{...}" />
-            <marker date="1386709866000" expanded="true" signature="22090:22143" placeholder="{...}" />
-            <marker date="1386709866000" expanded="true" signature="22258:22338" placeholder="/*...*/" />
-            <marker date="1386709866000" expanded="true" signature="22889:22996" placeholder="{...}" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -218,13 +200,7 @@
     <entry file="file://$PROJECT_DIR$/water_mesh.js">
       <provider selected="true" editor-type-id="text-editor">
         <state line="154" column="0" selection-start="3697" selection-end="3697" vertical-scroll-proportion="-0.38127092" vertical-offset="2926" max-vertical-offset="13281">
-          <folding>
-            <marker date="1386709866000" expanded="true" signature="9333:9730" placeholder="{...}" />
-            <marker date="1386709866000" expanded="true" signature="11119:11385" placeholder="{...}" />
-            <marker date="1386709866000" expanded="true" signature="22090:22143" placeholder="{...}" />
-            <marker date="1386709866000" expanded="true" signature="22258:22338" placeholder="/*...*/" />
-            <marker date="1386709866000" expanded="true" signature="22889:22996" placeholder="{...}" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
