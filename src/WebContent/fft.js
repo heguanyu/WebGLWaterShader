@@ -154,7 +154,7 @@ function initButterflyTextures()
 			 */
 			var r = (i * exp) % meshSize;		
 			butterflyArray[k++] =  Math.cos(2*Math.PI*r/meshSize);   // real part of weight
-			butterflyArray[k++] = -Math.sin(2*Math.PI*r/meshSize);   // imaginary part of weight
+			butterflyArray[k++] =  Math.sin(2*Math.PI*r/meshSize);   // imaginary part of weight
 		}
 		// copy the first row to every row
 		k = 4*meshSize;

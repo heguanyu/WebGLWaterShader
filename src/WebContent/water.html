@@ -85,7 +85,7 @@
     vec2 ht = complex_add(complex_mult(h0_k, complex_exp(w * u_time)), complex_mult(conjugate(h0_mk), complex_exp(-w * u_time)));
 
 	// swap real and imaginary part for inverse FFT input
-	gl_FragColor = vec4(ht.yx, 0.0, 1.0);
+	gl_FragColor = vec4(ht.xy, 0.0, 1.0);
   }
 </script>
 <script id="fs_fftHorizontal" type="x-shader/x-fragment">
@@ -185,30 +185,38 @@ precision highp float;
   varying vec3 normal_world;
   varying vec3 position_world;
 
+  float delta = 1.0/512.0;
   float plexLength(vec2 a)
   {
-    return a.x*a.x+a.y*a.y;
+    return a.x;
   }
 
-
+  float signCorrection(vec2 texCoord)
+  {
+	vec2 texCoord1 = vec2(floor((texCoord - vec2(delta*0.5)) * 512.0 + 0.5));
+	float signCorrection = abs(texCoord1.x + texCoord1.y - 2.0 * floor((texCoord1.x + texCoord1.y) / 2.0 + 1e-6)) < 0.1 ? -1.0 : 1.0;
+	return signCorrection;
+  }
   void main(void)
   {
         float patchsize = 100.0;
         vec4 info = texture2D(u_simData, texCoord);
-        float delta = 1.0/512.0;
+        
         vec2 upcoord    = texCoord + vec2(0.0, delta);
         vec2 downcoord  = texCoord - vec2(0.0, delta);
         vec2 leftcoord  = texCoord - vec2(delta, 0.0);
         vec2 rightcoord = texCoord + vec2(delta, 0.0);
 
-		vec3 positionModel = vec3(position.x, plexLength(info.rg), position.z);
-        vec3 upPositionModel =    vec3(position.x,      plexLength(texture2D(u_simData, upcoord).rg),   position.z+delta*patchsize);
-        vec3 downPositionModel =  vec3(position.x,      plexLength(texture2D(u_simData, downcoord).rg), position.z-delta*patchsize);
-        vec3 leftPositionModel =  vec3(position.x-delta*patchsize,plexLength(texture2D(u_simData, leftcoord).rg), position.z);
-        vec3 rightPositionModel = vec3(position.x+delta*patchsize,plexLength(texture2D(u_simData, rightcoord).rg),position.z);
+		float height = signCorrection(texCoord) * info.r;
+		
+		vec3 positionModel = vec3(position.x, height, position.z);
+        vec3 upPositionModel =    vec3(position.x,      signCorrection(upcoord) * texture2D(u_simData, upcoord).r,   position.z+delta*patchsize);
+        vec3 downPositionModel =  vec3(position.x,      signCorrection(downcoord) * texture2D(u_simData, downcoord).r, position.z-delta*patchsize);
+        vec3 leftPositionModel =  vec3(position.x-delta*patchsize, signCorrection(leftcoord) * texture2D(u_simData, leftcoord).r, position.z);
+        vec3 rightPositionModel = vec3(position.x+delta*patchsize, signCorrection(rightcoord) * texture2D(u_simData, rightcoord).r,position.z);
 
 
-             position_world = (u_model*vec4(positionModel,1.0)).xyz;
+        position_world = (u_model*vec4(positionModel,1.0)).xyz;
         vec3 upPositionWorld =(u_model*vec4(upPositionModel,1.0)).xyz;
         vec3 downPositionWorld =(u_model*vec4(downPositionModel,1.0)).xyz;
         vec3 leftPositionWorld =(u_model*vec4(leftPositionModel,1.0)).xyz;

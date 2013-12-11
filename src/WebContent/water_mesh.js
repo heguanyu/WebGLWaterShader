@@ -61,7 +61,7 @@ var zenith = Math.PI / 3.0;
 
 var center = [0.0, 0.0, 0.0];
 var up = [0.0, 1.0, 0.0];
-var faceDir = [0.0, 0.0, 1.0];
+var faceDir = [0.0, -1.0, 1.0];
 var fov = 45.0;
 
 var persp;
@@ -320,16 +320,19 @@ function initGrid()
 {
     var positions = new Float32Array(meshSize*meshSize*3);
     var texCoords = new Float32Array(meshSize*meshSize*2);
+    var delta_half = 0.5 / meshSize;
     for(var j=0;j<meshSize;j++) 
     	for(var i=0;i<meshSize;i++)
 	    {
 	        var idx=translateGridCoord(i,j,meshSize);
-	        positions[idx*3]= (j - meshSize/2) * patchSize / meshSize;
+	        positions[idx*3]= (j - meshSize/2) / meshSize * patchSize ;
 	        positions[idx*3+1] = 0.0;
-	        positions[idx*3+2] = (i - meshSize/2) * patchSize / meshSize;
+	        positions[idx*3+2] = (i - meshSize/2) / meshSize * patchSize ;
 	        
-	        texCoords[idx*2]= i/(meshSize-1);
-	        texCoords[idx*2+1] = j/(meshSize-1);	        
+	        //texCoords[idx*2]= i / (meshSize-1);
+	        //texCoords[idx*2+1] = j / (meshSize-1);	
+	        texCoords[idx*2]= i / meshSize + delta_half;
+	        texCoords[idx*2+1] = j / meshSize + delta_half;	
 	    }
     
     oceanPatchPositionBuffer = gl.createBuffer();
