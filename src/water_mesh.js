@@ -146,10 +146,11 @@ function vecnorm(a)
 function initKeyboardHandle()
 {
     document.addEventListener('keydown', function(event) {
-        var movespeed = 0.1;
-        var movdir = [faceDir[0]*movespeed,0.0,faceDir[2]*movespeed];
+        var movespeed = 0.01;
+        var movdir = [faceDir[0],0.0,faceDir[2]];
 
         movdir = vecnorm(movdir);
+        movdir = [movdir[0]*movespeed,movdir[1]*movespeed,movdir[2]*movespeed];
 
         var leftdir = [-movdir[2],0.0,movdir[0]];
 
@@ -617,7 +618,7 @@ function webGLStart() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     persp = mat4.create();
     mat4.perspective(fov*2.0, canvas.width / canvas.height, 0.1, 200.0, persp);
-    eye=[0.0,1.5,0.0];
+    eye=[0.0,0.5,0.0];
     faceDir=sphericalToCartesian(1.0,azimuth,zenith);
     center=[eye[0]+faceDir[0],eye[1]+faceDir[1],eye[2]+faceDir[2]];
     view = mat4.create();
