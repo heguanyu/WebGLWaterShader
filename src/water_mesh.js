@@ -19,12 +19,14 @@
 ////////////////////////////////////////////////////////////
 
 var gl;
+var instancingEXT;
 var meshSize = 512;         // grid resolution in both direction
 var patchSize = 100;        // grid size in meters
+var patchCount = 2;        // how many grids to instance?
 
-var canvas = document.getElementById("canvas");
-var debugarea;
+var canvas = document.getElementById("canvas");	
 
+var stats;
 var startTime;
 var currentTime = 0.0;
 var totalFrames;
@@ -35,18 +37,17 @@ var canvasWidth;
 var quadPositionBuffer;
 var quadIndicesBuffer;
 
-var waterFacePositionBuffer;
-var waterFaceTexCoordBuffer;
-var waterFaceIndicesBuffer;
+var oceanPatchPositionBuffer;
+var oceanPatchTexCoordBuffer;
+var oceanPatchOffsetBuffer;
+var oceanPatchIndicesBuffer;
 
 var simProgram;
 var shaderProgram;
-var copyProgram;
-
-var copyFramebuffer;
 
 var model;
 
+var sunPos = [0.0,-10.0,1800.0];
 /////////////////////////////////////////mouse control//////////////////////////////////
 //Camera control
 var mouseLeftDown = false;
@@ -54,23 +55,20 @@ var mouseRightDown = false;
 var lastMouseX = null;
 var lastMouseY = null;
 
-var radius = 3.5;
+var radius = 10.5;
 var azimuth = 0.0;
 var zenith = Math.PI / 3.0;
 
 var center = [0.0, 0.0, 0.0];
 var up = [0.0, 1.0, 0.0];
-var faceDir = [0.0, 0.0,1.0];
-
+var faceDir = [0.0, -1.0, 1.0];
 var fov = 45.0;
-var sunPos = [0.0,-10.0,1800.0];
 
 var persp;
 var eye;
 var view;
 
 // mouse control callbacks
-// mouse and keyboard control
 function refreshViewMat()
 {
     faceDir=sphericalToCartesian(1.0,azimuth,zenith);
@@ -143,11 +141,12 @@ function vecnorm(a)
     if(l<0.00000001) return a;
     return [a[0]/l,a[1]/l,a[2]/l];
 }
+
 function initKeyboardHandle()
 {
     document.addEventListener('keydown', function(event) {
-        var movespeed = 0.01;
-        var movdir = [faceDir[0],0.0,faceDir[2]];
+        var movespeed = 0.1;
+        var movdir = [faceDir[0]*movespeed,0.0,faceDir[2]*movespeed];
 
         movdir = vecnorm(movdir);
         movdir = [movdir[0]*movespeed,movdir[1]*movespeed,movdir[2]*movespeed];
@@ -242,6 +241,8 @@ function initSimShader() {
  
     simProgram.vertexPositionAttribute = gl.getAttribLocation(simProgram, "position");
    
+    simProgram.u_meshSizeLocation = gl.getUniformLocation(simProgram, "u_meshSize");
+    simProgram.u_patchSizeLocation = gl.getUniformLocation(simProgram, "u_patchSize");
     simProgram.u_simTimeLocation = gl.getUniformLocation(simProgram, "u_time");
     simProgram.samplerUniform = gl.getUniformLocation(simProgram, "u_simData");
 
@@ -266,6 +267,7 @@ function initRenderShader()
     shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "position");
     shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "normal");
     shaderProgram.vertexTexCoordAttribute = gl.getAttribLocation(shaderProgram, "texCoord");
+    shaderProgram.vertexOffsetAttribute = gl.getAttribLocation(shaderProgram, "offset");
   
     shaderProgram.u_modelLocation = gl.getUniformLocation(shaderProgram, "u_model");
     shaderProgram.u_viewLocation = gl.getUniformLocation(shaderProgram, "u_view");
@@ -275,6 +277,7 @@ function initRenderShader()
     shaderProgram.u_invTransLocation = gl.getUniformLocation(shaderProgram,"u_normalMatrix");
     shaderProgram.u_modelViewPerspectiveLocation = gl.getUniformLocation(shaderProgram,"u_modelViewPerspective");
 
+    shaderProgram.u_meshSizeLocation= gl.getUniformLocation(shaderProgram, "u_meshSize");
     shaderProgram.u_shaderTimeLocation= gl.getUniformLocation(shaderProgram, "u_time");
     shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "u_simData");
 
@@ -317,24 +320,27 @@ function initGrid()
 {
     var positions = new Float32Array(meshSize*meshSize*3);
     var texCoords = new Float32Array(meshSize*meshSize*2);
+    var delta_half = 0.5 / meshSize;
     for(var j=0;j<meshSize;j++) 
     	for(var i=0;i<meshSize;i++)
 	    {
 	        var idx=translateGridCoord(i,j,meshSize);
-	        positions[idx*3]= (j - meshSize/2) * patchSize / meshSize;
+	        positions[idx*3]= (j - meshSize/2) / meshSize * patchSize ;
 	        positions[idx*3+1] = 0.0;
-	        positions[idx*3+2] = (i - meshSize/2) * patchSize / meshSize;
+	        positions[idx*3+2] = (i - meshSize/2) / meshSize * patchSize ;
 	        
-	        texCoords[idx*2]= i/(meshSize-1);
-	        texCoords[idx*2+1] = j/(meshSize-1);	        
+	        //texCoords[idx*2]= i / (meshSize-1);
+	        //texCoords[idx*2+1] = j / (meshSize-1);	
+	        texCoords[idx*2]= i / meshSize + delta_half;
+	        texCoords[idx*2+1] = j / meshSize + delta_half;	
 	    }
     
-    waterFacePositionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER,waterFacePositionBuffer);
+    oceanPatchPositionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,oceanPatchPositionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER,positions,gl.STATIC_DRAW);
     
-    waterFaceTexCoordBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER,waterFaceTexCoordBuffer);
+    oceanPatchTexCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER,oceanPatchTexCoordBuffer);
     gl.bufferData(gl.ARRAY_BUFFER,texCoords,gl.STATIC_DRAW);
 
     var indices = new Uint32Array((meshSize-1)*(meshSize-1)*6);
@@ -350,10 +356,30 @@ function initGrid()
 	        indices[currentQuad*6+5] = translateGridCoord(i,j+1,meshSize);
 	        currentQuad++;
 	    }
-    waterFaceIndicesBuffer=gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,waterFaceIndicesBuffer);
+    oceanPatchIndicesBuffer=gl.createBuffer();
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,oceanPatchIndicesBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,indices,gl.STATIC_DRAW);
-    waterFaceIndicesBuffer.numitems=currentQuad*6;
+    oceanPatchIndicesBuffer.numitems=currentQuad*6;
+    
+    // initialize instancing
+    var halfPatchCount = patchCount /2.0;
+
+    var offsetData = new Float32Array(patchCount * patchCount * 3);
+    
+    var i = 0;
+    for(var x = 0; x < patchCount; ++x) {
+        for(var z = 0; z < patchCount; ++z) {
+            offsetData[i] = (x-halfPatchCount) * 50;
+            offsetData[i+1] = 0;
+            offsetData[i+2] = (z-halfPatchCount) * 50;
+            i += 3;
+        }
+    }
+    oceanPatchOffsetBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchOffsetBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, offsetData, gl.STATIC_DRAW);
+    oceanPatchOffsetBuffer.instanceCount = patchCount * patchCount;
+
 }
 
 function initQuad()
@@ -395,6 +421,9 @@ function simulation()
     gl.enableVertexAttribArray(simProgram.vertexPositionAttribute);
 
     gl.uniform1f(simProgram.u_simTimeLocation, currentTime);
+    gl.uniform1f(simProgram.u_meshSizeLocation, meshSize);
+    gl.uniform1f(simProgram.u_patchSizeLocation, patchSize);
+    
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, initialSpectrumTex);
     gl.uniform1i(simProgram.samplerUniform, 0);
@@ -498,7 +527,6 @@ function FFT()
     
     heightFieldTex = isEvenStage ? spectrumTextureA : spectrumTextureB;
     
-    // TODO: in updateNormal or render program, swap the real and imaginary part of the result back  
     gl.disableVertexAttribArray(fftVerticalProgram.vertexPositionAttribute);    
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.useProgram(null);
@@ -509,12 +537,11 @@ function render()
 {
     //This is the 3rd pass that use GLSL to render the image, using spectrumTextureA to be the height field of the wave
     gl.useProgram(shaderProgram);
-    gl.enable(gl.DEPTH_TEST);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
     gl.viewport(0, 0, canvasWidth,canvasHeight);
-    //gl.clear(gl.COLOR_BUFFER_BIT);
-    //gl.clearColor(0.0, 0.0, 0.0, 1.0);
+   
+    gl.enable(gl.DEPTH_TEST);
 
     gl.activeTexture(gl.TEXTURE2);
     gl.bindTexture(gl.TEXTURE_2D, heightFieldTex);
@@ -534,6 +561,8 @@ function render()
     mat4.inverse(mv,invTrans);
     mat4.transpose(invTrans,invTrans);
 
+    gl.uniform1f(shaderProgram.u_meshSizeLocation, meshSize);
+    
     gl.uniform1f(shaderProgram.u_shaderTimeLocation, currentTime);
     gl.uniformMatrix4fv(shaderProgram.u_modelViewLocation, false, mv);
     gl.uniformMatrix4fv(shaderProgram.u_modelViewPerspectiveLocation, false, mvp);
@@ -542,32 +571,44 @@ function render()
     gl.uniformMatrix4fv(shaderProgram.u_viewLocation, false, view);
     gl.uniformMatrix4fv(shaderProgram.u_perspLocation, false, persp);
     gl.uniformMatrix4fv(shaderProgram.u_modelViewInvLocation, false, invMV);
-
+    
     gl.uniform3f(gl.getUniformLocation(shaderProgram, "eyePos"), eye[0],eye[1],eye[2]);
     gl.uniform3f(gl.getUniformLocation(shaderProgram, "u_sunPos"), sunPos[0],sunPos[1],sunPos[2]);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, waterFacePositionBuffer);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, oceanPatchIndicesBuffer);
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchPositionBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
     
-    gl.bindBuffer(gl.ARRAY_BUFFER, waterFaceTexCoordBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchTexCoordBuffer);
     gl.vertexAttribPointer(shaderProgram.vertexTexCoordAttribute, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);
 
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, waterFaceIndicesBuffer);
-    gl.drawElements(gl.TRIANGLES, waterFaceIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
     
+    gl.drawElements(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
+    
+    /*gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchOffsetBuffer);
+    gl.enableVertexAttribArray(shaderProgram.vertexOffsetAttribute);
+    gl.vertexAttribPointer(shaderProgram.vertexOffsetAttribute, 3, gl.FLOAT, false, 0, 0);
+    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 1);
+
+    instancingEXT.drawElementsInstancedANGLE(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_SHORT, 0, oceanPatchOffsetBuffer.instanceCount);
+
+    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 0);    */
     gl.disableVertexAttribArray(shaderProgram.vertexPositionAttribute);     
     gl.disableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);     
 }
 
 function animate()
 {
+	gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
     simulation();
     FFT();
     skyrender();
     render();
-    //drawSkybox();
+    
 
     var nowtime=new Date().getTime();
     if(nowtime-1000>startTime)
@@ -580,18 +621,16 @@ function animate()
 
 function tick(){
     requestAnimFrame(tick);
+    stats.update();
     currentTime=currentTime + 0.01;
     totalFrames++;
-    //if(totalFrames%2==0)
-        animate();
-        //stats.update();
+    animate();
 }
 
 
 function webGLStart() {
 	// FPS indicator
-    initKeyboardHandle();
-	var stats = new Stats();
+	stats = new Stats();
     stats.setMode(0); // 0: fps, 1: ms
 
     // Align top-left
@@ -599,14 +638,12 @@ function webGLStart() {
     stats.domElement.style.left = '0px';
     stats.domElement.style.top = '0px';
 
-   // document.body.appendChild( stats.domElement );
+    document.body.appendChild( stats.domElement );
 
   
     startTime=new Date().getTime();
     totalFrames = 0;
     var canvas = document.getElementById("canvas1");
-    debugarea = document.getElementById("debug_text");
-
     initGL(canvas);
 
     canvas.onmousedown = handleMouseDown;
@@ -618,7 +655,7 @@ function webGLStart() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     persp = mat4.create();
     mat4.perspective(fov*2.0, canvas.width / canvas.height, 0.1, 200.0, persp);
-    eye=[0.0,0.5,0.0];
+    eye=[0.0,1.5,0.0];
     faceDir=sphericalToCartesian(1.0,azimuth,zenith);
     center=[eye[0]+faceDir[0],eye[1]+faceDir[1],eye[2]+faceDir[2]];
     view = mat4.create();
@@ -651,11 +688,18 @@ function webGLStart() {
         throw new Error("No support for vertex texture fetch");
     }
     
+    /*instancingEXT = gl.getExtension('ANGLE_instanced_arrays');
+    if (!instancingEXT) {
+        throw new Error("No support for ANGLE_instanced_arrays");
+    }*/
+    initKeyboardHandle();
+    
     initSimShader();
     initFFTHorizontalShader();
     initFFTVerticalShader();
     initRenderShader();
     initSkyShader();
+      
     initSpectrumTexture();
     initButterflyTextures();
     initFFTFramebuffer();
@@ -664,14 +708,5 @@ function webGLStart() {
     initGrid();
     
     tick();
-    setInterval( function () {
-
-        stats.begin();
-
-        // your code goes here
-        
-        stats.end();
-
-    }, 1000 / 60 );
     
 }

@@ -164,7 +164,6 @@ function initSky()
 ///  skyRender: Rendering the sky
 function skyrender()
 {
-
     gl.disable(gl.DEPTH_TEST);
     // This is the 2nd path that copy the rendered result to the height-map, which can be used in the first step.
     gl.useProgram(skyProgram);
