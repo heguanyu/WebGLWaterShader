@@ -7,7 +7,6 @@ var spectrumTextureB;
 var initialSpectrumTex;
 
 var butterflyTextures;
-
 var heightFieldTex;
 
 var numFFTStages;
@@ -85,7 +84,8 @@ function initFFTFramebuffer()
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 }
 
-function bitReverse(x, numFFTStages)
+// From SO: http://stackoverflow.com/questions/746171/best-algorithm-for-bit-reversal-from-msb-lsb-to-lsb-msb-in-c
+function bitReverse(x)
 {
 	x = (((x & 0xaaaaaaaa) >> 1) | ((x & 0x55555555) << 1));
     x = (((x & 0xcccccccc) >> 2) | ((x & 0x33333333) << 2));
@@ -128,11 +128,11 @@ function initButterflyTextures()
 				else // scramble the index order for the first stage based on bit reversal
 				{
 					// indices for upper operand of butterfly
-					butterflyArray[k]   = (bitReverse(l, numFFTStages)+ 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
-					butterflyArray[k+1] = (bitReverse(l + stepThis, numFFTStages) + 0.5)*delta;   // index (stored as texture coordinates) of Source2			
+					butterflyArray[k]   = (bitReverse(l)+ 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
+					butterflyArray[k+1] = (bitReverse(l + stepThis) + 0.5)*delta;   // index (stored as texture coordinates) of Source2			
 					// indices for lower operand of butterfly
-					butterflyArray[k+stepThis*4]   = (bitReverse(l, numFFTStages) + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
-					butterflyArray[k+stepThis*4+1] = (bitReverse(l + stepThis, numFFTStages) + 0.5)*delta;   // index (stored as texture coordinates) of Source2
+					butterflyArray[k+stepThis*4]   = (bitReverse(l) + 0.5)*delta ;   		  // index (stored as texture coordinates) of Source1
+					butterflyArray[k+stepThis*4+1] = (bitReverse(l + stepThis) + 0.5)*delta;   // index (stored as texture coordinates) of Source2
 				}						
 			}
 		}
@@ -154,7 +154,7 @@ function initButterflyTextures()
 			 */
 			var r = (i * exp) % meshSize;		
 			butterflyArray[k++] =  Math.cos(2*Math.PI*r/meshSize);   // real part of weight
-			butterflyArray[k++] =  Math.sin(2*Math.PI*r/meshSize);   // imaginary part of weight
+			butterflyArray[k++] =  Math.sin(2*Math.PI*r/meshSize);   // imaginary part of weight, no minus sign here because we are doing inverse fft
 		}
 		// copy the first row to every row
 		k = 4*meshSize;

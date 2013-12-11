@@ -1,9 +1,18 @@
+/*  This file contains code for generating initial spectrum as well as helper funcitons
+ * 
+ *  Code largely taken from NVidia's CUDA Sample: OceanFFT
+ */
+
 //simulation parameters
-var windSpeed = 100.0;
+var meshSize = 512;         // grid resolution in both direction
+var patchSize = 100;        // grid size in meters
+var patchCount = 4;        // how many grids to instance?
+
+var windSpeed = 50.0;
 var windDir = Math.PI/3.0;
 var g = 9.81;              // gravitational constant
 var A = 1e-7;              // wave scale factor
-//var dirDepend = 0.07;
+var dirDepend = 0.07;
 
 // Generates Gaussian random number with mean 0 and standard deviation 1.
 // Box¨CMuller transform
@@ -44,10 +53,10 @@ function phillips(Kx, Ky, Vdir, V, A/*, dir_depend*/)
     var phillips = A * Math.exp(-1.0 / (k_squared * L * L)) / (k_squared * k_squared) * w_dot_k * w_dot_k;
 
     // filter out waves moving opposite to wind
-    /*if (w_dot_k < 0.0)
+    if (w_dot_k < 0.0)
     {
-        phillips *= dir_depend;
-    }*/
+        phillips *= dirDepend;
+    }
 
     // damp out waves with very small length w << l
     var w = L / 10000;

@@ -20,9 +20,6 @@
 
 var gl;
 var instancingEXT;
-var meshSize = 512;         // grid resolution in both direction
-var patchSize = 100;        // grid size in meters
-var patchCount = 2;        // how many grids to instance?
 
 var canvas = document.getElementById("canvas");	
 
@@ -167,6 +164,23 @@ function initKeyboardHandle()
         }
         refreshViewMat();
     });
+}
+
+function inithandleMouseWheel()
+{
+    window.onmousewheel=function(event)
+    {
+        var movdir = [0.0,0.1,0.0];
+        if(event.wheelDelta<0.0)
+        {
+            eye=vecsub(eye,movdir);
+        }
+        else
+        {
+            eye=vecadd(eye,movdir);
+        }
+        refreshViewMat();
+    };
 }
 
 function sphericalToCartesian(r, azimuth, zenith) {
@@ -329,8 +343,6 @@ function initGrid()
 	        positions[idx*3+1] = 0.0;
 	        positions[idx*3+2] = (i - meshSize/2) / meshSize * patchSize ;
 	        
-	        //texCoords[idx*2]= i / (meshSize-1);
-	        //texCoords[idx*2+1] = j / (meshSize-1);	
 	        texCoords[idx*2]= i / meshSize + delta_half;
 	        texCoords[idx*2+1] = j / meshSize + delta_half;	
 	    }
@@ -369,9 +381,9 @@ function initGrid()
     var i = 0;
     for(var x = 0; x < patchCount; ++x) {
         for(var z = 0; z < patchCount; ++z) {
-            offsetData[i] = (x-halfPatchCount) * 50;
+            offsetData[i]   = x * (meshSize-1)/meshSize*patchSize;
             offsetData[i+1] = 0;
-            offsetData[i+2] = (z-halfPatchCount) * 50;
+            offsetData[i+2] = z * (meshSize-1)/meshSize*patchSize;
             i += 3;
         }
     }
@@ -407,7 +419,7 @@ function initQuad()
 
 function simulation()
 {
-    //THIS IS THE FIRST PASS THAT USE GLSL TO COMPUTE THE HEIGHT FIELD TO THE spectrumTextureA BUFFER
+    //Develop the initial spectrum h_0 according to dispersion relation. Write result to spectrumTextureA bufferg
     gl.useProgram(simProgram);
     
     gl.bindFramebuffer(gl.FRAMEBUFFER, spectrumFramebuffer);
@@ -538,9 +550,7 @@ function render()
     //This is the 3rd pass that use GLSL to render the image, using spectrumTextureA to be the height field of the wave
     gl.useProgram(shaderProgram);
     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-    gl.viewport(0, 0, canvasWidth,canvasHeight);
-   
+    gl.viewport(0, 0, canvasWidth,canvasHeight);   
     gl.enable(gl.DEPTH_TEST);
 
     gl.activeTexture(gl.TEXTURE2);
@@ -586,16 +596,16 @@ function render()
     gl.enableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);
 
     
-    gl.drawElements(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
+    //gl.drawElements(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
     
-    /*gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchOffsetBuffer);
+    gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchOffsetBuffer);
     gl.enableVertexAttribArray(shaderProgram.vertexOffsetAttribute);
     gl.vertexAttribPointer(shaderProgram.vertexOffsetAttribute, 3, gl.FLOAT, false, 0, 0);
     instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 1);
 
-    instancingEXT.drawElementsInstancedANGLE(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_SHORT, 0, oceanPatchOffsetBuffer.instanceCount);
+    instancingEXT.drawElementsInstancedANGLE(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_INT, 0, oceanPatchOffsetBuffer.instanceCount);
 
-    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 0);    */
+    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 0);    
     gl.disableVertexAttribArray(shaderProgram.vertexPositionAttribute);     
     gl.disableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);     
 }
@@ -688,11 +698,14 @@ function webGLStart() {
         throw new Error("No support for vertex texture fetch");
     }
     
-    /*instancingEXT = gl.getExtension('ANGLE_instanced_arrays');
+    instancingEXT = gl.getExtension('ANGLE_instanced_arrays');
     if (!instancingEXT) {
         throw new Error("No support for ANGLE_instanced_arrays");
-    }*/
+    }
+    
+    
     initKeyboardHandle();
+    inithandleMouseWheel();
     
     initSimShader();
     initFFTHorizontalShader();
