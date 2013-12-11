@@ -201,17 +201,17 @@ precision highp float;
         vec2 leftcoord  = texCoord - vec2(delta, 0.0);
         vec2 rightcoord = texCoord + vec2(delta, 0.0);
 		
-		vec3 positionModel      = vec3(position.x, 				   signCorrection(texCoord) * texture2D(u_simData, texCoord).r,     position.z) + offset;
-        vec3 upPositionModel    = vec3(position.x,      		   signCorrection(upcoord) * texture2D(u_simData, upcoord).r,       position.z+delta*patchsize)+ offset;
-        vec3 downPositionModel  = vec3(position.x,                 signCorrection(downcoord) * texture2D(u_simData, downcoord).r,   position.z-delta*patchsize)+ offset;
-        vec3 leftPositionModel  = vec3(position.x-delta*patchsize, signCorrection(leftcoord) * texture2D(u_simData, leftcoord).r,   position.z)+ offset;
-        vec3 rightPositionModel = vec3(position.x+delta*patchsize, signCorrection(rightcoord) * texture2D(u_simData, rightcoord).r, position.z)+ offset;
+		vec3 positionModel      = vec3(position.x, 				   signCorrection(texCoord) * texture2D(u_simData, texCoord).r,     position.z);
+        vec3 upPositionModel    = vec3(position.x,      		   signCorrection(upcoord) * texture2D(u_simData, upcoord).r,       position.z+delta*patchsize);
+        vec3 downPositionModel  = vec3(position.x,                 signCorrection(downcoord) * texture2D(u_simData, downcoord).r,   position.z-delta*patchsize);
+        vec3 leftPositionModel  = vec3(position.x-delta*patchsize, signCorrection(leftcoord) * texture2D(u_simData, leftcoord).r,   position.z);
+        vec3 rightPositionModel = vec3(position.x+delta*patchsize, signCorrection(rightcoord) * texture2D(u_simData, rightcoord).r, position.z);
 
-        position_world = (u_model*vec4(positionModel,1.0)).xyz;
-        vec3 upPositionWorld =(u_model*vec4(upPositionModel,1.0)).xyz;
-        vec3 downPositionWorld =(u_model*vec4(downPositionModel,1.0)).xyz;
-        vec3 leftPositionWorld =(u_model*vec4(leftPositionModel,1.0)).xyz;
-        vec3 rightPositionWorld =(u_model*vec4(rightPositionModel,1.0)).xyz;
+        position_world          = (u_model*vec4(positionModel,1.0)).xyz + offset;
+        vec3 upPositionWorld    = (u_model*vec4(upPositionModel,1.0)).xyz + offset;
+        vec3 downPositionWorld  = (u_model*vec4(downPositionModel,1.0)).xyz + offset;
+        vec3 leftPositionWorld  = (u_model*vec4(leftPositionModel,1.0)).xyz + offset;
+        vec3 rightPositionWorld = (u_model*vec4(rightPositionModel,1.0)).xyz + offset;
 
         vec3 totalNormal=vec3(0.0);
         totalNormal += normalize(cross(position_world - leftPositionWorld,  upPositionWorld - position_world));
@@ -224,7 +224,8 @@ precision highp float;
 
 		position_eye = (u_modelView * vec4(positionModel, 1.0)).xyz;
 		normal_eye = vec3(positionModel.y) ;
- 		gl_Position = u_modelViewPerspective * vec4(positionModel, 1.0);
+ 		//gl_Position = u_modelViewPerspective * vec4(positionModel, 1.0);
+		gl_Position = u_persp * u_view * vec4(position_world, 1.0);
   }
 </script>
 <script id="fs_render" type="x-shader/x-fragment">

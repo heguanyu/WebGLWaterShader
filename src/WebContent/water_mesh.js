@@ -339,11 +339,11 @@ function initGrid()
     	for(var i=0;i<meshSize;i++)
 	    {
 	        var idx=translateGridCoord(i,j,meshSize);
-	        positions[idx*3]= (j - meshSize/2) / meshSize * patchSize ;
+	        positions[idx*3]   = (j - meshSize/2) / meshSize * patchSize ;
 	        positions[idx*3+1] = 0.0;
 	        positions[idx*3+2] = (i - meshSize/2) / meshSize * patchSize ;
 	        
-	        texCoords[idx*2]= i / meshSize + delta_half;
+	        texCoords[idx*2]   = i / meshSize + delta_half;
 	        texCoords[idx*2+1] = j / meshSize + delta_half;	
 	    }
     
@@ -381,9 +381,9 @@ function initGrid()
     var i = 0;
     for(var x = 0; x < patchCount; ++x) {
         for(var z = 0; z < patchCount; ++z) {
-            offsetData[i]   = x * (meshSize-1)/meshSize*patchSize;
+            offsetData[i]   = (x -halfPatchCount) * (meshSize-1)/meshSize*patchSize/10;
             offsetData[i+1] = 0;
-            offsetData[i+2] = z * (meshSize-1)/meshSize*patchSize;
+            offsetData[i+2] = (z -halfPatchCount) * (meshSize-1)/meshSize*patchSize/10;
             i += 3;
         }
     }
@@ -675,7 +675,7 @@ function webGLStart() {
     mat4.identity(model);
     //mat4.scale(model, [0.01, 0.2, 0.01]);
     var scalar = 0.1;
-    mat4.scale(model, [1.0*scalar, 20.0*scalar, 1.0*scalar]);
+    mat4.scale(model, [1.001*scalar, 20.0*scalar, 1.001*scalar]);
 
     // Query extension
     var OES_texture_float = gl.getExtension('OES_texture_float');
