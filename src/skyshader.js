@@ -9,6 +9,7 @@
  *
  */
 
+var sky_props;
 function sqr(val) {
     return val * val;
 }
@@ -98,18 +99,14 @@ function Vec3(x,y,z)
 }
 function initSky()
 {
-
-
     var sky_lambda = new Vec3(680e-9, 550e-9, 450e-9);
     var sky_k = new Vec3(0.686, 0.678, 0.666);
 
     var earth_radius = 6.371e6;
     var earth_atmo_thickness = 0.1e6;
-    var sky_props = new skyprop();
+
     var clarity = 1 + sky_props.clarity;
     var two_pi = 2 * Math.PI;
-
-
 
 // compute betaR
     var factor = 1.86e-31 / (clarity * Math.max(sky_props.density, 0.001));
