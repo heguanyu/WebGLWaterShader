@@ -6,9 +6,9 @@
 //simulation parameters
 var meshSize = 512;         // grid resolution in both direction
 var patchSize = 100;        // grid size in meters
-var patchCount = 4;        // how many grids to instance?
+var patchCount = 4;         // number of grids to instance for each dimension
 
-var windSpeed = 50.0;
+var windSpeed = 10.0;
 var windDir = Math.PI/3.0;
 var g = 9.81;              // gravitational constant
 var A = 1e-7;              // wave scale factor
@@ -34,7 +34,7 @@ function gauss()
 // Vdir - wind angle in radians
 // V - wind speed
 // A - constant
-function phillips(Kx, Ky, Vdir, V, A/*, dir_depend*/)
+function phillips(Kx, Ky, Vdir, V, A, dir_depend)
 {
     var k_squared = Kx * Kx + Ky * Ky;
 
@@ -55,7 +55,7 @@ function phillips(Kx, Ky, Vdir, V, A/*, dir_depend*/)
     // filter out waves moving opposite to wind
     if (w_dot_k < 0.0)
     {
-        phillips *= dirDepend;
+        phillips *= dir_depend;
     }
 
     // damp out waves with very small length w << l
@@ -71,7 +71,7 @@ function generate_h0(x, y)
     var kx = (-meshSize / 2.0 + x) * (2.0 * Math.PI / patchSize);
     var ky = (-meshSize / 2.0 + y) * (2.0 * Math.PI / patchSize);
 
-    var P = Math.sqrt(phillips(kx, ky, windDir, windSpeed, A/*, dirDepend*/));
+    var P = Math.sqrt(phillips(kx, ky, windDir, windSpeed, A, dirDepend));
 
     if (kx == 0.0 && ky == 0.0)
     {

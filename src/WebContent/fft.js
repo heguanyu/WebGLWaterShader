@@ -179,9 +179,3 @@ function initButterflyTextures()
 	}
 
 }
-
-function executeFFTStage(sourceData, butterflyData, framebuffer)
-{
-	
-
-}
