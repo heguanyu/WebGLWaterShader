@@ -22,7 +22,7 @@ var gl;
 var instancingEXT;
 var meshSize = 512;         // grid resolution in both direction
 var lowresSizes=[128,32,2];
-var patchYOffset=[-0.00,-0.00,-0.00];
+var patchYOffset;
 var patchSize = 100;        // grid size in meters
 var patchCount = 2;        // how many grids to instance?
 var scalar;                 // the draw size of the patch
@@ -136,7 +136,7 @@ function inithandleMouseWheel()
 {
     window.onmousewheel=function(event)
     {
-        var movdir = [0.0,0.1,0.0];
+        var movdir = [0.0,1.1,0.0];
         if(event.wheelDelta<0.0)
         {
             eye=vecsub(eye,movdir);
@@ -801,9 +801,16 @@ function animate()
     for(i=-range;i<=range;i++) for(j=-range;j<=range;j++)
     {
         var method = checkVertexVisibility(curoffset[0]+i,curoffset[1]+j);
+        //renderLowRes(2,curoffset[0]+i,curoffset[1]+j);
+       // continue;
         if(method==-1)render(curoffset[0]+i,curoffset[1]+j);
         else renderLowRes(method,curoffset[0]+i,curoffset[1]+j);
     }
+
+
+    //renderLowRes(0,curoffset[0]+0,curoffset[1]+2);
+    //render(curoffset[0]+0,curoffset[1]+2);
+
     /*
     renderLowRes(1,curoffset[0]+1,curoffset[1]+1);
     renderLowRes(1,curoffset[0]+0,curoffset[1]+1);
@@ -872,8 +879,9 @@ function webGLStart() {
     mat4.identity(model);
     //mat4.scale(model, [0.01, 0.2, 0.01]);
     scalar = 0.1;
+    patchYOffset=[-0.0001*scalar*10.0,-0.006*scalar*10.0,-0.010*scalar*100.0];
 
-    mat4.scale(model, [1.0*scalar, 4.0*scalar, 1.0*scalar]);
+    mat4.scale(model, [1.0*scalar, 10.0*scalar, 1.0*scalar]);
 
 
     // Query extension

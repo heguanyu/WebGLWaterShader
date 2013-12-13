@@ -83,7 +83,7 @@ $(function(){
         value:122,
         slide: function(event, ui){
             oceanColor[2]=ui.value/255.0;
-            //$("#testfield").text(oceanColor.toString());
+            $("#testfield").text(oceanColor.toString());
         }
     });
 

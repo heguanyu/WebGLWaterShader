@@ -294,14 +294,13 @@ precision highp float;
 
     uniform sampler2D u_simData;
     uniform float u_time;
-
+    uniform vec3 u_oceancolor;
     uniform vec4 sky_params1;
     uniform vec4 sky_params2;
     uniform vec4 sky_params3;
     uniform vec4 sky_params4;
     uniform vec4 sky_params5;
     uniform vec4 sky_params6;
-
 	uniform mat4 u_model;
 	uniform mat4 u_view;
     uniform mat4 u_persp;
@@ -309,11 +308,9 @@ precision highp float;
     uniform mat4 u_normal;
     uniform mat4 u_modelViewPerspective;
     uniform float u_meshSize;
-
 	uniform vec3 eyePos;
     uniform vec3 u_sunPos;
 
-    uniform vec3 u_oceancolor;
 
     varying vec3 position_world;
 	varying vec3 normal_world;
@@ -371,6 +368,8 @@ precision highp float;
   void main(void)
   {
 
+    gl_FragColor.w = 1.0;
+
     float delta = 1.0/u_meshSize;
   	vec3 outcolor=vec3(0.0);
 
@@ -378,7 +377,7 @@ precision highp float;
     vec3 incidentdir = normalize(position_world-sunpos);
 
 
-    vec3 standardnormal = normalize(normal_world);
+    vec3 standardnormal = -normalize(normal_world);
 
     vec3 reflectiondir = normalize(incidentdir-2.0*standardnormal*dot(incidentdir,standardnormal));
 
@@ -386,11 +385,14 @@ precision highp float;
 
 
     vec3 eyeraydir = normalize(eyepos-position_world);          ///from point to eye
-    vec3 directionalLightDir = normalize(sunpos);
+    vec3 directionalLightDir = normalize(vec3(0.0,1.0,0.0));
   	float specular1 = pow(max(0.01,dot(eyeraydir,reflectiondir)),5000.0);
 
 
      vec3 ocean_color = u_oceancolor;
+
+
+
      vec3 sky_color = vec3(3.2, 9.6, 12.8)*0.8;
 
 
@@ -402,7 +404,8 @@ precision highp float;
      float temp2 = sin(incidentAngle-transmittanceAngle)/sin(incidentAngle+transmittanceAngle);
 
      float fresnel =(temp1*temp1+temp2*temp2)*0.5;
-
+    //gl_FragColor.xyz = vec3(fresnel);
+    //return;
 
     ///use negative eyeraydir for the direction from eye to point
     /// and get the reflection direction
@@ -418,7 +421,8 @@ precision highp float;
      float specular2 = clamp(dot(standardnormal, directionalLightDir), 0.0, 1.0);
     specular2 = pow(specular2,1.0);
 
-     vec3 water = (1.0 - fresnel) * ocean_color  * specular2;
+
+     vec3 water = (1.0 - fresnel) * ocean_color  * specular2*sky_color;
 
      outcolor = 100.0*specular1*sun_color + sky + water;
 
@@ -465,6 +469,19 @@ precision highp float;
 	float signCorrection = abs(texCoord1.x + texCoord1.y - 2.0 * floor((texCoord1.x + texCoord1.y) / 2.0 + 1e-6)) < 0.1 ? -1.0 : 1.0;
 	return signCorrection;
   }
+    float getHeight(vec2 coord, float delta)
+  {
+     return signCorrection(coord,delta) * texture2D(u_simData, coord).r;
+  }
+    vec3 repeatCoord(vec2 coord)
+  {
+    vec3 result = vec3(coord,0.0);
+    if(result.x>1.0) {result.x-=1.0; result.z=1.0;}
+    if(result.x<0.0) {result.x+=1.0;result.z=1.0;}
+    if(result.y>1.0) {result.y-=1.0;result.z=1.0;}
+    if(result.y<0.0) {result.y+=1.0;result.z=1.0;}
+    return result;
+  }
 
   void main(void)
   {
@@ -474,9 +491,42 @@ precision highp float;
         vec2 mytexcoord = texCoord;
         fTexcoord=texCoord;
 
-        vec4 info = texture2D(u_simData, mytexcoord);
-        float height = signCorrection(mytexcoord,delta) * info.r;
+        vec2 upcoord    = mytexcoord + vec2(0.0, delta);
+        vec2 downcoord  = mytexcoord - vec2(0.0, delta);
+        vec2 leftcoord  = mytexcoord - vec2(delta, 0.0);
+        vec2 rightcoord = mytexcoord + vec2(delta, 0.0);
+
+        float height = getHeight(mytexcoord,delta);
         gridPosition = position;
+
+                vec3 upcoord_repeat = repeatCoord(upcoord);
+        vec3 downcoord_repeat = repeatCoord(downcoord);
+        vec3 leftcoord_repeat = repeatCoord(leftcoord);
+        vec3 rightcoord_repeat = repeatCoord(rightcoord);
+
+
+        upcoord = upcoord_repeat.xy;
+        downcoord =downcoord_repeat.xy;
+        leftcoord = leftcoord_repeat.xy;
+        rightcoord = rightcoord_repeat.xy;
+
+
+        float count = 1.0;
+
+
+        float heightup = getHeight(upcoord,delta);
+        float heightdown = getHeight(downcoord,delta);
+        float heightleft = getHeight(leftcoord,delta);
+        float heightright = getHeight(rightcoord,delta);
+
+        if(upcoord_repeat.z>0.9) {height+=heightup;count+=1.0;}
+        if(downcoord_repeat.z>0.9) {height+=heightdown;count+=1.0;}
+        if(leftcoord_repeat.z>0.9) {height+=heightleft;count+=1.0;}
+        if(rightcoord_repeat.z>0.9) {height+=heightright;count+=1.0;}
+
+        height = height/count;
+
+
         gridPosition.y=height;
 
         position_world = (u_model*vec4(gridPosition,1.0)).xyz;
@@ -588,6 +638,7 @@ precision highp float;
   {
     float delta = 1.0/512.0;
     float patchsize = u_patchSize;
+    gl_FragColor.w=1.0;
     vec2 mytexcoord = fTexcoord;
 
         vec2 upcoord    = mytexcoord + vec2(0.0, delta);
@@ -649,7 +700,7 @@ precision highp float;
     vec3 incidentdir = normalize(position_world-sunpos);
 
 
-    vec3 standardnormal = normalize(normal_world);
+    vec3 standardnormal = -normalize(normal_world);
 
     vec3 reflectiondir = normalize(incidentdir-2.0*standardnormal*dot(incidentdir,standardnormal));
 
@@ -657,11 +708,12 @@ precision highp float;
 
 
     vec3 eyeraydir = normalize(eyepos-position_world);          ///from point to eye
-    vec3 directionalLightDir = normalize(sunpos);
+    vec3 directionalLightDir = normalize(vec3(0.0,1.0,0.0));
   	float specular1 = pow(max(0.01,dot(eyeraydir,reflectiondir)),5000.0);
 
 
      vec3 ocean_color = u_oceancolor;
+
      vec3 sky_color = vec3(3.2, 9.6, 12.8)*0.8;
 
 
@@ -686,10 +738,12 @@ precision highp float;
      vec3 sky = fresnel * sky_color;
 
 
-     float specular2 = clamp(dot(standardnormal, directionalLightDir), 0.0, 1.0);
-    specular2 = pow(specular2,1.0);
 
-     vec3 water = (1.0 - fresnel) * ocean_color  * specular2;
+
+     float specular2 = max(0.0,dot(standardnormal, directionalLightDir));
+    //specular2 = pow(specular2,1.0);
+
+     vec3 water = (1.0 - fresnel) * ocean_color  * specular2*sky_color;
 
      outcolor = 100.0*specular1*sun_color + sky + water;
     gl_FragColor = vec4(hdr(outcolor,0.35), 1.0);
