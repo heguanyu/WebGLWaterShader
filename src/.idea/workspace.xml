@@ -23,10 +23,10 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="water.html" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="water.html" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/water.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="703" column="0" selection-start="22668" selection-end="22668" vertical-scroll-proportion="-7.811321" vertical-offset="12259" max-vertical-offset="14193">
+            <state line="18" column="34" selection-start="595" selection-end="595" vertical-scroll-proportion="0.40521327" vertical-offset="0" max-vertical-offset="14668">
               <folding>
                 <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
                 <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
@@ -65,12 +65,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="water_mesh.js" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="water_mesh.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/water_mesh.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="803" column="10" selection-start="29669" selection-end="29669" vertical-scroll-proportion="0.4988532" vertical-offset="13663" max-vertical-offset="16815">
+            <state line="0" column="0" selection-start="0" selection-end="771" vertical-scroll-proportion="-0.0" vertical-offset="0" max-vertical-offset="15732">
               <folding>
+                <element signature="n#!!doc" expanded="true" />
                 <element signature="n#!!block;n#initGrid#0" expanded="false" />
+                <element signature="n#!!block;n#initLowResGrid#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -79,7 +81,7 @@
       <file leaf-file-name="dynamicDrawing.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/dynamicDrawing.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="22" column="0" selection-start="703" selection-end="703" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1102">
+            <state line="20" column="0" selection-start="682" selection-end="682" vertical-scroll-proportion="0.0" vertical-offset="57" max-vertical-offset="1083">
               <folding />
             </state>
           </provider>
@@ -88,7 +90,7 @@
       <file leaf-file-name="wave.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/wave.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="1" column="13" selection-start="28" selection-end="37" vertical-scroll-proportion="0.0" vertical-offset="19" max-vertical-offset="1615">
+            <state line="14" column="0" selection-start="517" selection-end="517" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1938">
               <folding />
             </state>
           </provider>
@@ -97,7 +99,7 @@
       <file leaf-file-name="skyshader.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/skyshader.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="161" column="9" selection-start="4126" selection-end="4126" vertical-scroll-proportion="0.0" vertical-offset="1896" max-vertical-offset="3819">
+            <state line="29" column="24" selection-start="905" selection-end="905" vertical-scroll-proportion="0.0" vertical-offset="247" max-vertical-offset="4256">
               <folding />
             </state>
           </provider>
@@ -106,7 +108,16 @@
       <file leaf-file-name="userinterface.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/userinterface.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="86" column="9" selection-start="1916" selection-end="1916" vertical-scroll-proportion="-17.4" vertical-offset="1199" max-vertical-offset="2185">
+            <state line="15" column="6" selection-start="540" selection-end="540" vertical-scroll-proportion="-11.4" vertical-offset="0" max-vertical-offset="2527">
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="fft.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/fft.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state line="15" column="30" selection-start="604" selection-end="604" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4009">
               <folding />
             </state>
           </provider>
@@ -122,11 +133,13 @@
   <component name="IdeDocumentHistory">
     <option name="changedFiles">
       <list>
-        <option value="$PROJECT_DIR$/skyshader.js" />
-        <option value="$PROJECT_DIR$/dynamicDrawing.js" />
-        <option value="$PROJECT_DIR$/userinterface.js" />
-        <option value="$PROJECT_DIR$/water.html" />
         <option value="$PROJECT_DIR$/water_mesh.js" />
+        <option value="$PROJECT_DIR$/dynamicDrawing.js" />
+        <option value="$PROJECT_DIR$/wave.js" />
+        <option value="$PROJECT_DIR$/skyshader.js" />
+        <option value="$PROJECT_DIR$/userinterface.js" />
+        <option value="$PROJECT_DIR$/fft.js" />
+        <option value="$PROJECT_DIR$/water.html" />
       </list>
     </option>
   </component>
@@ -318,7 +331,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="155" column="0" selection-start="3639" selection-end="3639" vertical-scroll-proportion="0.0" vertical-offset="2945" max-vertical-offset="12616">
           <folding>
+            <element signature="n#!!doc" expanded="true" />
             <element signature="n#!!block;n#initGrid#0" expanded="false" />
+            <element signature="n#!!block;n#initLowResGrid#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -367,7 +382,9 @@
       <provider selected="true" editor-type-id="text-editor">
         <state line="630" column="36" selection-start="19989" selection-end="19989" vertical-scroll-proportion="0.0" vertical-offset="11719" max-vertical-offset="12958">
           <folding>
+            <element signature="n#!!doc" expanded="true" />
             <element signature="n#!!block;n#initGrid#0" expanded="false" />
+            <element signature="n#!!block;n#initLowResGrid#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -389,20 +406,6 @@
         <state line="101" column="0" selection-start="2782" selection-end="2782" vertical-scroll-proportion="2.2006881" vertical-offset="0" max-vertical-offset="6118" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/fft.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="0" column="0" selection-start="0" selection-end="0" vertical-scroll-proportion="-0.028669724" vertical-offset="25" max-vertical-offset="3648">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skyshader.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="161" column="9" selection-start="4126" selection-end="4126" vertical-scroll-proportion="0.0" vertical-offset="1896" max-vertical-offset="3819">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/Downloads/Noise.glsl">
       <provider selected="true" editor-type-id="text-editor">
         <state line="143" column="1" selection-start="2165" selection-end="3783" vertical-scroll-proportion="0.0" vertical-offset="2052" max-vertical-offset="6973">
@@ -419,28 +422,53 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/wave.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="1" column="13" selection-start="28" selection-end="37" vertical-scroll-proportion="0.0" vertical-offset="19" max-vertical-offset="1615">
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/userinterface.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="86" column="9" selection-start="1916" selection-end="1916" vertical-scroll-proportion="-17.4" vertical-offset="1199" max-vertical-offset="2185">
+        <state line="14" column="0" selection-start="517" selection-end="517" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1938">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/dynamicDrawing.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="22" column="0" selection-start="703" selection-end="703" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="1102">
+        <state line="20" column="0" selection-start="682" selection-end="682" vertical-scroll-proportion="0.0" vertical-offset="57" max-vertical-offset="1083">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skyshader.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="29" column="24" selection-start="905" selection-end="905" vertical-scroll-proportion="0.0" vertical-offset="247" max-vertical-offset="4256">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/userinterface.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="6" selection-start="540" selection-end="540" vertical-scroll-proportion="-11.4" vertical-offset="0" max-vertical-offset="2527">
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/water_mesh.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="0" column="0" selection-start="0" selection-end="771" vertical-scroll-proportion="-0.0" vertical-offset="0" max-vertical-offset="15732">
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+            <element signature="n#!!block;n#initGrid#0" expanded="false" />
+            <element signature="n#!!block;n#initLowResGrid#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/fft.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="15" column="30" selection-start="604" selection-end="604" vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="4009">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/water.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="703" column="0" selection-start="22668" selection-end="22668" vertical-scroll-proportion="-7.811321" vertical-offset="12259" max-vertical-offset="14193">
+        <state line="18" column="34" selection-start="595" selection-end="595" vertical-scroll-proportion="0.40521327" vertical-offset="0" max-vertical-offset="14668">
           <folding>
             <element signature="tag#script#3;tag#head#0;tag#html#0" expanded="false" />
             <element signature="tag#script#8;tag#head#0;tag#html#0" expanded="false" />
@@ -474,15 +502,6 @@
             <element signature="n#style#0;n#div#0;n#td#1;n#tr#5;n#table#0;n#div#2;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#td#2;n#tr#5;n#table#0;n#div#2;n#body#0;n#html#0;n#!!top" expanded="true" />
             <element signature="n#style#0;n#div#0;n#td#2;n#tr#5;n#table#0;n#div#2;n#body#0;n#html#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/water_mesh.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="803" column="10" selection-start="29669" selection-end="29669" vertical-scroll-proportion="0.4988532" vertical-offset="13663" max-vertical-offset="16815">
-          <folding>
-            <element signature="n#!!block;n#initGrid#0" expanded="false" />
           </folding>
         </state>
       </provider>

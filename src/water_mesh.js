@@ -10,21 +10,20 @@
 //////                  wuhao1117@gmail.com
 //////
 ////////////////FILE INFO ///////////////////////////////
+//////
 ////// THIS IS THE MAIN FILE OF THE WATER RENDERING
-////// INCLUDING THE SETUP OF THE 3 PASSES IN RENDERING
-//////
-//////
-//////
+////// INCLUDING
+////// THE INITIALIZATION OF THE 3 PASSES IN RENDERING
+////// SIMULATION AND RENDERING THE OCEAN PATCHES
+////// MOUSE AND KEYBOARD CONTROL
 //////
 ////////////////////////////////////////////////////////////
 
 var gl;
-var instancingEXT;
 var meshSize = 512;         // grid resolution in both direction
 var lowresSizes=[128,32,2];
 var patchYOffset;
 var patchSize = 100;        // grid size in meters
-var patchCount = 2;        // how many grids to instance?
 var scalar;                 // the draw size of the patch
 
 var canvas = document.getElementById("canvas");	
@@ -42,12 +41,10 @@ var quadIndicesBuffer;
 
 var oceanPatchPositionBuffer;
 var oceanPatchTexCoordBuffer;
-var oceanPatchOffsetBuffer;
 var oceanPatchIndicesBuffer;
 
 var oceanPatchPositionBuffer_Low;
 var oceanPatchTexCoordBuffer_Low;
-var oceanPatchOffsetBuffer_Low;
 var oceanPatchIndicesBuffer_Low;
 
 var simProgram;
@@ -60,14 +57,16 @@ var sun_azimuth;
 var sun_zenith;
 var sunPos = [0.0,-10.0,1800.0];
 var oceanColor = [0.12,0.36,0.48];
+
 /////////////////////////////////////////mouse control//////////////////////////////////
-//Camera control
 var mouseLeftDown = false;
 var mouseRightDown = false;
 var lastMouseX = null;
 var lastMouseY = null;
 
-var radius = 10.5;
+/////////////////////////
+//// camera information
+/////////////////////////
 var azimuth = 0.0;
 var zenith = Math.PI / 3.0;
 
@@ -123,8 +122,6 @@ function handleMouseMove(event) {
         zenith = Math.min(Math.max(zenith, 0.001), Math.PI - 0.001);
     }
     else {
-        radius += 0.01 * deltaY;
-        radius = Math.min(Math.max(radius, 2.0), 100.0);
     }
     //eye = sphericalToCartesian(radius, azimuth, zenith);
     refreshViewMat();
@@ -170,7 +167,9 @@ function vecnorm(a)
     if(l<0.00000001) return a;
     return [a[0]/l,a[1]/l,a[2]/l];
 }
-
+//////////////////////////////////
+///// Keyboard Control
+///////////////////////////////
 function initKeyboardHandle()
 {
     document.addEventListener('keydown', function(event) {
@@ -277,6 +276,7 @@ function initSimShader() {
 
 }
 
+////// Initialize shader for full-resolution grids//////
 function initRenderShader()
 {
     var vertexShader = getShader(gl, "vs_render");
@@ -310,7 +310,7 @@ function initRenderShader()
     shaderProgram.samplerUniform = gl.getUniformLocation(shaderProgram, "u_simData");
 }
 
-
+////// Initialize shader for low-resolution grids//////
 function initLowResRenderShader()
 {
     var vertexShader = getShader(gl, "vs_render_lowres");
@@ -374,7 +374,7 @@ function translateGridCoord(i,j,w)
     return i+j*w;
 }
 
-
+////// Initialize the positions, indices and texcoord of the full resolution grid//////
 function initGrid()
 {
     var positions = new Float32Array(meshSize*meshSize*3);
@@ -420,6 +420,7 @@ function initGrid()
 
 
 }
+////// Initialize the positions, indices and texcoord of the low resolution grid//////
 function initLowResGrid(levelidx)
 {
 
@@ -619,7 +620,7 @@ function FFT()
     gl.useProgram(null);
 
 }
-
+/////// render the low-resolution patch //////////////
 function renderLowRes(levelidx,xoffset,zoffset)
 {
     gl.useProgram(shaderProgram_lowres);
@@ -701,6 +702,8 @@ function renderLowRes(levelidx,xoffset,zoffset)
     gl.disableVertexAttribArray(shaderProgram_lowres.vertexPositionAttribute);
     gl.disableVertexAttribArray(shaderProgram_lowres.vertexTexCoordAttribute);
 }
+
+/////// render the full-resolution patch//////////////
 function render(xoffset,zoffset)
 {
     //This is the 3rd pass that use GLSL to render the image, using spectrumTextureA to be the height field of the wave
@@ -769,16 +772,7 @@ function render(xoffset,zoffset)
 
     gl.drawElements(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_INT,0);
 
-    /*gl.bindBuffer(gl.ARRAY_BUFFER, oceanPatchOffsetBuffer);
-    gl.enableVertexAttribArray(shaderProgram.vertexOffsetAttribute);
-    gl.vertexAttribPointer(shaderProgram.vertexOffsetAttribute, 3, gl.FLOAT, false, 0, 0);
-    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 1);
-
-    instancingEXT.drawElementsInstancedANGLE(gl.TRIANGLES, oceanPatchIndicesBuffer.numitems, gl.UNSIGNED_SHORT, 0, oceanPatchOffsetBuffer.instanceCount);
-
-    instancingEXT.vertexAttribDivisorANGLE(shaderProgram.vertexOffsetAttribute, 0);    */
-
-    gl.disableVertexAttribArray(shaderProgram.vertexPositionAttribute);     
+    gl.disableVertexAttribArray(shaderProgram.vertexPositionAttribute);
     gl.disableVertexAttribArray(shaderProgram.vertexTexCoordAttribute);     
 }
 
@@ -795,28 +789,14 @@ function animate()
     var i,j;
 
     var range = 8;
-
-
-
+    //////Draw a bunch of patches around the camera
     for(i=-range;i<=range;i++) for(j=-range;j<=range;j++)
     {
         var method = checkVertexVisibility(curoffset[0]+i,curoffset[1]+j);
-        //renderLowRes(2,curoffset[0]+i,curoffset[1]+j);
-       // continue;
         if(method==-1)render(curoffset[0]+i,curoffset[1]+j);
+   /////// use different level of grid according to the distance
         else renderLowRes(method,curoffset[0]+i,curoffset[1]+j);
     }
-
-
-    //renderLowRes(0,curoffset[0]+0,curoffset[1]+2);
-    //render(curoffset[0]+0,curoffset[1]+2);
-
-    /*
-    renderLowRes(1,curoffset[0]+1,curoffset[1]+1);
-    renderLowRes(1,curoffset[0]+0,curoffset[1]+1);
-    renderLowRes(1,curoffset[0]-1,curoffset[1]+1);
-*/
-
 
     var nowtime=new Date().getTime();
     if(nowtime-1000>startTime)
@@ -859,6 +839,7 @@ function webGLStart() {
     document.onmouseup = handleMouseUp;
     document.onmousemove = handleMouseMove;
 
+    ////// initialize camera, sun and model matrix
     sun_azimuth=0.0;
     sun_zenith=Math.PI/2.0-Math.PI/10.0;
     sunPos=sphericalToCartesian(1000.0,sun_azimuth,sun_zenith);
@@ -877,24 +858,18 @@ function webGLStart() {
     model = mat4.create();
 
     mat4.identity(model);
-    //mat4.scale(model, [0.01, 0.2, 0.01]);
     scalar = 0.1;
     patchYOffset=[-0.0001*scalar*10.0,-0.006*scalar*10.0,-0.010*scalar*100.0];
 
     mat4.scale(model, [1.0*scalar, 10.0*scalar, 1.0*scalar]);
 
 
-    // Query extension
+    /////////// Query extension
     var OES_texture_float = gl.getExtension('OES_texture_float');
     if (!OES_texture_float) {
         throw new Error("No support for OES_texture_float");
     }
-    
-    /*var OES_texture_float_linear =  gl.getExtension('OES_texture_float_linear');
-    if (!OES_texture_float_linear) {
-        throw new Error("No support for OES_texture_float_linear");
-    }*/
-    
+
     var OES_element_index_uint = gl.getExtension('OES_element_index_uint');
     if (!OES_element_index_uint) {
         throw new Error("No support for OES_element_index_uint");
@@ -904,11 +879,7 @@ function webGLStart() {
     if (MaxVertexTextureImageUnits <= 0) {
         throw new Error("No support for vertex texture fetch");
     }
-    
-    /*instancingEXT = gl.getExtension('ANGLE_instanced_arrays');
-    if (!instancingEXT) {
-        throw new Error("No support for ANGLE_instanced_arrays");
-    }*/
+
     sky_props = new skyprop();
     initKeyboardHandle();
     inithandleMouseWheel();
@@ -926,14 +897,13 @@ function webGLStart() {
     initQuad();
     initGrid();
 
+    ///// init low resolution patches grids
     oceanPatchPositionBuffer_Low=new Array(3);
     oceanPatchTexCoordBuffer_Low=new Array(3);
-    oceanPatchOffsetBuffer_Low=new Array(3);
     oceanPatchIndicesBuffer_Low=new Array(3);
     for(var i=0;i<3;i++)
     {
         initLowResGrid(i);
-
     }
 
     tick();

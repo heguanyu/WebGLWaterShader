@@ -3,11 +3,34 @@
  *
  * When doing this part, I mainly refer to the link below.
  *
- * http://blog.cloudparty.com/2013/09/19/stunning-procedural-skies-in-webgl-part-1/
+ *
  *
  * Thanks very much!
  *
  */
+////////////////COPYRIGHT DECLARATION//////////////////////
+//////
+////// COPYRIGHT GUANYU HE AND HAO WU, 2013
+////// ALL THE FOLLOWING CODE IS PROTECTED BY THE COPYRIGHT
+//////
+////// THE CODE IN THIS FILE CANNOT BE REUSED OUTSIDE CIS565 GPU PROGRAMMING COURSE
+////// IN UNIVERSITY OF PENNSYLVANIA UNLESS SPECIAL AUTHORIZATION.
+//////
+////// CONTACT INFO: heguanyu9037@gmail.com
+//////                  wuhao1117@gmail.com
+//////
+////////////////FILE INFO ///////////////////////////////
+//////
+////// INITIALISING THE PARAMETERS
+////// FROM THE INPUT SLIDERS
+////// AND TRANSFER IT TO THE PARAMETERS FOR SHADERS
+//////
+////// THIS PART MAINLY REFER TO
+////// http://blog.cloudparty.com/2013/09/19/stunning-procedural-skies-in-webgl-part-1/
+////// THANKS VERY MUCH!
+//////
+////////////////////////////////////////////////////////////
+
 
 var sky_props;
 function sqr(val) {

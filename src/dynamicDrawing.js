@@ -13,11 +13,10 @@
 //////                  wuhao1117@gmail.com
 //////
 ////////////////FILE INFO ///////////////////////////////
-////// THIS FILE USED TO DRAW SEA ACCORDING TO ITS DISTANCE
-////// FROM THE EYE
 //////
-//////
-//////
+////// THIS FILE USED TO CHECK THE POSITION OF THE EYE
+////// AND RETURN THE LOD OF A PATCH
+////// ACCORDING TO ITS DISTANCE FROM EYE
 //////
 ////////////////////////////////////////////////////////////
 

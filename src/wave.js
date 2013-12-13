@@ -1,3 +1,20 @@
+////////////////COPYRIGHT DECLARATION//////////////////////
+//////
+////// COPYRIGHT GUANYU HE AND HAO WU, 2013
+////// ALL THE FOLLOWING CODE IS PROTECTED BY THE COPYRIGHT
+//////
+////// THE CODE IN THIS FILE CANNOT BE REUSED OUTSIDE CIS565 GPU PROGRAMMING COURSE
+////// IN UNIVERSITY OF PENNSYLVANIA UNLESS SPECIAL AUTHORIZATION.
+//////
+////// CONTACT INFO: heguanyu9037@gmail.com
+//////                  wuhao1117@gmail.com
+//////
+////////////////FILE INFO ///////////////////////////////
+//////
+////// GENERATE WAVE
+//////
+////////////////////////////////////////////////////////////
+
 //simulation parameters
 var windSpeed = 100.0;
 var windDir = Math.PI/3.0;
@@ -6,7 +23,7 @@ var A = 1e-7;              // wave scale factor
 //var dirDepend = 0.07;
 
 // Generates Gaussian random number with mean 0 and standard deviation 1.
-// Box¨CMuller transform
+// Boxï¿½CMuller transform
 function gauss()
 {
 	var u1 = Math.random();
