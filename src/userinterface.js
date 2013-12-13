@@ -35,7 +35,7 @@ $(function(){
         {
         min: 0,
         max: 1000,
-        value:0,
+        value:125,
         slide: function(event, ui){
             sun_azimuth=ui.value*2*0.001*Math.PI;
             updateSunpos();
@@ -80,7 +80,7 @@ $(function(){
     $( "#water_r" ).slider({
         min:0,
         max:255,
-        value:30,
+        value:0,
         slide: function(event, ui){
             oceanColor[0]=ui.value/255.0;
 
@@ -89,7 +89,7 @@ $(function(){
     $( "#water_g" ).slider({
         min:0,
         max:255,
-        value:91,
+        value:105,
         slide: function(event, ui){
             oceanColor[1]=ui.value/255.0;
 
@@ -98,7 +98,7 @@ $(function(){
     $( "#water_b" ).slider({
         min:0,
         max:255,
-        value:122,
+        value:148,
         slide: function(event, ui){
             oceanColor[2]=ui.value/255.0;
             $("#testfield").text(oceanColor.toString());

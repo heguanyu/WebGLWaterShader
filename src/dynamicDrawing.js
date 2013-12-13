@@ -41,7 +41,7 @@ function checkVertexVisibility(xoffset, zoffset)
 
     mat4.multiplyVec4(mymodel,center,result);
     var d = dist(result,eye);
-    var threshold=[200,1000,2000];
+    var threshold=[220,1000,2000];
     if(d<threshold[0]) return -1;
     if(d<threshold[1]) return 0;
     if(d<threshold[2]) return 1;

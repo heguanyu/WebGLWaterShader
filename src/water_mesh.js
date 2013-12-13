@@ -56,7 +56,8 @@ var model;
 var sun_azimuth;
 var sun_zenith;
 var sunPos = [0.0,-10.0,1800.0];
-var oceanColor = [0.12,0.36,0.48];
+//var oceanColor = [0.12,0.36,0.48];
+var oceanColor = [0,105/255.0,148/255.0];
 
 /////////////////////////////////////////mouse control//////////////////////////////////
 var mouseLeftDown = false;
@@ -67,8 +68,8 @@ var lastMouseY = null;
 /////////////////////////
 //// camera information
 /////////////////////////
-var azimuth = 0.0;
-var zenith = Math.PI / 3.0;
+var azimuth;
+var zenith;
 
 var center = [0.0, 0.0, 0.0];
 var up = [0.0, 1.0, 0.0];
@@ -133,7 +134,7 @@ function inithandleMouseWheel()
 {
     window.onmousewheel=function(event)
     {
-        var movdir = [0.0,1.1,0.0];
+        var movdir = [0.0,0.1,0.0];
         if(event.wheelDelta<0.0)
         {
             eye=vecsub(eye,movdir);
@@ -142,6 +143,8 @@ function inithandleMouseWheel()
         {
             eye=vecadd(eye,movdir);
         }
+        if(eye[1]>3.0) eye[1]=3.0;
+        if(eye[1]<0.1) eye[1]=0.3;
         refreshViewMat();
     };
 }
@@ -840,7 +843,7 @@ function webGLStart() {
     document.onmousemove = handleMouseMove;
 
     ////// initialize camera, sun and model matrix
-    sun_azimuth=0.0;
+    sun_azimuth=Math.PI/4.0;
     sun_zenith=Math.PI/2.0-Math.PI/10.0;
     sunPos=sphericalToCartesian(1000.0,sun_azimuth,sun_zenith);
 
@@ -848,7 +851,10 @@ function webGLStart() {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     persp = mat4.create();
     mat4.perspective(fov*2.0, canvas.width / canvas.height, 0.1, 150.0, persp);
-    eye=[0.0,0.1,0.0];
+
+    eye=[0.0,1.5,0.0];
+    azimuth = sun_azimuth;
+    zenith = Math.PI / 2.0;
     faceDir=sphericalToCartesian(1.0,azimuth,zenith);
 
 
